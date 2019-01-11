@@ -8,7 +8,6 @@ from app.models import db
 from app.controllers.main import main
 
 from app.extensions import (
-    cache,
     assets_env,
     debug_toolbar,
     login_manager
@@ -28,9 +27,6 @@ def create_app(object_name):
     app = Flask(__name__)
 
     app.config.from_object(object_name)
-
-    # initialize the cache
-    cache.init_app(app)
 
     # initialize the debug tool bar
     debug_toolbar.init_app(app)

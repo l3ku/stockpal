@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, flash, request, redirect, url_for
 from flask_login import login_user, logout_user, login_required
 
-from app.extensions import cache
 from app.forms import LoginForm
 from app.models import User
 
@@ -9,7 +8,6 @@ main = Blueprint('main', __name__)
 
 
 @main.route('/')
-@cache.cached(timeout=1000)
 def home():
     return render_template('index.html')
 
