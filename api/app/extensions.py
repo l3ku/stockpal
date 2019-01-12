@@ -1,10 +1,7 @@
 from flask_login import LoginManager
-from flask_assets import Environment
 
 from app.models import User
 
-# init flask assets
-assets_env = Environment()
 
 login_manager = LoginManager()
 login_manager.login_view = "main.login"
