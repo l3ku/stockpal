@@ -9,7 +9,6 @@ from app.controllers.main import main
 
 from app.extensions import (
     assets_env,
-    debug_toolbar,
     login_manager
 )
 
@@ -27,9 +26,6 @@ def create_app(object_name):
     app = Flask(__name__)
 
     app.config.from_object(object_name)
-
-    # initialize the debug tool bar
-    debug_toolbar.init_app(app)
 
     # initialize SQLAlchemy
     db.init_app(app)
