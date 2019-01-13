@@ -1,0 +1,27 @@
+version: "3"
+services:
+  api:
+    build: api
+    image: l3ku/stockpal-api:0.0.1
+    volumes:
+      - './api/app:/app/app:rw'
+
+  api-nginx:
+    build: api-nginx
+    image: l3ku/stockpal-nginx:0.0.1
+    ports:
+      - '127.0.0.1:8080:80'
+    links:
+      - api
+
+  ui:
+    build: ui
+    image: l3ku/stockpal-ui:0.0.1
+    ports:
+      - '127.0.0.1:8888:3000'
+    volumes:
+      - './api/app:/app:rw'
+    links:
+      - api-nginx
+    environment:
+      - PORT=3000
