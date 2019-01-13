@@ -1,7 +1,6 @@
 #! ../env/bin/python
 
 from flask import Flask
-from webassets.loaders import PythonLoader as PythonAssetsLoader
 
 from app.models import db
 from app.controllers.main import main
