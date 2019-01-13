@@ -1,27 +1,20 @@
-.PHONY: docs test
+DIR:=$(CURDIR)
+APP_NAME:=l3ku/stockpal-api
+CONTAINER_NAME:=stockpal_api
+APP_VERSION:=0.0.1
+LOCAL_PORT:=9000
+DOCKER_PORT:=3000
 
-help:
-	@echo "  env         create a development environment using virtualenv"
-	@echo "  deps        install dependencies using pip"
-	@echo "  clean       remove unwanted files like .pyc's"
-	@echo "  lint        check style with flake8"
-	@echo "  test        run all your tests using py.test"
+default: run
 
-env:
-	sudo easy_install pip && \
-	pip install virtualenv && \
-	virtualenv env && \
-	. env/bin/activate && \
-	make deps
+build:
+	docker build -t $(APP_NAME):$(APP_VERSION) $(DIR)
 
-deps:
-	pip install -r requirements.txt
+all: build run
+
+run:
+	docker run -it -v $(DIR)/project:/project -p $(LOCAL_PORT):$(DOCKER_PORT) --name $(CONTAINER_NAME) $(APP_NAME):$(APP_VERSION)
 
 clean:
-	python manage.py clean
-
-lint:
-	flake8 --exclude=env .
-
-test:
-	py.test tests
+	docker ps --all -f status=exited | grep $(CONTAINER_NAME) | cut -d ' ' -f 1 | xargs docker rm
+	docker rmi -f $(APP_NAME):$(APP_VERSION)
