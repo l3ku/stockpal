@@ -17,6 +17,13 @@ WORKDIR $APPDIR
 # to the local package.json file to ensure that the dependencies are the same versions as stated in
 # package-lock.json.
 COPY app/ $APPDIR
+
+# Give the user permissions for all files
+USER root
+RUN chown -R "${USER}:${USER}" "${APPDIR}"
+USER $USER
+
+# Install dependencies
 RUN npm install
 
 # Launch the application
