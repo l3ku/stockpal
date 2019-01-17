@@ -3,7 +3,7 @@
 from flask import Flask
 
 from app.models import db
-from app.controllers.main import main
+from app.controller import main
 
 from app.extensions import (
     login_manager
