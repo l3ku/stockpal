@@ -22,7 +22,7 @@ services:
     ports:
       - '127.0.0.1:8888:3000'
     volumes:
-      - './api/app:/app:rw'
+      - './ui/app:/app:rw'
     links:
       - api-nginx
     environment:
