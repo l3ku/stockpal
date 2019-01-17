@@ -5,6 +5,8 @@ services:
     image: l3ku/stockpal-api:0.0.1
     volumes:
       - './api/app:/app/app:rw'
+    env_file:
+      - '.env'
 
   api-nginx:
     build: api-nginx
