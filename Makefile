@@ -3,8 +3,7 @@ default: run
 build:
 	docker-compose build
 
-all: build
-	run
+all: build run
 
 run:
 	docker-compose up -d

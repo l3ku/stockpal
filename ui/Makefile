@@ -10,8 +10,7 @@ default: run
 build:
 	docker build -t $(APP_NAME):$(APP_VERSION) $(DIR)
 
-all: build
-	run
+all: build run
 
 run:
 	docker run -it -v $(DIR)/app:/app -p $(LOCAL_PORT):$(DOCKER_PORT) -e PORT=$(DOCKER_PORT) $(APP_NAME):$(APP_VERSION)
