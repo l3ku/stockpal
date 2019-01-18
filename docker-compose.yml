@@ -8,13 +8,14 @@ services:
     env_file:
       - '.env'
 
-  api-nginx:
-    build: api-nginx
+  nginx:
+    build: nginx
     image: l3ku/stockpal-nginx:0.0.1
     ports:
       - '127.0.0.1:8080:80'
     links:
       - api
+      - ui
 
   ui:
     build: ui

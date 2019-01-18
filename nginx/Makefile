@@ -1,6 +1,6 @@
 DIR:=$(CURDIR)
-APP_NAME:=l3ku/stockpal-api-nginx
-CONTAINER_NAME:=stockpal_api_nginx
+APP_NAME:=l3ku/stockpal-nginx
+CONTAINER_NAME:=stockpal_nginx
 APP_VERSION:=0.0.1
 LOCAL_PORT:=8000
 DOCKER_PORT:=80
