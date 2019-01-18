@@ -13,5 +13,5 @@ api_base_url = '/api'
 v1_base_url = api_base_url + '/v1'
 
 # Endpoints for API v1.0
-api.add_resource(Last, v1_base_url + '/last')
+api.add_resource(ListMostActive, v1_base_url + '/mostactive')
 api.add_resource(StockHistory, v1_base_url + '/history/<string:stock_symbol>')

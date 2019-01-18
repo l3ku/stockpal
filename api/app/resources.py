@@ -1,14 +1,17 @@
 import json
 from datetime import datetime, timedelta
 from flask_restful import Resource
-import iexfinance as iex
+import requests
 
-class Last(Resource):
+iex_api_url = 'https://api.iextrading.com/1.0'
+
+class ListMostActive(Resource):
     def get(self):
-        return iex.get_market_last()
+        response = requests.get(iex_api_url + '/stock/market/list/mostactive')
+        return response.json()
 
 class StockHistory(Resource):
     def get(self, stock_symbol):
         end = datetime.today()
         start = end - timedelta(days=365)
-        return iex.stocks.get_historical_data(stock_symbol, start, end)
+        return ''
