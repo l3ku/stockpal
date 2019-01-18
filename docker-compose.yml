@@ -22,5 +22,6 @@ services:
     image: l3ku/stockpal-ui:0.0.1
     volumes:
       - './ui/app/src:/app/src:rw'
+      - './ui/app/public:/app/public:rw'
     environment:
       - PORT=4000
