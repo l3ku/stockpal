@@ -19,11 +19,7 @@ services:
   ui:
     build: ui
     image: l3ku/stockpal-ui:0.0.1
-    ports:
-      - '127.0.0.1:8888:3000'
     volumes:
       - './ui/app/src:/app/src:rw'
-    links:
-      - api-nginx
     environment:
-      - PORT=3000
+      - PORT=4000
