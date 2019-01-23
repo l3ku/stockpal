@@ -39,6 +39,5 @@ COPY app/ "${APPDIR}/app/"
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 ENV FLASK_APP app.start
-RUN . "${APPDIR}/venv/bin/activate"
 
 ENTRYPOINT ["/run.sh"]
