@@ -1,10 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
-class User(db.Model, UserMixin):
+class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=False, nullable=False)
@@ -14,27 +13,8 @@ class User(db.Model, UserMixin):
         self.username = username
         self.set_password(password)
 
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
-    def check_password(self, value):
-        return check_password_hash(self.password, value)
-
-    @property
-    def is_authenticated(self):
-        if isinstance(self, AnonymousUserMixin):
-            return False
-        else:
-            return True
-
     def is_active(self):
         return True
-
-    def is_anonymous(self):
-        if isinstance(self, AnonymousUserMixin):
-            return True
-        else:
-            return False
 
     def get_id(self):
         return self.id
