@@ -6,7 +6,9 @@ RUN apt-get update && \
     python3-virtualenv \
     uwsgi \
     uwsgi-plugin-python3 \
-    virtualenv
+    virtualenv \
+    default-libmysqlclient-dev \
+    mysql-client
 
 ENV APPNAME stockpal
 ENV USER $APPNAME
