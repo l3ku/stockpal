@@ -7,6 +7,7 @@ mysql_pw = os.environ['MYSQL_PASSWORD']
 mysql_db = os.environ['MYSQL_DATABASE']
 mysql_host = os.environ['MYSQL_DATABASE_HOST']
 
+# TODO: also make the database port available dynamically via environment variable
 
 class Config(object):
     SECRET_KEY = 'REPLACE ME'
