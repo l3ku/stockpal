@@ -1,13 +1,13 @@
 # For accessing external APIs
 requests==2.21.0
 
+# Flask and its extensions
 Flask==1.0.2
-
-# Flask Extensions
 Flask-Restful==0.3.7
 Flask-Login==0.4.1
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.3.2
+Flask-Migrate==2.3.1
 
 # Testing
 pytest==4.1.0
