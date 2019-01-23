@@ -2,7 +2,9 @@ FROM phusion/baseimage:0.11
 
 RUN apt-get update && \
   apt-get --assume-yes install \
+    gcc \
     python3 \
+    python3-dev \
     python3-virtualenv \
     uwsgi \
     uwsgi-plugin-python3 \
