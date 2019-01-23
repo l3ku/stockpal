@@ -8,6 +8,7 @@ Flask-Login==0.4.1
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.3.2
 Flask-Migrate==2.3.1
+mysqlclient==1.4.1
 
 # Testing
 pytest==4.1.0
