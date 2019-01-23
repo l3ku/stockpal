@@ -1,6 +1,5 @@
 from flask_restful import Api
 from flask import Blueprint
-
 from app.resources import *
 
 main = Blueprint('main', __name__)
@@ -15,3 +14,8 @@ v1_base_url = api_base_url + '/v1'
 # Endpoints for API v1.0
 api.add_resource(ListMostActive, v1_base_url + '/mostactive')
 api.add_resource(StockHistory, v1_base_url + '/history/<string:stock_symbol>')
+
+# Authentication
+# @TODO: GET /api/oauth should return all providers
+api.add_resource(Login, api_base_url + '/oauth/login/<string:provider>')
+api.add_resource(Authenticate, api_base_url + '/oauth/authenticate/<string:provider>')
