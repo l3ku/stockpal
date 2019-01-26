@@ -1,81 +1,35 @@
 import React, { Component } from 'react';
-import { Icon, Label, Menu, Table } from 'semantic-ui-react'
+import {Header, Menu} from 'semantic-ui-react'
+import {MostActiveStocks} from './components/mostActiveStocks'
 import './App.css';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      error: null,
-      isLoaded: false,
-      items: []
-    };
-  }
+  state = {}
 
-  componentDidMount() {
-    fetch('/api/v1/mostactive')
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
-  }
+  handleItemClick = (e, { name }) => this.setState({ activeItem: name })
 
   render() {
-    const { error, isLoaded, items } = this.state;
-    if (error) {
-      return <div>Error: {error.message}</div>;
-    } else if (!isLoaded) {
-      return <div>Loading...</div>;
-    } else {
-      return (
-        <Table className="most-active-table" celled>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Name</Table.HeaderCell>
-              <Table.HeaderCell>Symbol</Table.HeaderCell>
-              <Table.HeaderCell>Change</Table.HeaderCell>
-              <Table.HeaderCell>Low</Table.HeaderCell>
-              <Table.HeaderCell>High</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-          {items.map(item => (
-            <Table.Row key={item.symbol}>
-              <Table.Cell>
-                {item.companyName}
-              </Table.Cell>
-              <Table.Cell>
-                {item.symbol}
-              </Table.Cell>
-              <Table.Cell className={item.change < 0 ? 'change-negative' : 'change-positive'}>
-                {item.change > 0 ? '+' + item.change : item.change}
-              </Table.Cell>
-              <Table.Cell>
-                {item.low}
-              </Table.Cell>
-              <Table.Cell>
-                {item.high}
-              </Table.Cell>
-            </Table.Row>
-          ))}
-          </Table.Body>
-        </Table>
-      );
-    }
+    const { activeItem } = this.state
+    return (
+      <div>
+        <header>
+          <Menu>
+            <Menu.Item
+              name='login'
+              active={activeItem === 'login'}
+              onClick={this.handleItemClick}
+            >
+              Login
+            </Menu.Item>
+            <Menu.Item name='my-account' active={activeItem === 'my-account'} onClick={this.handleItemClick}>
+              My Account
+            </Menu.Item>
+          </Menu>
+          <Header size='huge'>Stockpal</Header>
+        </header>
+        <MostActiveStocks />
+      </div>
+    );
   }
 }
 
