@@ -17,5 +17,5 @@ api.add_resource(StockHistory, v1_base_url + '/history/<string:stock_symbol>')
 
 # Authentication
 # @TODO: GET /api/oauth should return all providers
-api.add_resource(Login, api_base_url + '/oauth/login/<string:provider>')
-api.add_resource(Authenticate, api_base_url + '/oauth/authenticate/<string:provider>')
+api.add_resource(Authenticate, api_base_url + '/oauth/authenticate/<string:auth_provider>')
+api.add_resource(Login, api_base_url + '/oauth/login/<string:auth_provider>')
