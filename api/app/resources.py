@@ -37,8 +37,8 @@ class Authenticate(Resource):
         if auth_provider in oauth_providers:
             provider_data = oauth_providers[auth_provider]
             provider_data['session']['redirect_uri'] = request.url_root
-            session = OAuth2Session(**provider_data['session'])
-            url, state = session.create_authorization_url(provider_data['auth_url'])
+            oauth_session = OAuth2Session(**provider_data['session'])
+            url, state = oauth_session.create_authorization_url(provider_data['auth_url'])
             session[f'{auth_provider}_oauth_state'] = state
             return {'success': True, 'data': {'auth_url': url}}
 
@@ -54,8 +54,8 @@ class Login(Resource):
 
         if auth_provider in oauth_providers:
             provider_data = oauth_providers[auth_provider]
-            session = OAuth2Session(provider_data['session']['client_id'], provider_data['session']['client_secret'], state=session[f'{auth_provider}_oauth_state'])
-            token = session.fetch_access_token(access_token_url, authorization_response=authorization_response)
+            oauth_session = OAuth2Session(provider_data['session']['client_id'], provider_data['session']['client_secret'], state=session[f'{auth_provider}_oauth_state'])
+            token = oauth_session.fetch_access_token(access_token_url, authorization_response=authorization_response)
             # TODO: save this token to the database for access
             return {'success': True, 'data': {'token': token}}
 
