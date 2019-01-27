@@ -12,30 +12,32 @@ export class MostActiveStocks extends Component {
   }
 
   componentDidMount() {
-    fetch('/api/v1/mostactive')
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
+    if ( this.state.items.length === 0 ) {
+      fetch('/api/v1/mostactive')
+        .then(res => res.json())
+        .then(
+          (result) => {
+            this.setState({
+              isLoaded: true,
+              items: result
+            });
+          },
+          // Note: it's important to handle errors here
+          // instead of a catch() block so that we don't swallow
+          // exceptions from actual bugs in components.
+          (error) => {
+            this.setState({
+              isLoaded: true,
+              error: error
+            });
+          }
+        )
+    }
   }
 
   render() {
     const { error, isLoaded, items } = this.state;
-    if (error) {
+    if (error || items.length < 0) {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
       return (
