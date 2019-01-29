@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import {Header, Menu, Grid, Segment} from 'semantic-ui-react'
-import {MostActiveStocks} from './components/mostActiveStocks'
-import {Login} from './components/login'
+import {Header, Menu, Grid, Segment, Modal} from 'semantic-ui-react'
+import {GainerStocks} from './components/gainerStocks'
 import './dist/main.css';
 
 class App extends Component {
-  state = {}
+  constructor(props) {
+    super(props);
+    this.state = {
+      activePage: false,
+      activeView: false,
+      activeModal: false
+    };
+  }
 
   handlePrimaryMenuClick = (e, { name }) => this.setState({ activePage: name })
   handleSecondaryMenuClick = (e, { name }) => this.setState({ activeView: name })
@@ -28,8 +34,7 @@ class App extends Component {
             <Menu.Menu position='right'>
               <Menu.Item
                 name='login'
-                active={activePage === 'login'}
-                onClick={this.handlePrimaryMenuClick}
+                onClick={this.handleModalActivation}
               >
                 Sign In
               </Menu.Item>
@@ -53,7 +58,7 @@ class App extends Component {
               </Menu.Item>
             </Menu>
           </Grid.Column>
-          <Grid.Column width={13} className="page-content-column">
+          <Grid.Column width={14} className="page-content-column">
             <Segment className='page-content-segment'>
               {activeComponent}
             </Segment>
