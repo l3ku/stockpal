@@ -1,12 +1,9 @@
-#root {
-  @import 'components/all';
-  .stockpal-wrapper {
-    .page-content-column {
-      padding: 1rem;
-      .page-content-segment {
-        min-height: 600px;
-      }
+@import 'components/all';
+.stockpal-wrapper {
+  .page-content-column {
+    padding: 1rem;
+    .page-content-segment {
+      min-height: 600px;
     }
   }
-
 }
