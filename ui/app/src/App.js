@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Header, Menu, Grid, Segment, Modal} from 'semantic-ui-react'
 import {GainerStocks} from './components/gainerStocks'
+import {LoginModal} from './components/loginModal'
 import './dist/main.css';
 
 class App extends Component {
@@ -13,21 +14,23 @@ class App extends Component {
     };
   }
 
-  handlePrimaryMenuClick = (e, { name }) => this.setState({ activePage: name })
   handleSecondaryMenuClick = (e, { name }) => this.setState({ activeView: name })
+  handleModalActivation = (e, { name }) => this.setState({ activeModal: name })
 
   render() {
     const { activePage, activeView } = this.state;
-    let activeComponent = <MostActiveStocks />;
-    if ( activePage && activePage === 'login' ) {
-      activeComponent = (
-        <div className='login-wrapper'>
-          <Login />
-        </div>
-      )
-    }
+    let activeComponent = <GainerStocks />;
     return (
       <div className="stockpal-wrapper">
+        <Modal
+          className='login-modal'
+          dimmer='blurring'
+          open={this.state.activeModal === 'login'}
+          onClose={() => this.setState({activeModal: false})}
+          size='small'
+        >
+          <LoginModal />
+        </Modal>
         <header>
           <Menu primary>
             <a href="/"><Header as='h1'>Stockpal</Header></a>

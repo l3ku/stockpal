@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Button, Header, Grid, Loader } from 'semantic-ui-react'
+import API from './../utils/api';
 
-export class Login extends Component {
+export class LoginModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,30 +14,23 @@ export class Login extends Component {
   handleLoginProviderAuth = (evt) => {
     this.setState({ isLoading: true });
     const provider = evt.target.name;
-    fetch('/api/oauth/authenticate/' + provider)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoading: false
-          });
-          if (result.success && result.data && result.data.auth_url ) {
-            window.location = result.data.auth_url;
-          } else {
-            // @TODO: errors
-          }
-
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error: error
-          });
+    API.getLoginAuthLink(provider,
+      (result) => {
+        this.setState({
+          isLoading: false
+        });
+        if ( result.success ) {
+          window.location = result.data.auth_url;
+        } else {
+          // @TODO: errors
         }
-      )
+      },
+      (error) => {
+        this.setState({
+          isLoading: false,
+          error: error
+        });
+      });
   }
   render() {
     return (
@@ -49,7 +43,7 @@ export class Login extends Component {
             </p>
             <Button id='google-sign-in-button' name='google' onClick={this.handleLoginProviderAuth}></Button>
           </Grid.Column>
-          <Loader active={this.state.isLoading}></Loader>
+          <Loader disabled={!this.state.isLoading}>Loading</Loader>
         </Grid>
       </div>
     );

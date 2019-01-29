@@ -1,0 +1,36 @@
+.login-modal {
+  .login-section {
+    padding: 20px;
+    .login-column {
+      text-align: center !important;
+      #google-sign-in-button {
+        background-image: url('/img/btn_google_signin_dark_normal_web.png');
+        background-repeat: no-repeat;
+        background-color: transparent;
+        background-position: center;
+        border-radius: 0;
+        width: 191px;
+        height: 46px;
+        -webkit-transition: background-image 0.2s ease-in-out;
+        transition: background-image 0.2s ease-in-out;
+        &.disabled {
+          background-image: url('/img/btn_google_signin_dark_disabled_web.png') !important;
+        }
+        &:active {
+          background-image: url('/img/btn_google_signin_dark_pressed_web.png');
+        }
+        &:focus {
+          background-image: url('/img/btn_google_signin_dark_focus_web.png');
+        }
+      }
+    }
+  }
+}
+// Preload images. TODO: use SASS variables for the URLs
+body:after{
+ display: none;
+ content: url('/img/btn_google_signin_dark_normal_web.png')
+  url('/img/btn_google_signin_dark_disabled_web.png')
+  url('/img/btn_google_signin_dark_pressed_web.png')
+  url('/img/btn_google_signin_dark_focus_web.png');
+}
