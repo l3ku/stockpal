@@ -21,9 +21,9 @@ oauth_providers = {
     }
 }
 
-class ListMostActive(Resource):
+class ListGainers(Resource):
     def get(self):
-        response = requests.get(iex_api_url + '/stock/market/list/mostactive')
+        response = requests.get(iex_api_url + '/stock/market/list/gainers')
         return response.json()
 
 class StockHistory(Resource):
