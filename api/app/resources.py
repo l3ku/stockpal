@@ -36,7 +36,7 @@ class Authenticate(Resource):
     def get(self, auth_provider):
         if auth_provider in oauth_providers:
             provider_data = oauth_providers[auth_provider]
-            provider_data['session']['redirect_uri'] = request.url_root
+            provider_data['session']['redirect_uri'] = request.url_root + 'login'
             oauth_session = OAuth2Session(**provider_data['session'])
             url, state = oauth_session.create_authorization_url(provider_data['auth_url'])
             session[f'{auth_provider}_oauth_state'] = state
