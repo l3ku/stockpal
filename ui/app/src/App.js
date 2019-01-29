@@ -3,9 +3,11 @@ import {Header, Menu, Grid, Segment, Modal} from 'semantic-ui-react'
 import {GainerStocks} from './components/gainerStocks'
 import {LoginModal} from './components/loginModal'
 import './dist/main.css';
+import {authenticate} from './utils/auth';
 
 class App extends Component {
   constructor(props) {
+    authenticate();
     super(props);
     this.state = {
       activePage: false,
