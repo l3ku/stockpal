@@ -3,14 +3,33 @@ import API from './api';
 // TODO: refactor this file neatly away from this declarative logic.
 export function authenticate() {
   // Check for the login request
-  if ( window.location.pathname === '/login' ) {
-    OAuth2Login();
+  var pathname = window.location.pathname;
+  if ( pathname.includes('/login/') ) {
+    var provider = pathname.replace('/login/', '').replace('/', '');
+
+    // Tell the server what data we got from the authentication endpoint.
+    // The authentication response to use is the full current URL.
+    API.sendLoginAuthResponse(
+      provider,
+      window.location.href,
+      (res) => {
+        // Redirect to home URL if successful
+        if ( res.success ) {
+          window.location.pathname = '/';
+        } else {
+          // TODO: errors
+        }
+      },
+      (err) => {
+        console.log(err);
+        // TODO: errors
+      }
+    );
   }
 }
 
-function OAuth2Login() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const state = urlParams.get('state');
-  const code = urlParams.get('code');
-  const scope = urlParams.get('scope');
+function OAuth2Login(provider) {
+  const urlParams = new URLSearchParams();
+
+
 }
