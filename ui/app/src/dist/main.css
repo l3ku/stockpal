@@ -1,29 +1,36 @@
-#root .login-wrapper {
-  margin-top: 50px;
-  text-align: center; }
-  #root .login-wrapper .login-column {
-    text-align: center; }
-    #root .login-wrapper .login-column #google-sign-in-button {
+.login-modal .login-section {
+  padding: 20px; }
+  .login-modal .login-section .login-column {
+    text-align: center !important; }
+    .login-modal .login-section .login-column #google-sign-in-button {
       background-image: url("/img/btn_google_signin_dark_normal_web.png");
       background-repeat: no-repeat;
       background-color: transparent;
       background-position: center;
       border-radius: 0;
       width: 191px;
-      height: 46px; }
-      #root .login-wrapper .login-column #google-sign-in-button.disabled {
+      height: 46px;
+      -webkit-transition: background-image 0.2s ease-in-out;
+      transition: background-image 0.2s ease-in-out; }
+      .login-modal .login-section .login-column #google-sign-in-button.disabled {
         background-image: url("/img/btn_google_signin_dark_disabled_web.png") !important; }
-      #root .login-wrapper .login-column #google-sign-in-button:active {
+      .login-modal .login-section .login-column #google-sign-in-button:active {
         background-image: url("/img/btn_google_signin_dark_pressed_web.png"); }
-      #root .login-wrapper .login-column #google-sign-in-button:focus {
+      .login-modal .login-section .login-column #google-sign-in-button:focus {
         background-image: url("/img/btn_google_signin_dark_focus_web.png"); }
-#root table.most-active-table .change-positive {
+
+body:after {
+  display: none;
+  content: url("/img/btn_google_signin_dark_normal_web.png") url("/img/btn_google_signin_dark_disabled_web.png") url("/img/btn_google_signin_dark_pressed_web.png") url("/img/btn_google_signin_dark_focus_web.png"); }
+
+table.gainer-stocks-table .change-positive {
   color: green; }
-#root table.most-active-table .change-negative {
+table.gainer-stocks-table .change-negative {
   color: red; }
-#root .stockpal-wrapper .page-content-column {
+
+.stockpal-wrapper .page-content-column {
   padding: 1rem; }
-  #root .stockpal-wrapper .page-content-column .page-content-segment {
+  .stockpal-wrapper .page-content-column .page-content-segment {
     min-height: 600px; }
 
 /*# sourceMappingURL=main.css.map */
