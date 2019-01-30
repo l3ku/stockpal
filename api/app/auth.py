@@ -10,7 +10,7 @@ def getOAuth2ProviderData(auth_provider):
             'session': {
                 'client_id': os.environ['GOOGLE_OAUTH_CLIENT_ID'],
                 'client_secret': os.environ['GOOGLE_OAUTH_CLIENT_SECRET'],
-                'scope': 'https://www.googleapis.com/auth/userinfo.profile'
+                'scope': 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email'
             }
         }
     }
