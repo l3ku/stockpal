@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 from flask_restful import Resource, reqparse
 import requests
-from app.auth import getOAuth2LoginURL, OAuth2Login
+from app.auth import initOAuth2Session, OAuth2Login
 from authlib.common.errors import AuthlibBaseError
 
 iex_api_url = 'https://api.iextrading.com/1.0'
@@ -22,7 +22,7 @@ class StockHistory(Resource):
 class Authenticate(Resource):
     def get(self, auth_provider):
         try:
-            return {'success': True, 'data': {'auth_url': getOAuth2LoginURL(auth_provider)}}
+            return {'success': True, 'data': {'auth_url': initOAuth2Session(auth_provider)}}
         except ValueError as err:
             return {'success': False, 'errors': [err]}
         except AuthlibBaseError as err:

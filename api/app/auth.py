@@ -20,7 +20,7 @@ def getOAuth2ProviderData(auth_provider):
     raise ValueError(f'Unknown OAuth provider: {auth_provider}')
 
 
-def getOAuth2LoginURL(auth_provider):
+def initOAuth2Session(auth_provider):
     provider_data = getOAuth2ProviderData(auth_provider)
     provider_data['session']['redirect_uri'] = request.url_root + 'login/' + auth_provider
     oauth_session = OAuth2Session(**provider_data['session'])
