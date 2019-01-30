@@ -15,7 +15,7 @@ export function authenticate() {
       (res) => {
         // Redirect to home URL if successful
         if ( res.success ) {
-          window.location.pathname = '/';
+          window.location.href = '/';
         } else {
           // TODO: errors
         }
