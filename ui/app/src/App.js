@@ -3,13 +3,21 @@ import {Header, Menu, Grid, Segment, Modal} from 'semantic-ui-react'
 import {GainerStocks} from './components/gainerStocks'
 import {LoginModal} from './components/loginModal'
 import './dist/main.css';
-import {authenticate} from './utils/auth';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
+import API from './utils/api';
 
 class App extends Component {
+  static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+  };
+
   constructor(props) {
-    authenticate();
     super(props);
+    const { cookies } = props;
     this.state = {
+      api_id: cookies.get('_api_id') || null,
+      api_secret: cookies.get('_api_secret') || null,
       activePage: false,
       activeView: false,
       activeModal: false
@@ -19,9 +27,65 @@ class App extends Component {
   handleSecondaryMenuClick = (e, { name }) => this.setState({ activeView: name })
   handleModalActivation = (e, { name }) => this.setState({ activeModal: name })
 
+  componentWillMount() {
+    this.maybeLogin();
+  }
+
+  maybeLogin() {
+    const { cookies } = this.props;
+    // Check for the login request
+    var pathname = window.location.pathname;
+    if ( pathname.includes('/login/') ) {
+      var provider = pathname.replace('/login/', '').replace('/', '');
+      // Tell the server what data we got from the authentication endpoint.
+      // The authentication response to use is the full current URL.
+      API.sendLoginAuthResponse(
+        provider,
+        window.location.href,
+        (res) => {
+          // Add cookie and redirect to home URL if successful
+          if ( res.success ) {
+            var cookie_opts = {path: '/', maxAge: 604800};
+            cookies.set('_api_id', res.data.api_id, cookie_opts);
+            cookies.set('_api_secret', res.data.api_secret, cookie_opts);
+            this.setState({api_id: res.data.api_id, api_secret: res.data.api_secret})
+            window.location.href = '/';
+          } else {
+            // TODO: errors
+          }
+        },
+        (err) => {
+          console.log(err);
+          // TODO: errors
+        }
+      );
+    }
+  }
   render() {
     const { activePage, activeView } = this.state;
     let activeComponent = <GainerStocks />;
+
+    // Show the login link as default. However, if the user is already logged in, show the logout link
+    // alongside with the "My Account" link.
+    let activeMenu = (
+      <React.Fragment>
+        <Menu.Item name='login' onClick={this.handleModalActivation}>
+          Sign In
+        </Menu.Item>
+      </React.Fragment>
+    );
+    if ( this.state.api_id && this.state.api_secret ) {
+      activeMenu = (
+        <React.Fragment>
+          <Menu.Item name='my-account' active={activePage === 'my-account'} onClick={this.handlePrimaryMenuClick}>
+            My Account
+          </Menu.Item>
+          <Menu.Item name='logout' onClick={this.logout}>
+            Logout
+          </Menu.Item>
+        </React.Fragment>
+      );
+    }
     return (
       <div className="stockpal-wrapper">
         <Modal
@@ -37,15 +101,7 @@ class App extends Component {
           <Menu primary>
             <a href="/"><Header as='h1'>Stockpal</Header></a>
             <Menu.Menu position='right'>
-              <Menu.Item
-                name='login'
-                onClick={this.handleModalActivation}
-              >
-                Sign In
-              </Menu.Item>
-              <Menu.Item name='my-account' active={activePage === 'my-account'} onClick={this.handlePrimaryMenuClick}>
-                My Account
-              </Menu.Item>
+              {activeMenu}
             </Menu.Menu>
           </Menu>
         </header>
@@ -74,4 +130,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withCookies(App);
