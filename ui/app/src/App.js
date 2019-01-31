@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Header, Menu, Grid, Segment, Modal} from 'semantic-ui-react'
+import {Header, Menu, Grid, Segment, Modal, Dropdown, Image} from 'semantic-ui-react'
 import {GainerStocks} from './components/gainerStocks'
 import {LoginModal} from './components/loginModal'
 import './dist/main.css';
@@ -18,6 +18,8 @@ class App extends Component {
     this.state = {
       api_id: cookies.get('_api_id') || null,
       api_secret: cookies.get('_api_secret') || null,
+      userPicture: 'https://lh4.googleusercontent.com/-a-Ukxn9wN1U/AAAAAAAAAAI/AAAAAAAAABk/GFcB4D6TZSo/photo.jpg',
+      userName: 'Test Name',
       activePage: false,
       activeView: false,
       activeModal: false
@@ -31,7 +33,7 @@ class App extends Component {
     this.maybeLogin();
   }
 
-  maybeLogin() {
+  maybeLogin = () => {
     const { cookies } = this.props;
     // Check for the login request
     var pathname = window.location.pathname;
@@ -78,7 +80,7 @@ class App extends Component {
     );
   }
 
-  render() {
+  render = () => {
     const { activePage, activeView } = this.state;
     let activeComponent = <GainerStocks />;
 
@@ -92,15 +94,16 @@ class App extends Component {
       </React.Fragment>
     );
     if ( this.state.api_id && this.state.api_secret ) {
+      const trigger = (
+        <span>{this.state.userName} <Image avatar src={this.state.userPicture} /></span>
+      );
       activeMenu = (
-        <React.Fragment>
-          <Menu.Item name='my-account' active={activePage === 'my-account'} onClick={this.handlePrimaryMenuClick}>
-            My Account
-          </Menu.Item>
-          <Menu.Item name='logout' onClick={this.logout}>
-            Logout
-          </Menu.Item>
-        </React.Fragment>
+        <Dropdown trigger={trigger} pointing='top right' icon={null}>
+          <Dropdown.Menu>
+            <Dropdown.Item>My Account</Dropdown.Item>
+            <Dropdown.Item onClick={this.logout}>Logout</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       );
     }
     return (

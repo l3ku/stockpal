@@ -30,7 +30,7 @@ export class GainerStocks extends Component {
     }
   }
 
-  render() {
+  render = () => {
     const { error, isLoaded, items } = this.state;
     if (error || items.length < 0) {
       return (
