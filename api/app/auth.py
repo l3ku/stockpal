@@ -91,6 +91,14 @@ def OAuth2Login(auth_provider, auth_response):
     # Return a login_id and login_secret that can be used to authenticate to this API
     return (login_id, login_secret)
 
+def logout(login_id, login_secret):
+    db_user = LoggedInUser.query.filter_by(login_id=login_id).first()
+    if db_user is None or login_secret != db_user.login_secret:
+        raise ValueError('Invalid login_id or login_secret')
+    db.session.delete(db_user)
+    db.session.commit()
+    return True
+
 
 def getUserInfoWithAcessToken(auth_provider, auth_token):
     name=email=picture=None

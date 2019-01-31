@@ -1,9 +1,10 @@
 import re
 import json
 from datetime import datetime, timedelta
+from flask import request
 from flask_restful import Resource, reqparse
 import requests
-from app.auth import initOAuth2Session, OAuth2Login
+from app.auth import initOAuth2Session, OAuth2Login, logout
 from authlib.common.errors import AuthlibBaseError
 
 iex_api_url = 'https://api.iextrading.com/1.0'
@@ -39,5 +40,19 @@ class Login(Resource):
             return {'success': True, 'data': {'login_id': login_id, 'login_secret': login_secret}}
         except ValueError as err:
             return {'success': False, 'errors': [err]}
+
+class Logout(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('api_id', required=True, help="API ID is required")
+        args = parser.parse_args()
+        login_id = args['api_id']
+        if not 'X-API-Key' in request.headers:
+            return {'success': False, 'errors': ['Access denied: X-API-Key is missing']}
+        login_secret = request.headers['X-API-Key']
+        try:
+            return {'success': logout(login_id, login_secret)}
+        except ValueError as err:
+            return {'success': False, 'errors': [str(err)]}
         except AuthlibBaseError as err:
             return {'success': False, 'errors': [err.description]}
