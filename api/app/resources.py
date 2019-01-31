@@ -25,7 +25,7 @@ class Authenticate(Resource):
         try:
             return {'success': True, 'data': {'auth_url': initOAuth2Session(auth_provider)}}
         except ValueError as err:
-            return {'success': False, 'errors': [err]}
+            return {'success': False, 'errors': [str(err)]}
         except AuthlibBaseError as err:
             return {'success': False, 'errors': [err.description]}
 
@@ -37,9 +37,11 @@ class Login(Resource):
         auth_response = args['authorization_response']
         try:
             login_id, login_secret = OAuth2Login(auth_provider, auth_response)
-            return {'success': True, 'data': {'login_id': login_id, 'login_secret': login_secret}}
+            return {'success': True, 'data': {'api_id': login_id, 'api_secret': login_secret}}
         except ValueError as err:
-            return {'success': False, 'errors': [err]}
+            return {'success': False, 'errors': [str(err)]}
+        except AuthlibBaseError as err:
+            return {'success': False, 'errors': [err.description]}
 
 class Logout(Resource):
     def post(self):
