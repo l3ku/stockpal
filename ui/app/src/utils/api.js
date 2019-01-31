@@ -21,4 +21,15 @@ export default class API {
       .then(res => res.json())
       .then((res) => success_cb(res), (err) => error_cb(err));
   }
+
+  static logout(api_id, api_secret, success_cb, error_cb) {
+    fetch('/api/oauth/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': api_secret },
+      body: JSON.stringify({
+        'api_id': api_id
+      })})
+      .then(res => res.json())
+      .then((res) => success_cb(res), (err) => error_cb(err));
+  }
 }

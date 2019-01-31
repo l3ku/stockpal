@@ -61,6 +61,23 @@ class App extends Component {
       );
     }
   }
+
+  logout = () => {
+    const { cookies } = this.props;
+    const { api_id, api_secret } = this.state;
+    API.logout(api_id, api_secret,
+      (res) => {
+        this.setState({api_id: null, api_secret: null});
+        cookies.remove('_api_id');
+        cookies.remove('_api_secret');
+        console.log(res);
+      },
+      (err) => {
+        console.log(err);
+      }
+    );
+  }
+
   render() {
     const { activePage, activeView } = this.state;
     let activeComponent = <GainerStocks />;
