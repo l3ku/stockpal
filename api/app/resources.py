@@ -36,8 +36,8 @@ class Login(Resource):
         args = parser.parse_args()
         auth_response = args['authorization_response']
         try:
-            login_id, login_secret = OAuth2Login(auth_provider, auth_response)
-            return {'success': True, 'data': {'api_id': login_id, 'api_secret': login_secret}}
+            login_id, login_secret, login_expires_at = OAuth2Login(auth_provider, auth_response)
+            return {'success': True, 'data': {'api_id': login_id, 'api_secret': login_secret, 'expires_at': login_expires_at}}
         except ValueError as err:
             return {'success': False, 'errors': [str(err)]}
         except AuthlibBaseError as err:

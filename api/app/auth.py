@@ -61,6 +61,7 @@ def OAuth2Login(auth_provider, auth_response):
         db_logged_in_user.resetUserLogin(expire_time=604800)
     login_id = db_logged_in_user.login_id
     login_secret = db_logged_in_user.login_secret
+    login_expires_at = db_logged_in_user.expires_at
 
     # Save the OAuth2 token data to the database for the user. One user can only be logged in with
     # one OAuth2 provider at a time, so update any existing tokens if they exist
@@ -85,8 +86,8 @@ def OAuth2Login(auth_provider, auth_response):
     # Apply changes to the database
     db.session.commit()
 
-    # Return a login_id and login_secret that can be used to authenticate to this API
-    return (login_id, login_secret)
+    # Return login_id, login_secret and login expire time that can be used to authenticate to this API.
+    return (login_id, login_secret, login_expires_at)
 
 def logout(login_id, login_secret):
     db_user = LoggedInUser.query.filter_by(login_id=login_id).first()
