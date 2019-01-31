@@ -29,13 +29,15 @@ class LoggedInUser(db.Model):
 
 class OAuth2Token(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey(LoggedInUser.id), primary_key=True, nullable=False)
+    provider = db.Column(db.String(50))
     token_type = db.Column(db.String(2000))
     access_token = db.Column(db.String(1000), nullable=False)
     refresh_token = db.Column(db.String(1000))
     expires_at = db.Column(db.Integer(), default=0)
 
-    def __init__(self, user_id, token_type, access_token, refresh_token, expires_at):
+    def __init__(self, user_id, provider, token_type, access_token, refresh_token, expires_at):
         self.user_id = user_id
+        self.provider = provider
         self.token_type = token_type
         self.access_token = access_token
         self.refresh_token = refresh_token

@@ -41,15 +41,24 @@ def OAuth2Login(auth_provider, auth_response):
     # Use the token to obtain user information
     user_name, user_email, user_picture = getUserInfoWithAcessToken(auth_provider, oauth_token['access_token'])
 
-    # Generate login_id and login_secret for the user
-    random_chars = string.printable
-    login_id = ''.join(random.choice(random_chars) for i in range(20))
-    login_secret = ''.join(random.choice(random_chars) for i in range(100))
+    # Generate login_id and login_secret for the user. Ensure that the login_id is unique in the DB
+    random_chars = string.digits + string.ascii_letters + string.punctuation
+    login_id = ''
+    while True:
+        login_id = ''.join(random.choice(random_chars) for i in range(100))
+        if LoggedInUser.query.filter_by(login_id=login_id).first() is None:
+            break
+    login_secret = ''.join(random.choice(random_chars) for i in range(500))
 
     # Create or replace the user in the DB by his/her email
     db_user = LoggedInUser.query.filter_by(email=user_email).first()
     if db_user is None:
-        db_user = LoggedInUser(login_id=login_id, login_secret=login_secret, name=user_name, email=user_email, picture_url=user_picture)
+        db_user = LoggedInUser(
+            login_id=login_id,
+            login_secret=login_secret,
+            name=user_name,
+            email=user_email,
+            picture_url=user_picture)
         db.session.add(db_user)
     else:
         db_user.login_id = login_id
@@ -61,9 +70,16 @@ def OAuth2Login(auth_provider, auth_response):
     # one OAuth2 provider at a time, so update any existing tokens if they exist
     db_oauth2_token = OAuth2Token.query.filter_by(user_id=db_user.id).first()
     if db_oauth2_token is None:
-        db_oauth2_token = OAuth2Token(user_id=db_user.id, token_type=oauth_token['token_type'], access_token=oauth_token['access_token'], refresh_token=oauth_token['refresh_token'], expires_at=oauth_token['expires_at'])
+        db_oauth2_token = OAuth2Token(
+            user_id=db_user.id,
+            provider=auth_provider,
+            token_type=oauth_token['token_type'],
+            access_token=oauth_token['access_token'],
+            refresh_token=oauth_token['refresh_token'],
+            expires_at=oauth_token['expires_at'])
         db.session.add(db_oauth2_token)
     else:
+        db_oauth2_token.token_type = auth_provider
         db_oauth2_token.token_type = oauth_token['token_type']
         db_oauth2_token.access_token = oauth_token['access_token']
         db_oauth2_token.refresh_token = oauth_token['refresh_token']
