@@ -1,10 +1,8 @@
 import os
 from authlib.client import OAuth2Session
 from flask import request, session
-from app.models import db, LoggedInUser, OAuth2Token
+from app.models import db, User, LoggedInUser, OAuth2Token
 import requests
-import random
-import string
 
 def getOAuth2ProviderData(auth_provider):
     oauth2_providers = {
@@ -41,42 +39,41 @@ def OAuth2Login(auth_provider, auth_response):
     # Use the token to obtain user information
     user_name, user_email, user_picture = getUserInfoWithAcessToken(auth_provider, oauth_token['access_token'])
 
-    # Generate login_id and login_secret for the user. Ensure that the login_id is unique in the DB
-    random_chars = string.digits + string.ascii_letters + string.punctuation
-    login_id = ''
-    while True:
-        login_id = ''.join(random.choice(random_chars) for i in range(100))
-        if LoggedInUser.query.filter_by(login_id=login_id).first() is None:
-            break
-    login_secret = ''.join(random.choice(random_chars) for i in range(500))
-
-    # Create or replace the user in the DB by his/her email
-    db_user = LoggedInUser.query.filter_by(email=user_email).first()
+    # Create the user in the DB if a user with the provided email does not exist. However, do not
+    # update the data of the user yet because there should be a separate update mechanism for this
+    # on e.g. the user "My Account" page.
+    db_user = User.query.filter_by(email=user_email).first()
     if db_user is None:
-        db_user = LoggedInUser(
-            login_id=login_id,
-            login_secret=login_secret,
-            name=user_name,
-            email=user_email,
-            picture_url=user_picture)
+        db_user = User(name=user_name, email=user_email, picture_url=user_picture)
         db.session.add(db_user)
+
+    # NOTE: the user id is generated during the commit, so we need to run db.session.commit() before
+    # retrieving the id.
+    db.session.commit()
+    db_user_id = db_user.id
+
+    # Check if the user is already logged in. If so, just reset the user login.
+    db_logged_in_user = LoggedInUser.query.filter_by(user_id=db_user_id).first()
+    if db_logged_in_user is None:
+        db_logged_in_user = LoggedInUser(user_id=db_user_id, expire_time=604800)
+        db.session.add(db_logged_in_user)
     else:
-        db_user.login_id = login_id
-        db_user.login_secret = login_secret
-        db_user.name = user_name
-        db_user.picture = user_picture
+        db_logged_in_user.resetUserLogin(expire_time=604800)
+    login_id = db_logged_in_user.login_id
+    login_secret = db_logged_in_user.login_secret
 
     # Save the OAuth2 token data to the database for the user. One user can only be logged in with
     # one OAuth2 provider at a time, so update any existing tokens if they exist
-    db_oauth2_token = OAuth2Token.query.filter_by(user_id=db_user.id).first()
+    db_oauth2_token = OAuth2Token.query.filter_by(user_id=db_user_id).first()
     if db_oauth2_token is None:
         db_oauth2_token = OAuth2Token(
-            user_id=db_user.id,
+            user_id=db_user_id,
             provider=auth_provider,
             token_type=oauth_token['token_type'],
             access_token=oauth_token['access_token'],
             refresh_token=oauth_token['refresh_token'],
-            expires_at=oauth_token['expires_at'])
+            expires_at=oauth_token['expires_at']
+        )
         db.session.add(db_oauth2_token)
     else:
         db_oauth2_token.token_type = auth_provider
