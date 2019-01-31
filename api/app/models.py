@@ -28,7 +28,7 @@ class LoggedInUser(db.Model):
         return '<User %r>' % self.username
 
 class OAuth2Token(db.Model):
-    user_id = db.Column(db.Integer(), db.ForeignKey(LoggedInUser.id), primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer(), db.ForeignKey(LoggedInUser.id, onupdate='CASCADE', ondelete='CASCADE'), primary_key=True, nullable=False)
     provider = db.Column(db.String(50))
     token_type = db.Column(db.String(2000))
     access_token = db.Column(db.String(1000), nullable=False)
