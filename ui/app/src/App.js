@@ -18,8 +18,8 @@ class App extends Component {
     this.state = {
       api_id: cookies.get('_api_id') || null,
       api_secret: cookies.get('_api_secret') || null,
-      userPicture: 'https://lh4.googleusercontent.com/-a-Ukxn9wN1U/AAAAAAAAAAI/AAAAAAAAABk/GFcB4D6TZSo/photo.jpg',
-      userName: 'Test Name',
+      userPicture: null,
+      userName: 'Loading...',
       activePage: false,
       activeView: false,
       activeModal: false
@@ -31,29 +31,54 @@ class App extends Component {
 
   componentWillMount() {
     this.maybeLogin();
+    this.getUserInfo();
+  }
+
+  getUserInfo = () => {
+    const { api_id, api_secret } = this.state;
+    if ( api_id && api_secret ) {
+      API.getUserInfo(api_id, api_secret,
+        (res) => {
+          if ( res.success ) {
+            this.setState({userName: res.data.user_name, userPicture: res.data.user_picture_url});
+          } else {
+            // If the user info fetch fails, it means that the user is no longer
+            // logged in validly and should thus relogin. As a concequence, the
+            // invalid cookies and state should be cleaned.
+            console.log(res);
+            this.setState({api_id: null, api_secret: null});
+            this.props.cookies.remove('_api_id');
+            this.props.cookies.remove('_api_secret');
+          }
+        },
+        (err) => {
+          console.log(err);
+          // TODO: errors
+        }
+      );
+    }
   }
 
   maybeLogin = () => {
-    const { cookies } = this.props;
     // Check for the login request
     var pathname = window.location.pathname;
     if ( pathname.includes('/login/') ) {
-      var provider = pathname.replace('/login/', '').replace('/', '');
+      var login_provider = pathname.replace('/login/', '').replace('/', '');
       // Tell the server what data we got from the authentication endpoint.
       // The authentication response to use is the full current URL.
       API.sendLoginAuthResponse(
-        provider,
+        login_provider,
         window.location.href,
         (res) => {
           // Add cookie and redirect to home URL if successful
           if ( res.success ) {
-            var cookie_opts = {path: '/', maxAge: 604800};
-            cookies.set('_api_id', res.data.api_id, cookie_opts);
-            cookies.set('_api_secret', res.data.api_secret, cookie_opts);
-            this.setState({api_id: res.data.api_id, api_secret: res.data.api_secret})
+            var cookie_opts = {path: '/', maxAge: res.data.expires_in};
+            this.props.cookies.set('_api_id', res.data.api_id, cookie_opts);
+            this.props.cookies.set('_api_secret', res.data.api_secret, cookie_opts);
             window.location.href = '/';
           } else {
             // TODO: errors
+            console.log(res);
           }
         },
         (err) => {
@@ -72,7 +97,6 @@ class App extends Component {
         this.setState({api_id: null, api_secret: null});
         cookies.remove('_api_id');
         cookies.remove('_api_secret');
-        console.log(res);
       },
       (err) => {
         console.log(err);
@@ -95,15 +119,20 @@ class App extends Component {
     );
     if ( this.state.api_id && this.state.api_secret ) {
       const trigger = (
-        <span>{this.state.userName} <Image avatar src={this.state.userPicture} /></span>
+        <div>
+          <span className="main-menu-user-name">{this.state.userName}</span>
+          <Image className="main-menu-user-picture" avatar src={this.state.userPicture} />
+        </div>
       );
       activeMenu = (
-        <Dropdown trigger={trigger} pointing='top right' icon={null}>
-          <Dropdown.Menu>
-            <Dropdown.Item>My Account</Dropdown.Item>
-            <Dropdown.Item onClick={this.logout}>Logout</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+        <Menu.Item>
+          <Dropdown trigger={trigger} pointing='top right' icon={null}>
+            <Dropdown.Menu>
+              <Dropdown.Item>My Account</Dropdown.Item>
+              <Dropdown.Item onClick={this.logout}>Logout</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </Menu.Item>
       );
     }
     return (
@@ -118,8 +147,8 @@ class App extends Component {
           <LoginModal />
         </Modal>
         <header>
-          <Menu primary>
-            <a href="/"><Header as='h1'>Stockpal</Header></a>
+          <Menu className="main-menu">
+            <a href="/"><Header as='h1' className='main-menu-app-title'>Stockpal</Header></a>
             <Menu.Menu position='right'>
               {activeMenu}
             </Menu.Menu>
@@ -127,7 +156,7 @@ class App extends Component {
         </header>
         <Grid>
           <Grid.Column width={2} className="item-menu-column">
-            <Menu secondary vertical fixed>
+            <Menu secondary vertical>
               <Menu.Item name='market-overview' active={activeView === 'market-overview'} onClick={this.handleSecondaryMenuClick}>
                 Market Overview
               </Menu.Item>
