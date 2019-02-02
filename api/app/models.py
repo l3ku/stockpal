@@ -33,6 +33,17 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.name
 
+class Stock(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    symbol = db.Column(db.String(20), unique=True, nullable=False)
+    name = db.Column(db.String(200), unique=False, nullable=False)
+    is_enabled = db.Column(db.Boolean())
+
+    def __init__(self, symbol, name, is_enabled):
+        self.symbol = symbol
+        self.name = name
+        self.is_enabled = is_enabled
+
 
 class LoggedInUser(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey(User.id, onupdate='CASCADE', ondelete='CASCADE'), primary_key=True, nullable=False)

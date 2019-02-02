@@ -1,10 +1,12 @@
 import re
 import json
+import time
 from flask import request
 from flask_restful import Resource, reqparse
 import requests
 from app.auth import initOAuth2Session, OAuth2Login, logout
 from authlib.common.errors import AuthlibBaseError
+from app.models import *
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
@@ -12,6 +14,40 @@ class ListGainers(Resource):
     def get(self):
         response = requests.get(iex_api_url + '/stock/market/list/gainers')
         return response.json()
+
+class AllStocks(Resource):
+    def get(self):
+        # Update the stocks listing every hour from IEX upstream
+        db_last_updated_meta_data = AppMetaData.query.filter_by(type='all_stocks_update_time').first()
+        if db_last_updated_meta_data is None:
+            stock_data = getAndUpdateStocksFromAPI()
+            # Insert the last updation meta data and commit to these changes.
+            db_last_updated_meta_data = AppMetaData('all_stocks_update_time', str(time.time()))
+            db.session.commit()
+        else:
+            stock_data = Stock.query.all()
+            updation_time = int(db_last_updated_meta_data.value)
+            one_hour_ago = time.time() - 3600
+            if updation_time <= one_hour_ago or all_stocks is None:
+                stock_data = self.getAndUpdateStocksFromAPI()
+                db.session.commit()
+            return stock_data
+
+    def getAndUpdateStocksFromAPI():
+        return_val = []
+        response = requests.get(iex_api_url + '/ref-data/symbols')
+        all_stocks = response.json()
+        for stock in all_stocks:
+            db_stock = Stock.query.filter_by(symbol=stock['symbol']).first()
+            if db_stock is None:
+                db_stock = Stock(symbol=stock['symbol'], name=stock['name'], is_enabled=stock['isEnabled'])
+            else:
+                db_stock.symbol = stock['symbol']
+                db_stock.name = stock['name']
+                db_stock.is_enabled = stock['isEnabled']
+            return_val.append({'symbol': stock['symbol'], 'name': stock['name'], 'is_enabled': stock['isEnabled']})
+        return return_val
+
 
 class UserInfo(Resource):
     def get(self, login_id):
