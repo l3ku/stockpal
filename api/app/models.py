@@ -6,6 +6,19 @@ import string
 
 db = SQLAlchemy()
 
+class AppMetaData(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    type = db.Column(db.String(200), unique=True, nullable=False)
+    value = db.Column(db.String(200))
+
+    def __init__(self, type, value):
+        self.type = type
+        self.value = value
+
+    def __repr__(self):
+        return f'<AppMetaData type:"{self.type}";value:"{self.value}"'
+
+
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(20), unique=True, nullable=False)
