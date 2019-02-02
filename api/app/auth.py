@@ -52,13 +52,16 @@ def OAuth2Login(auth_provider, auth_response):
     db.session.commit()
     db_user_id = db_user.id
 
+    # How long should this login be valid for?
+    login_expire_time = 604800
+
     # Check if the user is already logged in. If so, just reset the user login.
     db_logged_in_user = LoggedInUser.query.filter_by(user_id=db_user_id).first()
     if db_logged_in_user is None:
-        db_logged_in_user = LoggedInUser(user_id=db_user_id, expire_time=604800)
+        db_logged_in_user = LoggedInUser(user_id=db_user_id, expire_time=login_expire_time)
         db.session.add(db_logged_in_user)
     else:
-        db_logged_in_user.resetUserLogin(expire_time=604800)
+        db_logged_in_user.resetUserLogin(expire_time=login_expire_time)
     login_id = db_logged_in_user.login_id
     login_secret = db_logged_in_user.login_secret
     login_expires_at = db_logged_in_user.expires_at
@@ -86,8 +89,12 @@ def OAuth2Login(auth_provider, auth_response):
     # Apply changes to the database
     db.session.commit()
 
-    # Return login_id, login_secret and login expire time that can be used to authenticate to this API.
-    return (login_id, login_secret, login_expires_at)
+    # Return login_id, login_secret and login expire time that can be used to
+    # authenticate to this API. NOTE: be sure to return the relative time in
+    # seconds when the login expires, so the client can set the cookies for x
+    # seconds without having to face any timezone issues.
+    return (login_id, login_secret, login_expire_time)
+
 
 def logout(login_id, login_secret):
     db_user = LoggedInUser.query.filter_by(login_id=login_id).first()
