@@ -1,5 +1,21 @@
 @import 'components/all';
 .stockpal-wrapper {
+  .main-menu {
+    display: flex;
+    align-items: center;
+    .main-menu-app-title {
+      font-family: 'Cabin Sketch';
+      font-size: 2.3rem;
+      margin-left: 20px;
+    }
+    .main-menu-user-name {
+      margin-right: 10px;
+    }
+    .main-menu-user-picture {
+      width: 40px;
+      height: 40px;
+    }
+  }
   .page-content-column {
     padding: 1rem;
     .page-content-segment {

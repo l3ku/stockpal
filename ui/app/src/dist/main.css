@@ -28,6 +28,18 @@ table.gainer-stocks-table .change-positive {
 table.gainer-stocks-table .change-negative {
   color: red; }
 
+.stockpal-wrapper .main-menu {
+  display: flex;
+  align-items: center; }
+  .stockpal-wrapper .main-menu .main-menu-app-title {
+    font-family: 'Cabin Sketch';
+    font-size: 2.3rem;
+    margin-left: 20px; }
+  .stockpal-wrapper .main-menu .main-menu-user-name {
+    margin-right: 10px; }
+  .stockpal-wrapper .main-menu .main-menu-user-picture {
+    width: 40px;
+    height: 40px; }
 .stockpal-wrapper .page-content-column {
   padding: 1rem; }
   .stockpal-wrapper .page-content-column .page-content-segment {
