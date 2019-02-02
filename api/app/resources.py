@@ -1,6 +1,5 @@
 import re
 import json
-from datetime import datetime, timedelta
 from flask import request
 from flask_restful import Resource, reqparse
 import requests
@@ -14,11 +13,6 @@ class ListGainers(Resource):
         response = requests.get(iex_api_url + '/stock/market/list/gainers')
         return response.json()
 
-class StockHistory(Resource):
-    def get(self, stock_symbol):
-        end = datetime.today()
-        start = end - timedelta(days=365)
-        return ''
 
 class Authenticate(Resource):
     def get(self, auth_provider):
