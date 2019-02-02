@@ -16,6 +16,7 @@ api.add_resource(ListGainers, v1_base_url + '/gainers')
 
 # Authentication
 # @TODO: GET /api/oauth should return all providers
+api.add_resource(UserInfo, api_base_url + '/oauth/userinfo/<string:login_id>')
 api.add_resource(Authenticate, api_base_url + '/oauth/authenticate/<string:auth_provider>')
 api.add_resource(Login, api_base_url + '/oauth/login/<string:auth_provider>')
 api.add_resource(Logout, api_base_url + '/oauth/logout')

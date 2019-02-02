@@ -27,29 +27,36 @@ class LoggedInUser(db.Model):
     login_secret = db.Column(db.String(1000), unique=False, nullable=False)
     expires_at = db.Column(db.Integer(), default=0)
 
-    def __init__(self, user_id, expire_time=604800):
+    def __init__(self, user_id, expire_time):
         self.user_id = user_id
         self.resetUserLogin(expire_time=expire_time)
 
     def resetUserLogin(self, expire_time, id_length=100, secret_length=500):
-        # Generate login_id and login_secret for the user.
-        random_chars = string.digits + string.ascii_letters + string.punctuation
-
         # Ensure that the login_id is unique in the DB by iterating until a unique one is found.
         # If login_id length is big, there is an extremely low chance that this loop will be executed
         # many times.
         while True:
-            login_id = ''.join(random.choice(random_chars) for i in range(id_length))
+            login_id = ''.join(random.choice(string.digits + string.ascii_letters) for i in range(id_length))
             if self.query.filter_by(login_id=login_id).first() is None:
                 break
 
         # Login secrets need not to be unique.
-        login_secret = ''.join(random.choice(random_chars) for i in range(secret_length))
+        login_secret = ''.join(random.choice(string.digits + string.ascii_letters + string.punctuation) for i in range(secret_length))
 
         # Set the values into the model itself.
         self.login_id = login_id
         self.login_secret = login_secret
         self.expires_at = time.time() + expire_time
+
+    def validateLogin(self, login_secret):
+        # 1. Check that the login_secret is valid
+        if login_secret is None or self.login_secret != login_secret:
+            return (False, 'invalid_login')
+        # 2. Check that the login has not expired
+        elif time.time() >= self.expires_at:
+            return (False, 'login_expired')
+        else:
+            return (True, User.query.filter_by(id=self.user_id).first())
 
 
 class OAuth2Token(db.Model):

@@ -13,6 +13,24 @@ class ListGainers(Resource):
         response = requests.get(iex_api_url + '/stock/market/list/gainers')
         return response.json()
 
+class UserInfo(Resource):
+    def get(self, login_id):
+        if login_id is None or 'X-API-Key' not in request.headers:
+            return {'success': False, 'error': {'reason': 'missing_parameter'}}
+        login_secret = request.headers['X-API-Key']
+        try:
+            db_logged_in_user = LoggedInUser.query.filter_by(login_id=login_id).first()
+            if db_logged_in_user is None:
+                return {'success': False, 'error': {'reason': 'invalid_login'}}
+            success, response = db_logged_in_user.validateLogin(login_secret)
+            if not success:
+                return {'success': False, 'error': {'reason': response}}
+            db_user = response
+            return {'success': True, 'data': {'user_name': db_user.name, 'user_email': db_user.email, 'user_picture_url': db_user.picture_url}}
+        except ValueError as err:
+            return {'success': False, 'error': {'reason': str(err)}}
+        except AuthlibBaseError as err:
+            return {'success': False, 'errors': [err.description]}
 
 class Authenticate(Resource):
     def get(self, auth_provider):
