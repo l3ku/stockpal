@@ -19,7 +19,7 @@ Backend-frameworkkina päädyin Flaskiin, koska en aio käyttää esim. Djangon 
 Frontendissa käytetään Reactia, joka hakee sisällön JSON-formaatissa backendistä/API:sta. Mm. visualisointiin ja kirjautumisen evästeiden hallintaan käytetään Reactia varten tehtyjä kirjastoja, kuten `semantic-ui-react`. Kaavioihin ja kuvaajiin olen ajatellut käyttäväni `echarts`-kirjastoa.
 
 ### Tietokanta
-Tietokantana on MariaDB:n virallinen Docker-konttijakelu, jota ei ole muokattu millään tavalla, lukuunottamatta tietysti kontin käynnistysvaiheessa ympäristömuuttujina annettavia tietokannan käyttäjätunnuksia ja muita salaisia asioita.
+Tietokantana on MariaDB:n virallinen Docker-jakelu, jota ei ole muokattu millään tavalla, lukuunottamatta tietysti kontin käynnistysvaiheessa ympäristömuuttujina annettavia tietokannan käyttäjätunnuksia ja muita salaisia asioita.
 
 ### HTTP-palvelin
 Edustapalvelina on Nginx. Erillisen edustapalvelimen etuna on muun muassa, että pyyntöjä voidaan kätevästi välimuistittaa Nginx:n HTTP-cacheen sekä lisätä omia HTTP-otsakkeita proxy-vaiheessa.
@@ -33,9 +33,9 @@ ui/
 ```
 <sub>Tietokanta ei tarvitse omaa hakemistoaan, koska sen Docker-konttia ei ole tarpeen muuttaa omalla Dockerfile-tiedostolla.</sub>
 
-Tämän jälkeen loin UI-kansioon React-applikaation `create-react-app`-ohjelman avulla, sekä API-kansioon Flask-projektin [Flask-boilerplaten](https://github.com/MaxHalford/flask-boilerplate) avulla. Loin eri mikropalveluja varten omat kustomoidut Dockerfilet projekteille, loin Dockerfile-tiedostojen pohjalta levykuvat (Docker image), ja käynnistin kontit levykuvista. Tässä vaiheessa oli jokseenkin haastavaa Dockerfilen oikeanlainen määrittely, kuten esimerkiksi kontin käyttöoikeuksien määrittely, oikeiden tiedostojen kopiointi konttiin ja ylipäänsä Dockerfilen syntaksi.
+Tämän jälkeen loin UI-kansioon React-applikaation `create-react-app`-ohjelman avulla, sekä API-kansioon Flask-projektin [Flask-boilerplaten](https://github.com/MaxHalford/flask-boilerplate) avulla. Loin eri mikropalveluja varten omat kustomoidut Dockerfilet projekteilla ja loin Dockerfile-tiedostojen pohjalta levykuvat (Docker image). Tässä vaiheessa oli jokseenkin haastavaa Dockerfilen oikeanlainen määrittely, kuten esimerkiksi kontin käyttöoikeuksien määrittely, oikeiden tiedostojen kopiointi konttiin ja ylipäänsä Dockerfilen syntaksi.
 
-Tässä vaiheessa kokeilin käynnistää api- ja MariaDB-kontteja konfiguraatiollani, ja yritin saada tietokantayhteyden api:n ja db:n välillä kuntoon. Tätä varten piti `flask-sqlalchemy` konfiguroida oikealla tietokannan osoitteella. Tietokantamuuttujat luetaan api-kontissa ympäristömuuttujina ja annetaan konfiguraatioluokassa parametrina. Ohessa ote kyseisestä tiedostosta:
+Tämän jälkeen kokeilin käynnistää api- ja MariaDB-kontteja konfiguraatiollani, ja yritin saada tietokantayhteyden api:n ja db:n välillä kuntoon. Tätä varten piti `flask-sqlalchemy` konfiguroida oikealla tietokannan osoitteella. Tietokantamuuttujat luetaan api-kontissa ympäristömuuttujina ja annetaan konfiguraatioluokassa parametrina. Ohessa ote kyseisestä tiedostosta:
 ```
 ...
 mysql_user = os.environ['MYSQL_USER']
@@ -48,7 +48,7 @@ class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = f'mysql://{mysql_user}:{mysql_pw}@{mysql_host}:3306/{mysql_db}'
     ...
 ```
-Kun sain tietokantayhteyden pystyyn, aloin luomaan Nginx-konfiguraatiota HTTP-pyyntöjen proxyttamiseksi portissa 80 kuuntelevalta nginx-kontilta api-konttiin polussa `/api/*` ja muutoin ui-kontille. Sain aikaiseksi seuraavankaltaisen konfiguraatiotiedoston:
+Kun sain tietokantayhteyden toimimaan luomalla testitaulun ja kirjoittamalla siihen, aloin luomaan Nginx-konfiguraatiota HTTP-pyyntöjen proxyttamiseksi portissa 80 kuuntelevalta nginx-kontilta api-konttiin polussa `/api/*` ja muutoin ui-kontille. Sain aikaiseksi seuraavankaltaisen konfiguraatiotiedoston:
 ```
 server {
     listen       80;
@@ -67,7 +67,7 @@ server {
 ```
 Tässä vaiheessa testasin, että reititys toimii, ja API sekä UI pystyvät kommunikoimaan keskenään palauttamalla API:sta testinä JSON-notaatiota ja näyttämällä sen Reactissa.
 
-Kun sain Dockerfilet kuntoon, aloin luomaan Docker-composea varten projektin juureen `docker-compose.yml`-tiedostoa, johon määritellään sovelluksen kaikki Docker-konttien konfiguraatio, esimerkiksi:
+Kun sain Dockerfilet kuntoon, aloin luomaan Docker-composea varten projektin juureen `docker-compose.yml`-tiedostoa, johon määritellään sovelluksen kaikkien Docker-konttien konfiguraatio, esimerkiksi:
 - Kontin pohjana käytettävä levykuva (image)
 - Hostiin mountattavat volumet. Tämä tarkoittaa, että tiedostojärjestelmä yhdistyy kontin ja oman tietokoneen (tai muun hostin) välillä, jolloin omalla koneella tehdyt muutokset päivittyvät myös konttiin (tärkeä ominaisuus, kun tekee sovelluskehitystä ja muokkaa tiedostoja omalla koneella)
 - Ympäristömuuttujat
@@ -116,7 +116,7 @@ Dockerin ja Docker-composen käyttöönotto määrittelyineen oli mielestäni jo
 
 
 ## Tietokantaan kirjoittaminen
-Harjoitustyön ensimmäisessä vaiheessa oli myös tarkoitus varmistaa, että sovellus osaa tallentaa käyttäjän syötettä tietokantaan ja lukea sitä siitä. Toteutin tässä vaiheessa sovellukseeni Googlen OAuth2-autentikoinnin, jossa tietokantamallissa on jo taulut käyttäjälle (mm. nimi, sposti, profiilikuva), kirjautuneelle käyttäjälle (sovelluksen autentikoinnin tiedot, jotka asetetaan frontissa evästeisiin) sekä OAuth2-tokenille (voidaan hakea tietoa Googlen rajapinnasta). Tietokantaan siis kirjoitetaan kirjautumisvaiheessa, ja luetaan kun käyttäjä yrittää hakea autentikoinnin vaativasta API-polusta dataa.
+Harjoitustyön ensimmäisessä vaiheessa oli myös tarkoitus varmistaa, että sovellus osaa tallentaa käyttäjän syötettä tietokantaan ja lukea sitä siitä. Toteutin tässä vaiheessa sovellukseeni Googlen OAuth2-autentikoinnin, jossa tietokantamallissa on jo taulut käyttäjälle (mm. nimi, sposti, profiilikuva), kirjautuneelle käyttäjälle (sovelluksen autentikoinnin tiedot, jotka asetetaan frontissa evästeisiin) sekä OAuth2-tokenille (voidaan hakea tietoa Googlen rajapinnasta). En ollut aiemmin perehtynyt OAuth2:n toimintaan, joten sen käyttöönotto oli hieman haastavaa. Tietokantaan siis kirjoitetaan kirjautumisvaiheessa, ja luetaan kun käyttäjä yrittää hakea autentikoinnin vaativasta API-polusta dataa.
 
 
 ## Hyödylliseksi havaittu materiaali
