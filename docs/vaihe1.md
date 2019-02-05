@@ -1,4 +1,4 @@
-# Ohsihan harjoitustyön vaihe 1
+# Ohsihan harjoitustyön vaihe 1 – Leo Toikka
 Päädyin luomaan sovelluksen, jonka ideana on hakea jostakin ulkoisesta rajapinnasta osakkeiden kurssien kehitystä ja arvioida sitä tulevaisuuteen koneoppimisen menetelmien avulla. Käyttäjät voivat kirjautua palveluun Google-tunnuksilla hallintapaneeliin, jossa he voivat selailla osakkeita, tallentaa haluamiaan osakkeita "seurantaan", tarkastella niiden dataa sekä ennustaa niiden tulevaisuuden kurssikehitystä. Rajapinta, josta osaketiedot haettaisiin, voisi olla esimerkiksi [IEX](https://iextrading.com/developer/docs/); tärkeää rajapinnassa on, että osakkeiden historiatiedot ovat saatavilla.
 
 ## Sovelluksen arkkitehtuuri ja teknologiat
@@ -115,9 +115,15 @@ services:
 Dockerin ja Docker-composen käyttöönotto määrittelyineen oli mielestäni jokseenkin aikaavievä ja haastava operaatio, mutta se helpottaa erittäin paljon sovelluskehitystä: kaikkien sovelluksen levykuvien (image) buildaamiseksi riittää komento `docker-compose build`, ja kaikkien konttien käynnistämiseksi `docker-compose up -d`. Kun Reactia ja Flaskia käytetään ns. kehitysmoodissa, ohjelmat käynnistyvät automaattisesti uudelleen muutosten kanssa.
 
 
-## Tietokantaan kirjoittaminen
+### Tietokantaan kirjoittaminen
 Harjoitustyön ensimmäisessä vaiheessa oli myös tarkoitus varmistaa, että sovellus osaa tallentaa käyttäjän syötettä tietokantaan ja lukea sitä siitä. Toteutin tässä vaiheessa sovellukseeni Googlen OAuth2-autentikoinnin, jossa tietokantamallissa on jo taulut käyttäjälle (mm. nimi, sposti, profiilikuva), kirjautuneelle käyttäjälle (sovelluksen autentikoinnin tiedot, jotka asetetaan frontissa evästeisiin) sekä OAuth2-tokenille (voidaan hakea tietoa Googlen rajapinnasta). En ollut aiemmin perehtynyt OAuth2:n toimintaan, joten sen käyttöönotto oli hieman haastavaa. Tietokantaan siis kirjoitetaan kirjautumisvaiheessa, ja luetaan kun käyttäjä yrittää hakea autentikoinnin vaativasta API-polusta dataa.
 
+
+## Listaus vaikeista asioista
+- Flask on minulle täysin uusi tuttavuus, joten sen käyttöönotto oli vaikeaa. Pääsin kuitenkin alkuun tutustumalla [Flask Boilerplate](https://github.com/MaxHalford/flask-boilerplate)-projektin koodiin.
+- React ja sen JSX-syntaksi aiheuttaa minulle usein syntax erroreita ja harmaita hiuksia. Tämä varmastikin korjaantuu, kun React-kokemus kartuu...
+- Dockerfilen määrittelyt olivat haastavia, koska niiden avulla pitäisi osata alustaa sovelluksen ajoympäristö ja aina jokin asia jäi huomioimatta (tiedostoilla väärät oikeudet, joku polku on väärin jne.).
+- OAuth2-autentikoinnin toteuttaminen on suhteellisen monimutkainen ja vaatii useita HTTP-pyyntöjä.
 
 ## Hyödylliseksi havaittu materiaali
 - [Flask Boilerplate](https://github.com/MaxHalford/flask-boilerplate)
