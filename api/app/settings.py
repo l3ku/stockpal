@@ -42,3 +42,10 @@ class TestConfig(Config):
 
     CACHE_TYPE = 'null'
     WTF_CSRF_ENABLED = False
+
+app_config = {
+    'development': DevConfig,
+    'testing': TestConfig,
+    'staging': TestConfig,
+    'production': ProdConfig
+}
