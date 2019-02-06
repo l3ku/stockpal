@@ -1,11 +1,14 @@
+/* eslint-disable */
 import React, { Component } from 'react';
-import {Header, Menu, Grid, Segment, Modal, Dropdown, Image} from 'semantic-ui-react'
-import {GainerStocks} from './components/gainerStocks'
-import {LoginModal} from './components/loginModal'
+import {Header, Menu, Grid, Segment, Modal, Dropdown, Image} from 'semantic-ui-react';
+import {GainerStocks} from './components/gainerStocks';
+import {AllStocks} from './components/allStocks';
+import {LoginModal} from './components/loginModal';
 import './dist/main.css';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import API from './utils/api';
+import user_avatar_placeholder from './user-avatar-placeholder.png';
 
 class App extends Component {
   static propTypes = {
@@ -18,7 +21,7 @@ class App extends Component {
     this.state = {
       api_id: cookies.get('_api_id') || null,
       api_secret: cookies.get('_api_secret') || null,
-      userPicture: null,
+      userPicture: user_avatar_placeholder,
       userName: 'Loading...',
       activePage: false,
       activeView: false,
@@ -26,37 +29,34 @@ class App extends Component {
     };
   }
 
-  handleSecondaryMenuClick = (e, { name }) => this.setState({ activeView: name })
-  handleModalActivation = (e, { name }) => this.setState({ activeModal: name })
+  handleSecondaryMenuClick = (e, { name }) => this.setState({ activeView: name });
+  handleModalActivation = (e, { name }) => this.setState({ activeModal: name });
 
-  componentWillMount() {
+  componentWillMount = () => {
     this.maybeLogin();
     this.getUserInfo();
   }
 
   getUserInfo = () => {
-    const { api_id, api_secret } = this.state;
-    if ( api_id && api_secret ) {
-      API.getUserInfo(api_id, api_secret,
-        (res) => {
-          if ( res.success ) {
-            this.setState({userName: res.data.user_name, userPicture: res.data.user_picture_url});
-          } else {
-            // If the user info fetch fails, it means that the user is no longer
-            // logged in validly and should thus relogin. As a concequence, the
-            // invalid cookies and state should be cleaned.
-            console.log(res);
-            this.setState({api_id: null, api_secret: null});
-            this.props.cookies.remove('_api_id');
-            this.props.cookies.remove('_api_secret');
-          }
-        },
-        (err) => {
-          console.log(err);
-          // TODO: errors
+    API.getUserInfo(this.state.api_id, this.state.api_secret,
+      (res) => {
+        if ( res.success ) {
+          {this.setState({userName: res.data.user_name, userPicture: res.data.user_picture_url});}
+        } else {
+          // If the user info fetch fails, it means that the user is no longer
+          // logged in validly and should thus relogin. As a concequence, the
+          // invalid cookies and state should be cleaned.
+          console.log(res);
+          this.setState({api_id: null, api_secret: null});
+          this.props.cookies.remove('_api_id');
+          this.props.cookies.remove('_api_secret');
         }
-      );
-    }
+      },
+      (err) => {
+        console.log(err);
+        // TODO: errors
+      }
+    );
   }
 
   maybeLogin = () => {
@@ -90,23 +90,32 @@ class App extends Component {
   }
 
   logout = () => {
-    const { cookies } = this.props;
-    const { api_id, api_secret } = this.state;
-    API.logout(api_id, api_secret,
+    API.logout(this.state.api_id, this.state.api_secret,
       (res) => {
         this.setState({api_id: null, api_secret: null});
-        cookies.remove('_api_id');
-        cookies.remove('_api_secret');
+        this.props.cookies.remove('_api_id');
+        this.props.cookies.remove('_api_secret');
       },
       (err) => {
+        // TODO: errors
         console.log(err);
       }
     );
   }
 
   render = () => {
-    const { activePage, activeView } = this.state;
-    let activeComponent = <GainerStocks />;
+    const activePage = this.state.activePage;
+    const activeView = this.state.activeView;
+    let activeComponent;
+    if ( activeView === 'all-stocks' ) {
+      activeComponent = (
+        <AllStocks />
+      );
+    } else {
+      activeComponent = (
+        <GainerStocks />
+      );
+    }
 
     // Show the login link as default. However, if the user is already logged in, show the logout link
     // alongside with the "My Account" link.
@@ -129,12 +138,13 @@ class App extends Component {
           <Dropdown trigger={trigger} pointing='top right' icon={null}>
             <Dropdown.Menu>
               <Dropdown.Item>My Account</Dropdown.Item>
-              <Dropdown.Item onClick={this.logout}>Logout</Dropdown.Item>
+              <Dropdown.Item onClick={this.logout}><span className="main-menu-logout-link">Logout</span></Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Menu.Item>
       );
     }
+
     return (
       <div className="stockpal-wrapper">
         <Modal

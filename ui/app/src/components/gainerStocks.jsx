@@ -13,21 +13,19 @@ export class GainerStocks extends Component {
   }
 
   componentDidMount() {
-    if ( this.state.items.length === 0 ) {
-      API.getGainerStocks(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result
-          });
-        },
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error: error
-          });
+    API.getGainerStocks(
+      (result) => {
+        this.setState({
+          isLoaded: true,
+          items: result
         });
-    }
+      },
+      (error) => {
+        this.setState({
+          isLoaded: true,
+          error: error
+        });
+      });
   }
 
   render = () => {
@@ -57,7 +55,7 @@ export class GainerStocks extends Component {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-          {items.map(item => (
+          {items && items.map(item => (
             <Table.Row key={item.symbol}>
               <Table.Cell>
                 {item.companyName}
