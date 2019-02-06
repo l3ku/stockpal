@@ -38,8 +38,10 @@ table.gainer-stocks-table .change-negative {
   .stockpal-wrapper .main-menu .main-menu-user-name {
     margin-right: 10px; }
   .stockpal-wrapper .main-menu .main-menu-user-picture {
-    width: 40px;
-    height: 40px; }
+    width: 32px;
+    height: 32px; }
+  .stockpal-wrapper .main-menu .main-menu-logout-link {
+    color: #FF0000; }
 .stockpal-wrapper .page-content-column {
   padding: 1rem; }
   .stockpal-wrapper .page-content-column .page-content-segment {
