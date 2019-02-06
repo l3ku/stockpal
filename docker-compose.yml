@@ -4,6 +4,8 @@ services:
     image: mariadb:10.4.1
     env_file:
       - '.env'
+  redis:
+    image: redis:5.0
 
   api:
     build: api
