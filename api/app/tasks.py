@@ -12,7 +12,7 @@ def create_celery(celery, app):
     return celery
 
 flask_app = create_app()
-celery_app = Celery('app.create', broker='redis://redis:6379')
+celery_app = Celery('app.create', broker='redis://redis:6379', result_backend='redis://redis:6379')
 celery_app = create_celery(celery_app, flask_app)
 
 @celery_app.task

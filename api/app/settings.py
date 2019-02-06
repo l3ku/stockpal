@@ -14,7 +14,6 @@ class Config(object):
     SECRET_KEY = 'REPLACE ME'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = mysql_uri
-    CELERY_RESULT_BACKEND = f'db+mysql://{db_address}'
 
 class ProdConfig(Config):
     ENV = 'prod'
