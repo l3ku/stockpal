@@ -7,10 +7,16 @@ while ! mysqladmin ping -h"$MYSQL_DATABASE_HOST" --silent; do
   sleep 3
 done
 
-# Run database upgrades
-flask db upgrade -d ${APPDIR}/app/migrations
-flask db migrate -d ${APPDIR}/app/migrations
-flask db upgrade -d ${APPDIR}/app/migrations
+# Handle different tasks depending on wether this is for Celery or Flask.
+APP_TYPE=${DEPLOY_ENV:-'flask'}
+if [[ $APP_TYPE == "celery" ]]; then
+  celery worker -B -l info -A app.tasks
+else
+  # Run database upgrades
+  flask db upgrade -d ${APPDIR}/app/migrations
+  flask db migrate -d ${APPDIR}/app/migrations
+  flask db upgrade -d ${APPDIR}/app/migrations
 
-# Start uwsgi
-uwsgi --ini ${APPDIR}/uwsgi.ini
+  # Start uwsgi
+  uwsgi --ini ${APPDIR}/uwsgi.ini
+fi

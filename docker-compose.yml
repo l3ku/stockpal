@@ -21,18 +21,12 @@ services:
   celery:
     build: api
     image: l3ku/stockpal-api:0.0.1
-    entrypoint:
-      - celery
-      - worker
-      - -B
-      - -l
-      - info
-      - -A
-      - app.tasks
     volumes:
       - './api/app:/app/app:rw'
     env_file:
       - '.env'
+    environment:
+      DEPLOY_ENV: 'celery'
     links:
       - redis
       - db
