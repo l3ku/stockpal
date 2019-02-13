@@ -19,17 +19,11 @@ class ListGainers(Resource):
 
 class AllStocks(Resource):
     def get(self):
-        # Get the stocks from a local file because making the API request every time would be
-        # painfully slow...
-        stocks_file = os.environ['APPDIR'] + '/app/json/all-stocks.json'
-        if os.path.isfile(stocks_file):
-            try:
-                with open(stocks_file, 'r') as f:
-                    stock_data = json.load(f)
-                    return {'success': True, 'data': stock_data}
-            except ValueError:
-                pass
-        return {'success': False, 'error': ''}
+        all_stocks = Stock.query.all()
+        return_data = []
+        for stock in all_stocks:
+            return_data.append({'symbol': stock.symbol, 'name': stock.name, 'type': stock.type, 'is_enabled': stock.is_enabled})
+        return {'success': True, 'data': return_data}
 
 
 class UserInfo(Resource):

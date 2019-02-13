@@ -16,7 +16,20 @@ class AppMetaData(db.Model):
         self.value = value
 
     def __repr__(self):
-        return f'<AppMetaData type:"{self.type}";value:"{self.value}"'
+        return f'<AppMetaData type="{self.type}" value="{self.value}">'
+
+
+class Stock(db.Model):
+    symbol = db.Column(db.String(20), primary_key=True)
+    name = db.Column(db.String(200), unique=False, nullable=False)
+    type = db.Column(db.String(20), unique=False, nullable=False)
+    is_enabled = db.Column(db.Boolean())
+
+    def __init__(self, symbol, name, type, is_enabled):
+        self.symbol = symbol
+        self.name = name
+        self.type = type
+        self.is_enabled = is_enabled
 
 
 class User(db.Model):
