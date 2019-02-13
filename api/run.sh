@@ -10,7 +10,7 @@ done
 # Handle different tasks depending on wether this is for Celery or Flask.
 APP_TYPE=${DEPLOY_ENV:-'flask'}
 if [[ $APP_TYPE == "celery" ]]; then
-  celery worker -B -l info -A app.tasks
+  celery worker -B -l info -A app.runcelery:celery
 else
   # Run database upgrades
   flask db upgrade -d ${APPDIR}/app/migrations
