@@ -1,22 +1,20 @@
-from celery import Celery
-import os
-from app.create import create_app
+from app import celery
+from app.models import db, Stock
+import requests
 
-def create_celery(celery, app):
-    celery.conf.update(app.config)
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-    celery.Task = ContextTask
-    return celery
+iex_api_url = 'https://api.iextrading.com/1.0'
 
-flask_app = create_app()
-celery_app = Celery('app.create', broker='redis://redis:6379', result_backend='redis://redis:6379')
-celery_app = create_celery(celery_app, flask_app)
-
-@celery_app.task
-def add(x, y):
-    return x + y
-
-add.delay(4, 4)
+@celery.task
+def updateStocksFromAPI():
+    response = requests.get(iex_api_url + '/ref-data/symbols')
+    all_stocks = response.json()
+    for stock in all_stocks:
+        db_stock = Stock.query.filter_by(symbol=stock['symbol']).first()
+        if db_stock is None:
+            db_stock = Stock(symbol=stock['symbol'], name=stock['name'], type=stock['type'], is_enabled=stock['isEnabled'])
+            db.session.add(db_stock)
+        else:
+            db_stock.name = stock['name']
+            db_stock.type = stock['type']
+            db_stock.is_enabled = stock['isEnabled']
+    db.session.commit()

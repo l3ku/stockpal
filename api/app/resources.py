@@ -8,7 +8,7 @@ from flask_restful import Resource, reqparse
 import requests
 from app.auth import initOAuth2Session, OAuth2Login, logout
 from authlib.common.errors import AuthlibBaseError
-from app.models import db, AppMetaData, LoggedInUser, User
+from app.models import db, AppMetaData, LoggedInUser, User, Stock
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
