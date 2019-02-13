@@ -9,6 +9,7 @@ import requests
 from app.auth import initOAuth2Session, OAuth2Login, logout
 from authlib.common.errors import AuthlibBaseError
 from app.models import db, AppMetaData, LoggedInUser, User, Stock
+from app.tasks import updateStocksFromAPI
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
@@ -16,6 +17,7 @@ class ListGainers(Resource):
     def get(self):
         response = requests.get(iex_api_url + '/stock/market/list/gainers')
         return response.json()
+
 
 class AllStocks(Resource):
     def get(self):
@@ -25,6 +27,8 @@ class AllStocks(Resource):
             return_data.append({'symbol': stock.symbol, 'name': stock.name, 'type': stock.type, 'is_enabled': stock.is_enabled})
         return {'success': True, 'data': return_data}
 
+    def post(self):
+        updateStocksFromAPI.delay()
 
 class UserInfo(Resource):
     def get(self, login_id):
