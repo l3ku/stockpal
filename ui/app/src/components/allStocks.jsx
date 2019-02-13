@@ -1,24 +1,9 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import { Icon, Label, Menu, Table, Loader, Dimmer } from 'semantic-ui-react';
 import API from './../utils/api';
 
 export class AllStocks extends Component {
-  // Refers to the common issue type (AD - ADR).
-  // See https://github.com/iexg/IEX-API/issues/264 for an explanation.
-  getStockTypeDescriptions() {
-    return {
-      'ad': 'American Depository Receipt',
-      're': 'Real Estate Investment Trust',
-      'ce': 'Closed end fund',
-      'si': 'Secondary Issue',
-      'lp': 'Limited Partnerships',
-      'cs': 'Common Stock',
-      'et': 'Exchange Traded Fund',
-      'crypto': 'Cryptocurrency',
-      'ps': 'Preferred Stock'
-    }
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -27,9 +12,13 @@ export class AllStocks extends Component {
       items: [],
       itemsPerPage: 50,
       currentPage: 1,
-      totalPages: 1,
-      showMaxPages: 10
+      totalPages: 0,
+      showPageRange: 10
     };
+    // Bind all necessary custom methods to this
+    this.changePage = this.changePage.bind(this);
+    this.incrementPage = this.incrementPage.bind(this);
+    this.deccrementPage = this.decrementPage.bind(this);
   }
   componentDidMount() {
     API.getAllStocks(
@@ -55,22 +44,48 @@ export class AllStocks extends Component {
       });
   }
 
-  changePage = (evt) => {
-    var page = parseInt(evt.target.getAttribute('data-page'));
+  getStockTypeDescriptions() {
+    // Refers to the common issue type (AD - ADR).
+    // See https://github.com/iexg/IEX-API/issues/264 for an explanation.
+    return {
+      ad: 'American Depository Receipt',
+      re: 'Real Estate Investment Trust',
+      ce: 'Closed end fund',
+      si: 'Secondary Issue',
+      lp: 'Limited Partnerships',
+      cs: 'Common Stock',
+      et: 'Exchange Traded Fund',
+      crypto: 'Cryptocurrency',
+      ps: 'Preferred Stock',
+    };
+  }
+
+  changePage(evt) {
+    const page = parseInt(evt.target.getAttribute('data-page'));
 
     // Do nothing on current page click
-    if ( page === this.state.currentPage ) {
-      return;
-    } else {
+    if ( page !== this.state.currentPage ) {
       this.setState({currentPage: page});
     }
   }
 
+  incrementPage(evt) {
+    if ( this.state.currentPage < this.state.totalPages ) {
+      this.setState({currentPage: this.state.currentPage + 1});
+    }
+  }
+
+  decrementPage(evt) {
+    if ( this.state.currentPage > 1 ) {
+      this.setState({currentPage: this.state.currentPage - 1});
+    }
+  }
+
   render() {
-    const { error, isLoaded, items, itemsPerPage, currentPage, totalPages, showMaxPages } = this.state;
+    const { error, isLoaded, items, itemsPerPage, currentPage, totalPages, showPageRange } = this.state;
 
     if (error) {
-        return 'Error: ' + error;
+        return ( 'Error: ' + error );
     } else if (!isLoaded) {
       return (
         <div>
@@ -85,13 +100,12 @@ export class AllStocks extends Component {
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
       const end = Math.min(begin + this.state.itemsPerPage + 1, this.state.items.length);
       const itemsSliced = items.slice(begin, end);
-      const paginationStart = Math.max(this.state.currentPage-Math.floor(this.state.showMaxPages/2, 1), 0) + 1;
-      const paginationEnd = Math.min(this.state.showMaxPages, paginationStart + this.state.showMaxPages);
-      const paginationArray = [...Array(paginationEnd-paginationStart)]
-      const stockTypeDescriptions = this.getStockTypeDescriptions()
-      console.log(paginationStart);
-      console.log(paginationEnd);
-      return(
+      const paginationStart = Math.min(Math.max(this.state.currentPage-Math.floor(this.state.showPageRange/2), 0) + 1, totalPages-this.state.showPageRange);
+      const paginationEnd = Math.min(paginationStart+this.state.showPageRange, totalPages);
+      const paginationArray = [...Array(paginationEnd-paginationStart)];
+      const stockTypeDescriptions = this.getStockTypeDescriptions();
+
+      return (
         <Table celled>
           <Table.Header>
             <Table.Row>
@@ -126,18 +140,24 @@ export class AllStocks extends Component {
             <Table.Row>
               <Table.HeaderCell colSpan='3'>
                 <Menu floated='right' pagination>
-                  <Menu.Item as='a' disabled={currentPage === 1} icon>
+                  <Menu.Item key={1} data-page={1} disabled={totalPages === 0 || currentPage === 1} as='a' onClick={this.changePage}>
+                    <Icon name='angle double left' />
+                  </Menu.Item>
+                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === 1} onClick={this.decrementPage} icon>
                     <Icon name='chevron left' />
                   </Menu.Item>
-                  {paginationArray.map((page, index) => {
+                  {totalPages > 0 && paginationArray.map((page, index) => {
                     return (
-                      <Menu.Item key={paginationStart+index} disabled={currentPage === paginationStart+index} data-page={paginationStart+index} active={currentPage === paginationStart+index+1} as='a' onClick={this.changePage}>
+                      <Menu.Item key={paginationStart+index} data-page={paginationStart+index} active={currentPage === paginationStart+index} as='a' onClick={this.changePage}>
                         {paginationStart+index}
                       </Menu.Item>
                     );
                   })}
-                  <Menu.Item as='a' icon>
-                    <Icon name='chevron right' disabled={currentPage === totalPages} />
+                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === totalPages} onClick={this.incrementPage} icon>
+                    <Icon name='chevron right' />
+                  </Menu.Item>
+                  <Menu.Item data-page={totalPages} disabled={totalPages === 0 || currentPage === totalPages} as='a' onClick={this.changePage}>
+                    <Icon name='angle double right' />
                   </Menu.Item>
                 </Menu>
               </Table.HeaderCell>

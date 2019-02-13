@@ -34,10 +34,13 @@ class App extends Component {
 
   componentWillMount = () => {
     this.maybeLogin();
-    this.getUserInfo();
+    this.maybeGetUserInfo();
   }
 
-  getUserInfo = () => {
+  maybeGetUserInfo = () => {
+    if ( !(this.state.api_id && this.state.api_secret) ) {
+      return;
+    }
     API.getUserInfo(this.state.api_id, this.state.api_secret,
       (res) => {
         if ( res.success ) {
@@ -46,7 +49,6 @@ class App extends Component {
           // If the user info fetch fails, it means that the user is no longer
           // logged in validly and should thus relogin. As a concequence, the
           // invalid cookies and state should be cleaned.
-          console.log(res);
           this.setState({api_id: null, api_secret: null});
           this.props.cookies.remove('_api_id');
           this.props.cookies.remove('_api_secret');
