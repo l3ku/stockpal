@@ -33,7 +33,7 @@ COPY app/ "${APPDIR}/app/"
 
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
-ENV FLASK_APP app.create
+ENV FLASK_APP app.runwsgi:application
 
 # Add pip3 packages to PATH
 ENV PATH /home/${USER}/.local/bin:${PATH}
