@@ -3,7 +3,7 @@ def create_celery(celery, app):
     celery.conf.beat_schedule = {
         'update-stocks-every-hour': {
             'task': 'app.tasks.updateStocksFromAPI',
-            'schedule': 30,
+            'schedule': 3600,
         },
     }
     TaskBase = celery.Task
