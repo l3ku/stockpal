@@ -10,13 +10,14 @@ from app.auth import initOAuth2Session, OAuth2Login, logout
 from authlib.common.errors import AuthlibBaseError
 from app.models import db, AppMetaData, LoggedInUser, User, Stock
 from app.tasks import updateStocksFromAPI
+from urllib.parse import quote
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
 class ListGainers(Resource):
     def get(self):
         response = requests.get(iex_api_url + '/stock/market/list/gainers')
-        return response.json()
+        return {'success': True, 'data': response.json()}
 
 
 class AllStocks(Resource):

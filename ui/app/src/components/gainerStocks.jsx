@@ -17,7 +17,7 @@ export class GainerStocks extends Component {
       (result) => {
         this.setState({
           isLoaded: true,
-          items: result
+          items: result.data
         });
       },
       (error) => {
