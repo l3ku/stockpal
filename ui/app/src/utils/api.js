@@ -5,6 +5,12 @@ export default class API {
       .then((res) => success_cb(res), (err) => error_cb(err));
   }
 
+  static getStockChart(symbol, success_cb, error_cb) {
+    fetch('/api/v1/stock/' + encodeURIComponent(symbol) + '/chart')
+      .then(res => res.json())
+      .then((res) => success_cb(res), (err) => error_cb(err));
+  }
+
   static getAllStocks(success_cb, error_cb) {
     fetch('/api/v1/all-stocks')
       .then(res => res.json())
