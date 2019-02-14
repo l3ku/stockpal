@@ -31,6 +31,13 @@ class AllStocks(Resource):
     def post(self):
         updateStocksFromAPI.delay()
 
+
+class StockChart(Resource):
+    def get(self, symbol):
+        symbol_esc = quote(symbol, safe='')
+        response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/5y')
+        return {'success': True, 'data': response.json()}
+
 class UserInfo(Resource):
     def get(self, login_id):
         if login_id is None:
