@@ -9,9 +9,11 @@ export class LoginModal extends Component {
       error: null,
       isLoading: false,
     };
+    // Bind custom functions to the class instance
+    this.handleLoginProviderAuth = this.handleLoginProviderAuth.bind(this);
   }
 
-  handleLoginProviderAuth = (evt) => {
+  handleLoginProviderAuth(evt) {
     this.setState({ isLoading: true });
     const provider = evt.target.name;
     API.getLoginAuthLink(provider,
@@ -32,6 +34,7 @@ export class LoginModal extends Component {
         });
       });
   }
+
   render() {
     return (
       <div className='login-section'>

@@ -27,17 +27,23 @@ class App extends Component {
       activeView: false,
       activeModal: false
     };
+
+    // Bind custom functions to the class instance
+    this.maybeGetUserInfo = this.maybeGetUserInfo.bind(this);
+    this.maybeLogin = this.maybeLogin.bind(this);
+    this.logout = this.logout.bind(this);
+    this.showStock = this.showStock.bind(this);
   }
 
   handleSecondaryMenuClick = (e, { name }) => this.setState({ activeView: name });
   handleModalActivation = (e, { name }) => this.setState({ activeModal: name });
 
-  componentWillMount = () => {
+  componentWillMount() {
     this.maybeLogin();
     this.maybeGetUserInfo();
   }
 
-  maybeGetUserInfo = () => {
+  maybeGetUserInfo() {
     if ( !(this.state.api_id && this.state.api_secret) ) {
       return;
     }
@@ -61,7 +67,7 @@ class App extends Component {
     );
   }
 
-  maybeLogin = () => {
+  maybeLogin() {
     // Check for the login request
     var pathname = window.location.pathname;
     if ( pathname.includes('/login/') ) {
@@ -91,7 +97,7 @@ class App extends Component {
     }
   }
 
-  logout = () => {
+  logout() {
     API.logout(this.state.api_id, this.state.api_secret,
       (res) => {
         this.setState({api_id: null, api_secret: null});
@@ -105,7 +111,7 @@ class App extends Component {
     );
   }
 
-  render = () => {
+  render() {
     const activePage = this.state.activePage;
     const activeView = this.state.activeView;
     let activeComponent;

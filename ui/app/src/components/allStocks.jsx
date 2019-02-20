@@ -15,10 +15,10 @@ export class AllStocks extends Component {
       totalPages: 0,
       showPageRange: 10
     };
-    // Bind all necessary custom methods to this
+    // Bind custom functions to the class instance
     this.changePage = this.changePage.bind(this);
     this.incrementPage = this.incrementPage.bind(this);
-    this.deccrementPage = this.decrementPage.bind(this);
+    this.decrementPage = this.decrementPage.bind(this);
   }
   componentDidMount() {
     API.getAllStocks(
