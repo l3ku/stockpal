@@ -94,6 +94,12 @@ export class AllStocks extends Component {
           </Dimmer>
         </div>
       );
+    } else if (isLoaded && items.length === 0) {
+      return (
+        <div>
+          Sorry, no results...
+        </div>
+      );
     } else {
       // The index of the first stock to show. Should be adjusted according to the current page.
       const begin = (this.state.currentPage - 1) * this.state.itemsPerPage;
