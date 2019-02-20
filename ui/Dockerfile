@@ -1,4 +1,4 @@
-FROM node:6
+FROM node:11.10.0
 
 # Initialize application with environment vars.
 ENV APPNAME stockpal
