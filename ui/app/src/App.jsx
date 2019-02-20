@@ -4,6 +4,7 @@ import {Header, Menu, Grid, Segment, Modal, Dropdown, Image} from 'semantic-ui-r
 import {GainerStocks} from './components/gainerStocks';
 import {AllStocks} from './components/allStocks';
 import {LoginModal} from './components/loginModal';
+import {StockChart} from './components/stockChart';
 import './dist/main.css';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -23,9 +24,10 @@ class App extends Component {
       api_secret: cookies.get('_api_secret') || null,
       userPicture: user_avatar_placeholder,
       userName: 'Loading...',
-      activePage: false,
-      activeView: false,
-      activeModal: false
+      activePage: null,
+      activeView: null,
+      activeModal: null,
+      activeStock: null,
     };
 
     // Bind custom functions to the class instance
@@ -111,13 +113,22 @@ class App extends Component {
     );
   }
 
+  showStock(evt) {
+    let symbol = evt.target.getAttribute('data-stock-symbol');
+    this.setState({activeStock: symbol, activeView: 'stock-chart'});
+  }
+
   render() {
     const activePage = this.state.activePage;
     const activeView = this.state.activeView;
     let activeComponent;
     if ( activeView === 'all-stocks' ) {
       activeComponent = (
-        <AllStocks />
+        <AllStocks showStockFunc={this.showStock}/>
+      );
+    } else if ( activeView === 'stock-chart' ) {
+      activeComponent = (
+        <StockChart stockSymbol={this.state.activeStock}/>
       );
     } else {
       activeComponent = (

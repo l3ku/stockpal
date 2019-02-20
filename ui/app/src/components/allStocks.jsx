@@ -120,7 +120,7 @@ export class AllStocks extends Component {
               return (
                 <Table.Row key={item.symbol}>
                   <Table.Cell>
-                    {item.symbol}
+                    <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={item.symbol}>{item.symbol}</a>
                   </Table.Cell>
                   <Table.Cell>
                     {item.name}
