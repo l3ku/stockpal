@@ -29,6 +29,7 @@ class App extends Component {
       activeView: null,
       activeModal: null,
       activeStock: null,
+      previousView: null,
     };
 
     // Bind custom functions to the class instance
@@ -36,6 +37,7 @@ class App extends Component {
     this.maybeLogin = this.maybeLogin.bind(this);
     this.logout = this.logout.bind(this);
     this.showStock = this.showStock.bind(this);
+    this.setPreviousView = this.setPreviousView.bind(this);
   }
 
   handleSecondaryMenuClick = (e, { name }) => this.setState({ activeView: name });
@@ -113,9 +115,13 @@ class App extends Component {
     );
   }
 
+  setPreviousView() {
+    this.setState({activeSTock: null, activeView: this.state.previousView});
+  }
+
   showStock(evt) {
     let symbol = evt.target.getAttribute('data-stock-symbol');
-    this.setState({activeStock: symbol, activeView: 'stock-chart'});
+    this.setState({activeStock: symbol, activeView: 'stock-chart', previousView: this.state.activeView});
   }
 
   render() {
@@ -133,7 +139,7 @@ class App extends Component {
       );
     } else if ( activeView === 'stock-chart' ) {
       activeComponent = (
-        <StockChart stockSymbol={this.state.activeStock}/>
+        <StockChart stockSymbol={this.state.activeStock} backButtonClickHandler={this.setPreviousView}/>
       );
     } else {
       activeComponent = (
