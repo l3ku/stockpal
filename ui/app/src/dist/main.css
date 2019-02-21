@@ -28,6 +28,12 @@ table.gainer-stocks-table .change-positive {
 table.gainer-stocks-table .change-negative {
   color: red; }
 
+section.single-stock .single-stock-card {
+  width: 100%; }
+  section.single-stock .single-stock-card .single-stock-info-wrapper {
+    display: inline-block;
+    text-align: left; }
+
 .stockpal-wrapper .main-menu {
   display: flex;
   align-items: center; }
