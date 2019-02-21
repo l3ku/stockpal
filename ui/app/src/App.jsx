@@ -22,6 +22,7 @@ class App extends Component {
     this.state = {
       apiID: cookies.get('_api_id') || null,
       apiSecret: cookies.get('_api_secret') || null,
+      isAuthRedirect: window.location.pathname.includes('/login/'),
       userPicture: user_avatar_placeholder,
       userName: 'Loading...',
       activePage: null,
@@ -71,9 +72,8 @@ class App extends Component {
 
   maybeLogin() {
     // Check for the login request
-    var pathname = window.location.pathname;
-    if ( pathname.includes('/login/') ) {
-      var login_provider = pathname.replace('/login/', '').replace('/', '');
+    if ( this.state.isAuthRedirect ) {
+      var login_provider = window.location.pathname.replace('/login/', '').replace('/', '');
       // Tell the server what data we got from the authentication endpoint.
       // The authentication response to use is the full current URL.
       API.sendLoginAuthResponse(
@@ -119,6 +119,11 @@ class App extends Component {
   }
 
   render() {
+    // Don't render anything if there is a login in progress
+    if ( this.state.isAuthRedirect ) {
+      return;
+    }
+
     const activePage = this.state.activePage;
     const activeView = this.state.activeView;
     let activeComponent;
