@@ -1,48 +1,48 @@
 export default class API {
-  static getGainerStocks(success_cb, error_cb) {
+  static getGainerStocks(successCallback, errorCallback) {
     fetch('/api/v1/gainers')
       .then(res => res.json())
-      .then((res) => success_cb(res), (err) => error_cb(err));
+      .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 
-  static getStockChart(symbol, success_cb, error_cb) {
+  static getStockChart(symbol, successCallback, errorCallback) {
     fetch('/api/v1/stock/' + encodeURIComponent(symbol) + '/chart')
       .then(res => res.json())
-      .then((res) => success_cb(res), (err) => error_cb(err));
+      .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 
   static getAllStocks(success_cb, error_cb) {
     fetch('/api/v1/all-stocks')
       .then(res => res.json())
-      .then((res) => success_cb(res), (err) => error_cb(err));
+      .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 
-  static getUserInfo(api_id, api_secret, success_cb, error_cb) {
-    fetch('/api/oauth/userinfo/' + encodeURIComponent(api_id), {
-      headers: {'X-API-Key': api_secret}
+  static getUserInfo(apiID, apiSecret, successCallback, errorCallback) {
+    fetch('/api/oauth/userinfo/' + encodeURIComponent(apiID), {
+      headers: {'X-API-Key': apiSecret}
       })
       .then(res => res.json())
-      .then((res) => success_cb(res), (err) => error_cb(err));
+      .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 
-  static getLoginAuthLink(provider, success_cb, error_cb) {
+  static getLoginAuthLink(provider, successCallback, errorCallback) {
     fetch('/api/oauth/authenticate/' + encodeURIComponent(provider))
       .then(res => res.json())
-      .then((res) => success_cb(res), (err) => error_cb(err));
+      .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 
-  static sendLoginAuthResponse(provider, auth_response, success_cb, error_cb) {
+  static sendLoginAuthResponse(provider, authResponse, successCallback, errorCallback) {
     fetch('/api/oauth/login/' + escape(provider), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        'authorization_response': auth_response
+        'authorization_response': authResponse
       })})
       .then(res => res.json())
-      .then((res) => success_cb(res), (err) => error_cb(err));
+      .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 
-  static logout(api_id, api_secret, success_cb, error_cb) {
+  static logout(api_id, api_secret, successCallback, errorCallback) {
     fetch('/api/oauth/logout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-API-Key': api_secret },
@@ -50,6 +50,6 @@ export default class API {
         'api_id': api_id
       })})
       .then(res => res.json())
-      .then((res) => success_cb(res), (err) => error_cb(err));
+      .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 }

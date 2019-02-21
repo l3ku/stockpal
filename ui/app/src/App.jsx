@@ -20,8 +20,8 @@ class App extends Component {
     super(props);
     const { cookies } = props;
     this.state = {
-      api_id: cookies.get('_api_id') || null,
-      api_secret: cookies.get('_api_secret') || null,
+      apiID: cookies.get('_api_id') || null,
+      apiSecret: cookies.get('_api_secret') || null,
       userPicture: user_avatar_placeholder,
       userName: 'Loading...',
       activePage: null,
@@ -46,10 +46,10 @@ class App extends Component {
   }
 
   maybeGetUserInfo() {
-    if ( !(this.state.api_id && this.state.api_secret) ) {
+    if ( !(this.state.apiID && this.state.apiSecret) ) {
       return;
     }
-    API.getUserInfo(this.state.api_id, this.state.api_secret,
+    API.getUserInfo(this.state.apiID, this.state.apiSecret,
       (res) => {
         if ( res.success ) {
           {this.setState({userName: res.data.user_name, userPicture: res.data.user_picture_url});}
@@ -57,7 +57,7 @@ class App extends Component {
           // If the user info fetch fails, it means that the user is no longer
           // logged in validly and should thus relogin. As a concequence, the
           // invalid cookies and state should be cleaned.
-          this.setState({api_id: null, api_secret: null});
+          this.setState({apiID: null, apiSecret: null});
           this.props.cookies.remove('_api_id');
           this.props.cookies.remove('_api_secret');
         }
@@ -100,9 +100,9 @@ class App extends Component {
   }
 
   logout() {
-    API.logout(this.state.api_id, this.state.api_secret,
+    API.logout(this.state.apiID, this.state.apiSecret,
       (res) => {
-        this.setState({api_id: null, api_secret: null});
+        this.setState({apiID: null, apiSecret: null});
         this.props.cookies.remove('_api_id');
         this.props.cookies.remove('_api_secret');
       },
@@ -145,7 +145,7 @@ class App extends Component {
         </Menu.Item>
       </React.Fragment>
     );
-    if ( this.state.api_id && this.state.api_secret ) {
+    if ( this.state.apiID && this.state.apiSecret ) {
       const trigger = (
         <div>
           <span className="main-menu-user-name">{this.state.userName}</span>
