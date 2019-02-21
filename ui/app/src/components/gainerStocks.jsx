@@ -58,10 +58,10 @@ export class GainerStocks extends Component {
           {items && items.map(item => (
             <Table.Row key={item.symbol}>
               <Table.Cell>
-                {item.companyName}
+                <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={item.symbol}>{item.companyName}</a>
               </Table.Cell>
               <Table.Cell>
-                {item.symbol}
+                <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={item.symbol}>{item.symbol}</a>
               </Table.Cell>
               <Table.Cell className={item.change < 0 ? 'change-negative' : 'change-positive'}>
                 {item.change > 0 ? '+' + item.change : item.change}

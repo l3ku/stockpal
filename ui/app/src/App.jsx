@@ -137,7 +137,7 @@ class App extends Component {
       );
     } else {
       activeComponent = (
-        <GainerStocks />
+        <GainerStocks showStockFunc={this.showStock}/>
       );
     }
 
