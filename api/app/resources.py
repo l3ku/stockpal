@@ -20,11 +20,17 @@ class ListGainers(Resource):
         return {'success': True, 'data': response.json()}
 
 
-class AllStocks(Resource):
-    def get(self):
-        all_stocks = Stock.query.all()
+class StockInfo(Resource):
+    def get(self, symbol=None):
+        # Just return all stocks if no single symbol was provided
+        if symbol is None:
+            stocks_db_result = Stock.query.all()
+        else:
+            stocks_db_result = Stock.query.filter_by(symbol=symbol)
+
+        # Collect the information inside a list of dicts
         return_data = []
-        for stock in all_stocks:
+        for stock in stocks_db_result:
             return_data.append({'symbol': stock.symbol, 'name': stock.name, 'type': stock.type, 'is_enabled': stock.is_enabled})
         return {'success': True, 'data': return_data}
 
@@ -32,11 +38,13 @@ class AllStocks(Resource):
         updateStocksFromAPI.delay()
 
 
+
 class StockChart(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
         response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/5y')
         return {'success': True, 'data': response.json()}
+
 
 class UserInfo(Resource):
     def get(self, login_id):
