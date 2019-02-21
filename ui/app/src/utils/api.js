@@ -11,8 +11,12 @@ export default class API {
       .then((res) => successCallback(res), (err) => errorCallback(err));
   }
 
-  static getAllStocks(success_cb, error_cb) {
-    fetch('/api/v1/all-stocks')
+  static getStockInfo(symbol, successCallback, errorCallback) {
+    let query = '/api/v1/stock';
+    if ( symbol ) {
+      query += '/' + encodeURIComponent(symbol);
+    }
+    fetch(query)
       .then(res => res.json())
       .then((res) => successCallback(res), (err) => errorCallback(err));
   }

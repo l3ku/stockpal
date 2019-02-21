@@ -21,7 +21,8 @@ export class AllStocks extends Component {
     this.decrementPage = this.decrementPage.bind(this);
   }
   componentDidMount() {
-    API.getAllStocks(
+    API.getStockInfo(
+      '',
       (result) => {
         if ( result.success ) {
           this.setState({
