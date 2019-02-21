@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import API from './../utils/api';
 import ReactEcharts from 'echarts-for-react';
+import {Icon, Card} from 'semantic-ui-react';
 
 export class StockChart extends Component {
   constructor(props) {
@@ -155,23 +156,33 @@ export class StockChart extends Component {
       }
       return (
         <section className="single-stock">
-          <h2 className="single-stock-title">{stockInfo.name}</h2>
-          <div className="single-stock-info-wrapper">
-            <div className="single-stock-info single-stock-symbol">
-              <div><strong>Symbol:</strong> {stockInfo.symbol}</div>
-            </div>
-            <div className="single-stock-info single-stock-type">
-              <div><strong>Type:</strong> {stockTypeDescriptions[stockInfo.type.toLowerCase()] ? stockTypeDescriptions[stockInfo.type.toLowerCase()]: stockInfo.type}</div>
-              <small>TIP: common issue type</small>
-            </div>
-            <div className="single-stock-info single-stock-is-enabled">
-              <div><strong>Is enabled:</strong> {stockInfo.isEnabled ? 'Yes' : 'No'}</div>
-              <small>TIP: whether the symbol is enabled for trading on IEX</small>
-            </div>
+          <div className="single-stock-back-icon-wrapper">
+            <a href="#" onClick={this.props.backButtonClickHandler}>
+              <Icon name='arrow left' size='large'/>Back
+            </a>
           </div>
-          <ReactEcharts
-            option={this.getOption()}
-          />
+          <Card className="single-stock-card">
+            <Card.Content header={stockInfo.name} />
+            <Card.Content>
+              <div className="single-stock-info-wrapper">
+                  <div className="single-stock-info single-stock-symbol">
+                    <div><strong>Symbol:</strong> {stockInfo.symbol}</div>
+                  </div>
+                  <div className="single-stock-info single-stock-type">
+                    <div><strong>Type:</strong> {stockTypeDescriptions[stockInfo.type.toLowerCase()] ? stockTypeDescriptions[stockInfo.type.toLowerCase()]: stockInfo.type}</div>
+                    <small>TIP: common issue type</small>
+                  </div>
+                  <div className="single-stock-info single-stock-is-enabled">
+                    <div><strong>Is enabled:</strong> {stockInfo.isEnabled ? 'Yes' : 'No'}</div>
+                    <small>TIP: whether the symbol is enabled for trading on IEX</small>
+                  </div>
+
+                </div>
+              <ReactEcharts
+                option={this.getOption()}
+              />
+            </Card.Content>
+          </Card>
         </section>
       );
     }
