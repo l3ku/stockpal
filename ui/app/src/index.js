@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './dist/index.css';
 import * as serviceWorker from './serviceWorker';
-import App from './App';
 import { CookiesProvider } from 'react-cookie';
+import { Provider } from 'react-redux';
+import App from './App';
+import './dist/index.css';
+import store from './utils/store';
 
 const root = (
   <CookiesProvider>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </CookiesProvider>
 );
 

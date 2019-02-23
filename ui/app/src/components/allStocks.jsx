@@ -1,15 +1,13 @@
-/* eslint-disable */
+import { connect } from 'react-redux';
 import React, { Component } from 'react';
 import { Icon, Label, Menu, Table, Loader, Dimmer } from 'semantic-ui-react';
+import { fetchAllStocks } from '../actions/stockActions';
 import API from './../utils/api';
 
-export class AllStocks extends Component {
+class AllStocks extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: null,
-      isLoaded: false,
-      items: [],
       itemsPerPage: 50,
       currentPage: 1,
       totalPages: 0,
@@ -20,29 +18,18 @@ export class AllStocks extends Component {
     this.incrementPage = this.incrementPage.bind(this);
     this.decrementPage = this.decrementPage.bind(this);
   }
+
   componentDidMount() {
-    API.getStockInfo(
-      '',
-      (result) => {
-        if ( result.success ) {
-          this.setState({
-            isLoaded: true,
-            items: result.data,
-            totalPages: Math.ceil(result.data.length / this.state.itemsPerPage)
-          });
-        } else {
-          this.setState({
-            isLoaded: true,
-            error: result.error
-          });
-        }
-      },
-      (error) => {
-        this.setState({
-          isLoaded: true,
-          error: error
-        });
+    this.props.fetchAllStocks();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if ( nextProps.success && nextProps.items ) {
+      this.setState({
+        isLoaded: true,
+        totalPages: Math.ceil(nextProps.items.length / this.state.itemsPerPage)
       });
+    }
   }
 
   getStockTypeDescriptions() {
@@ -83,7 +70,8 @@ export class AllStocks extends Component {
   }
 
   render() {
-    const { error, isLoaded, items, itemsPerPage, currentPage, totalPages, showPageRange } = this.state;
+    const { error, itemsPerPage, isLoaded, currentPage, totalPages, showPageRange } = this.state;
+    const { items, success } = this.props;
 
     if (error) {
         return ( 'Error: ' + error );
@@ -105,7 +93,7 @@ export class AllStocks extends Component {
       // The index of the first stock to show. Should be adjusted according to the current page.
       const begin = (this.state.currentPage - 1) * this.state.itemsPerPage;
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
-      const end = Math.min(begin + this.state.itemsPerPage + 1, this.state.items.length);
+      const end = Math.min(begin + this.state.itemsPerPage + 1, items.length);
       const itemsSliced = items.slice(begin, end);
       const paginationStart = Math.min(Math.max(this.state.currentPage-Math.floor(this.state.showPageRange/2), 0) + 1, totalPages-this.state.showPageRange);
       const paginationEnd = Math.min(paginationStart+this.state.showPageRange, totalPages);
@@ -175,3 +163,11 @@ export class AllStocks extends Component {
     }
   }
 }
+
+const mapStateToProps = state => ({
+  items: state.stocks.items,
+  success: state.stocks.success,
+  isLoaded: true
+})
+
+export default connect(mapStateToProps, { fetchAllStocks })(AllStocks);

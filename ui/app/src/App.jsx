@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import {Header, Menu, Grid, Segment, Modal, Dropdown, Image} from 'semantic-ui-react';
 import {GainerStocks} from './components/gainerStocks';
-import {AllStocks} from './components/allStocks';
+import AllStocks from './components/allStocks';
 import {LoginModal} from './components/loginModal';
 import {StockChart} from './components/stockChart';
 import './dist/main.css';
