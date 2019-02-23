@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import * as serviceWorker from './serviceWorker';
 import { CookiesProvider } from 'react-cookie';
 import { Provider } from 'react-redux';
 import App from './App';
 import './dist/index.css';
+import * as serviceWorker from './utils/serviceWorker';
 import store from './utils/store';
 
 const root = (
