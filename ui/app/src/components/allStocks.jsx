@@ -138,17 +138,17 @@ class AllStocks extends Component {
             {itemsSliced && itemsSliced.map(item => {
               return (
                 <Table.Row key={item.symbol}>
-                  <Table.Cell>
+                  <Table.Cell width={3}>
                     <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={item.symbol}>{item.symbol}</a>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell width={7}>
                     {item.name}
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell width={4}>
                     {stockTypeDescriptions[item.type.toLowerCase()] ? stockTypeDescriptions[item.type.toLowerCase()]: item.type}
                   </Table.Cell>
-                  <Table.Cell className={item.isEnabled ? 'stock-is-enabled' : 'stock-not-enabled'}>
-                    {item.isEnabled ? 'Yes' : 'No'}
+                  <Table.Cell width={2} className={item.is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
+                    {item.is_enabled ? 'Yes' : 'No'}
                   </Table.Cell>
                 </Table.Row>
               );
@@ -157,7 +157,7 @@ class AllStocks extends Component {
 
           <Table.Footer>
             <Table.Row>
-              <Table.HeaderCell colSpan='3'>
+              <Table.HeaderCell colSpan='4'>
                 <Menu floated='right' pagination>
                   <Menu.Item key={1} data-page={1} disabled={totalPages === 0 || currentPage === 1} as='a' onClick={this.changePage}>
                     <Icon name='angle double left' />
