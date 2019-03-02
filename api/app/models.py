@@ -77,10 +77,10 @@ class LoggedInUser(db.Model):
     def validateLogin(self, login_secret):
         # 1. Check that the login_secret is valid
         if login_secret is None or self.login_secret != login_secret:
-            return (False, 'invalid_login')
+            return (False, {'reason': 'invalid_login', 'target': None})
         # 2. Check that the login has not expired
         elif time.time() >= self.expires_at:
-            return (False, 'login_expired')
+            return (False, {'reason': 'login_expired', 'target': None})
         else:
             return (True, User.query.filter_by(id=self.user_id).first())
 

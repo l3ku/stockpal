@@ -14,6 +14,17 @@ from urllib.parse import quote
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
+
+# TODO: this could be moved elsewhere
+def authenticate(login_id):
+    if login_id is None:
+        return (False, {'reason': 'missing_parameter', 'target': 'api_id'})
+    if 'X-API-Key' not in request.headers:
+        return (False, {'reason': 'missing_header', 'target': 'X-API-Key'})
+    login_secret = request.headers['X-API-Key']
+    db_logged_in_user = LoggedInUser.query.filter_by(login_id=login_id).first()
+    return db_logged_in_user.validateLogin(login_secret)
+
 class ListGainers(Resource):
     def get(self):
         response = requests.get(iex_api_url + '/stock/market/list/gainers')
@@ -48,24 +59,18 @@ class StockChart(Resource):
 
 class UserInfo(Resource):
     def get(self, login_id):
-        if login_id is None:
-            return {'success': False, 'error': {'reason': 'missing_parameter', 'target': 'api_id'}}
-        if 'X-API-Key' not in request.headers:
-            return {'success': False, 'error': {'reason': 'missing_header', 'target': 'X-API-Key'}}
-        login_secret = request.headers['X-API-Key']
         try:
-            db_logged_in_user = LoggedInUser.query.filter_by(login_id=login_id).first()
-            if db_logged_in_user is None:
-                return {'success': False, 'error': {'reason': 'invalid_login', 'target': None}}
-            success, response = db_logged_in_user.validateLogin(login_secret)
+            success, obj = authenticate(login_id)
             if not success:
-                return {'success': False, 'error': {'reason': response, 'target': None}}
-            db_user = response
+                return {'success': False, 'error': obj}
+            db_user = obj # In case of success we know that obj is the DB model user instead of error object
             return {'success': True, 'data': {'user_name': db_user.name, 'user_email': db_user.email, 'user_picture_url': db_user.picture_url}}
         except ValueError as err:
-            return {'success': False, 'error': {'reason': str(err)}}
+            return {'success': False, 'error': {'reason': str(err), 'target': None}}
         except AuthlibBaseError as err:
-            return {'success': False, 'errors': [err.description]}
+            return {'success': False, 'error': {'reason': 'err.description', 'target': None}}
+
+
 
 class Authenticate(Resource):
     def get(self, auth_provider):
