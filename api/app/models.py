@@ -46,6 +46,17 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.name
 
+##
+# Models the one-to-many User(1) -> Stock(N) relationship.
+##
+class UserStock(db.Model):
+    user_id = db.Column(db.Integer(), db.ForeignKey(User.id, onupdate='CASCADE', ondelete='CASCADE'), primary_key=True, nullable=False)
+    stock_symbol = db.Column(db.String(20), db.ForeignKey(Stock.symbol, onupdate='CASCADE', ondelete='CASCADE'), primary_key=True, nullable=False)
+
+    def __init__(self, user_id, stock_symbol):
+        self.user_id = user_id
+        self.stock_symbol = stock_symbol
+
 
 class LoggedInUser(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey(User.id, onupdate='CASCADE', ondelete='CASCADE'), primary_key=True, nullable=False)
