@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import React, { Component } from 'react';
-import { Icon, Label, Menu, Table, Loader, Dimmer } from 'semantic-ui-react';
+import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown } from 'semantic-ui-react';
 import { fetchAllStocks } from '../actions/stockActions';
 import API from './../utils/api';
 
@@ -17,6 +17,7 @@ class AllStocks extends Component {
     this.changePage = this.changePage.bind(this);
     this.incrementPage = this.incrementPage.bind(this);
     this.decrementPage = this.decrementPage.bind(this);
+    this.changeItemsPerPage = this.changeItemsPerPage.bind(this);
   }
 
   componentDidMount() {
@@ -54,6 +55,26 @@ class AllStocks extends Component {
     // Do nothing on current page click
     if ( page !== this.state.currentPage ) {
       this.setState({currentPage: page});
+    }
+  }
+
+  changeItemsPerPage(evt) {
+    const itemsPerPage = parseInt(evt.currentTarget.getAttribute('data-items-per-page'));
+    if ( itemsPerPage !== this.state.itemsPerPage ) {
+
+      // We need to ensure that if the maximum number of pages changes, we need to go back to
+      // to the last page if we are above the limit. E.g. on last page when 50 items/page, and
+      // changes to 300/page => out of range on pages.
+      var currentPage = this.state.currentPage;
+      const newTotalPages = Math.ceil(this.props.items.length / itemsPerPage);
+      if ( currentPage > newTotalPages ) {
+        currentPage = newTotalPages;
+      }
+      this.setState({
+        itemsPerPage: itemsPerPage,
+        totalPages: newTotalPages,
+        currentPage: currentPage
+      });
     }
   }
 
@@ -101,6 +122,8 @@ class AllStocks extends Component {
       const paginationArray = [...Array(paginationEnd-paginationStart+1)];
       const stockTypeDescriptions = this.getStockTypeDescriptions();
 
+      // What items for page options show
+      const itemsPerPageOptions = [50, 100, 150, 300];
       return (
         <Table celled>
           <Table.Header>
@@ -155,6 +178,15 @@ class AllStocks extends Component {
                   <Menu.Item data-page={totalPages} disabled={totalPages === 0 || currentPage === totalPages} as='a' onClick={this.changePage}>
                     <Icon name='angle double right' />
                   </Menu.Item>
+                   <Dropdown item text='Show items'>
+                    <Dropdown.Menu>
+                      {itemsPerPageOptions.map(option => {
+                        return (
+                          <Dropdown.Item key={option} active={itemsPerPage === option} onClick={this.changeItemsPerPage} data-items-per-page={option}>{option}</Dropdown.Item>
+                        );
+                      })}
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </Menu>
               </Table.HeaderCell>
             </Table.Row>
