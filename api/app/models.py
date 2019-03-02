@@ -46,6 +46,13 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.name
 
+    def getStocks(self):
+        # We always ẃant to be nice and return the information of the stocks instead
+        # of the plain IDs and delegating the SQL join type functionality outside of
+        # this model.
+        return UserStock.query.join(Stock).filter_by(user_id=self.id).all()
+
+
 ##
 # Models the one-to-many User(1) -> Stock(N) relationship.
 ##
