@@ -188,6 +188,7 @@ class AllStocks extends Component {
                     </Dropdown.Menu>
                   </Dropdown>
                 </Menu>
+                <small>Showing {itemsSliced.length} items, total {totalPages} pages</small>
               </Table.HeaderCell>
             </Table.Row>
           </Table.Footer>
