@@ -15,7 +15,7 @@ export class LoginModal extends Component {
 
   handleLoginProviderAuth(evt) {
     this.setState({ isLoading: true });
-    const provider = evt.target.name;
+    const provider = evt.currentTarget.name;
     API.getLoginAuthLink(provider,
       (result) => {
         this.setState({

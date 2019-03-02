@@ -120,7 +120,7 @@ class App extends Component {
   }
 
   showStock(evt) {
-    let symbol = evt.target.getAttribute('data-stock-symbol');
+    let symbol = evt.currentTarget.getAttribute('data-stock-symbol');
     this.setState({activeStock: symbol, activeView: 'stock-chart', previousView: this.state.activeView});
   }
 

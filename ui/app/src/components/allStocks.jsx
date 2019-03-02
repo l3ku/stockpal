@@ -49,7 +49,7 @@ class AllStocks extends Component {
   }
 
   changePage(evt) {
-    const page = parseInt(evt.target.getAttribute('data-page'));
+    const page = parseInt(evt.currentTarget.getAttribute('data-page'));
 
     // Do nothing on current page click
     if ( page !== this.state.currentPage ) {
@@ -95,9 +95,9 @@ class AllStocks extends Component {
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
       const end = Math.min(begin + this.state.itemsPerPage + 1, items.length);
       const itemsSliced = items.slice(begin, end);
-      const paginationStart = Math.min(Math.max(this.state.currentPage-Math.floor(this.state.showPageRange/2), 0) + 1, totalPages-this.state.showPageRange);
-      const paginationEnd = Math.min(paginationStart+this.state.showPageRange, totalPages);
-      const paginationArray = [...Array(paginationEnd-paginationStart)];
+      const paginationStart = Math.min(Math.max(this.state.currentPage-Math.floor(this.state.showPageRange/2), 0) + 1, totalPages-this.state.showPageRange+1);
+      const paginationEnd = Math.min(paginationStart+this.state.showPageRange-1, totalPages);
+      const paginationArray = [...Array(paginationEnd-paginationStart+1)];
       const stockTypeDescriptions = this.getStockTypeDescriptions();
 
       return (
