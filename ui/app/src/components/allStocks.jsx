@@ -90,13 +90,14 @@ class AllStocks extends Component {
         </div>
       );
     } else {
+      const { currentPage, itemsPerPage, showPageRange } = this.state;
       // The index of the first stock to show. Should be adjusted according to the current page.
-      const begin = (this.state.currentPage - 1) * this.state.itemsPerPage;
+      const begin = (currentPage-1) * itemsPerPage;
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
-      const end = Math.min(begin + this.state.itemsPerPage + 1, items.length);
+      const end = Math.min(begin+itemsPerPage, items.length-1);
       const itemsSliced = items.slice(begin, end);
-      const paginationStart = Math.min(Math.max(this.state.currentPage-Math.floor(this.state.showPageRange/2), 0) + 1, totalPages-this.state.showPageRange+1);
-      const paginationEnd = Math.min(paginationStart+this.state.showPageRange-1, totalPages);
+      const paginationStart = Math.min(Math.max(currentPage-Math.floor(showPageRange/2), 0)+1, totalPages-showPageRange+1);
+      const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
       const paginationArray = [...Array(paginationEnd-paginationStart+1)];
       const stockTypeDescriptions = this.getStockTypeDescriptions();
 
