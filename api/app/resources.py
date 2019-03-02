@@ -49,7 +49,6 @@ class StockInfo(Resource):
         updateStocksFromAPI.delay()
 
 
-
 class StockChart(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
@@ -71,6 +70,21 @@ class UserInfo(Resource):
             return {'success': False, 'error': {'reason': 'err.description', 'target': None}}
 
 
+class UserStocks(Resource):
+    def get(self, login_id):
+        try:
+            success, obj = authenticate(login_id)
+            if not success:
+                return {'success': False, 'error': obj}
+            db_user = obj # In case of success we know that obj is the DB model user instead of error object
+            stocks = db_user.getStocks()
+
+        except ValueError as err:
+            return {'success': False, 'error': {'reason': str(err), 'target': None}}
+        except AuthlibBaseError as err:
+            return {'success': False, 'error': {'reason': 'err.description', 'target': None}}
+
+
 
 class Authenticate(Resource):
     def get(self, auth_provider):
@@ -80,6 +94,7 @@ class Authenticate(Resource):
             return {'success': False, 'errors': [str(err)]}
         except AuthlibBaseError as err:
             return {'success': False, 'errors': [err.description]}
+
 
 class Login(Resource):
     def post(self, auth_provider):
@@ -94,6 +109,7 @@ class Login(Resource):
             return {'success': False, 'errors': [str(err)]}
         except AuthlibBaseError as err:
             return {'success': False, 'errors': [err.description]}
+
 
 class Logout(Resource):
     def post(self):
