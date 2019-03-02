@@ -18,7 +18,9 @@ api.add_resource(StockInfo, v1_base_url + '/stock/<string:symbol>', v1_base_url 
 
 # Authentication
 # @TODO: GET /api/oauth should return all providers
-api.add_resource(UserInfo, api_base_url + '/oauth/userinfo/<string:login_id>')
 api.add_resource(Authenticate, api_base_url + '/oauth/authenticate/<string:auth_provider>')
 api.add_resource(Login, api_base_url + '/oauth/login/<string:auth_provider>')
 api.add_resource(Logout, api_base_url + '/oauth/logout')
+
+# Authenticated endpoints
+api.add_resource(UserInfo, api_base_url + '/protected/userinfo/<string:login_id>')

@@ -22,7 +22,7 @@ export default class API {
   }
 
   static getUserInfo(apiID, apiSecret, successCallback, errorCallback) {
-    fetch('/api/oauth/userinfo/' + encodeURIComponent(apiID), {
+    fetch('/api/protected/userinfo/' + encodeURIComponent(apiID), {
       headers: {'X-API-Key': apiSecret}
       })
       .then(res => res.json())
