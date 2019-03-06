@@ -1,22 +1,21 @@
-/* eslint-disable */
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {Header, Menu, Grid, Segment, Modal, Dropdown, Image} from 'semantic-ui-react';
-import {GainerStocks} from './components/gainerStocks';
+import GainerStocks from './components/gainerStocks';
 import AllStocks from './components/allStocks';
-import {LoginModal} from './components/loginModal';
+import UserStocks from './components/userStocks';
+import LoginModal from './components/loginModal';
 import {StockChart} from './components/stockChart';
 import './dist/main.css';
 import API from './utils/api';
 import user_avatar_placeholder from './user-avatar-placeholder.png';
+import { login } from './actions/authActions';
 
 class App extends Component {
   constructor(props) {
     super(props);
     const { cookies } = props;
     this.state = {
-      apiID: cookies.get('_api_id') || null,
-      apiSecret: cookies.get('_api_secret') || null,
-      isAuthRedirect: window.location.pathname.includes('/login/'),
       userPicture: user_avatar_placeholder,
       userName: 'Loading...',
       activePage: null,
@@ -28,7 +27,6 @@ class App extends Component {
 
     // Bind custom functions to the class instance
     this.maybeGetUserInfo = this.maybeGetUserInfo.bind(this);
-    this.maybeLogin = this.maybeLogin.bind(this);
     this.logout = this.logout.bind(this);
     this.showStock = this.showStock.bind(this);
     this.setPreviousView = this.setPreviousView.bind(this);
@@ -38,18 +36,23 @@ class App extends Component {
   handleModalActivation = (e, { name }) => this.setState({ activeModal: name });
 
   componentWillMount() {
-    this.maybeLogin();
+    if ( this.props.isAuthRedirect ) {
+      this.props.dispatch(login());
+    }
+
     this.maybeGetUserInfo();
   }
 
   maybeGetUserInfo() {
-    if ( !(this.state.apiID && this.state.apiSecret) ) {
+    if ( !(this.props.apiID && this.props.apiSecret) ) {
       return;
     }
-    API.getUserInfo(this.state.apiID, this.state.apiSecret,
+
+    API.getUserInfo(this.props.apiID, this.props.apiSecret,
       (res) => {
         if ( res.success ) {
-          {this.setState({userName: res.data.user_name, userPicture: res.data.user_picture_url});}
+
+          this.setState({userName: res.data.user_name, userPicture: res.data.user_picture_url});
         } else {
           // If the user info fetch fails, it means that the user is no longer
           // logged in validly and should thus relogin. As a concequence, the
@@ -67,7 +70,7 @@ class App extends Component {
   }
 
   logout() {
-    API.logout(this.state.apiID, this.state.apiSecret,
+    API.logout(this.props.apiID, this.props.apiSecret,
       (res) => {
         this.setState({apiID: null, apiSecret: null});
         this.props.cookies.remove('_api_id');
@@ -91,7 +94,7 @@ class App extends Component {
 
   render() {
     // Don't render anything if there is a login in progress
-    if ( this.state.isAuthRedirect ) {
+    if ( this.props.isAuthRedirect ) {
       return;
     }
 
@@ -105,6 +108,10 @@ class App extends Component {
     } else if ( activeView === 'stock-chart' ) {
       activeComponent = (
         <StockChart stockSymbol={this.state.activeStock} backButtonClickHandler={this.setPreviousView}/>
+      );
+    } else if ( activeView === 'user-stocks' ) {
+      activeComponent = (
+        <UserStocks showStockFunc={this.showStock} cookies={this.props.cookies}/>
       );
     } else {
       activeComponent = (
@@ -121,7 +128,7 @@ class App extends Component {
         </Menu.Item>
       </React.Fragment>
     );
-    if ( this.state.apiID && this.state.apiSecret ) {
+    if ( this.props.apiID && this.props.apiSecret ) {
       const trigger = (
         <div>
           <span className="main-menu-user-name">{this.state.userName}</span>
@@ -165,11 +172,11 @@ class App extends Component {
               <Menu.Item name='market-overview' active={activeView === 'market-overview'} onClick={this.handleSecondaryMenuClick}>
                 Market Overview
               </Menu.Item>
-              <Menu.Item name='my-stocks' active={activeView === 'my-stocks'} onClick={this.handleSecondaryMenuClick}>
-                My Stocks
-              </Menu.Item>
               <Menu.Item name='all-stocks' active={activeView === 'all-stocks'} onClick={this.handleSecondaryMenuClick}>
                 All Stocks
+              </Menu.Item>
+              <Menu.Item disabled={!(this.props.apiID && this.props.apiSecret)} name='user-stocks' active={activeView === 'user-stocks'} onClick={this.handleSecondaryMenuClick}>
+                My Stocks
               </Menu.Item>
             </Menu>
           </Grid.Column>
@@ -184,4 +191,10 @@ class App extends Component {
   }
 }
 
-export default withCookies(App);
+const mapStateToProps = state => ({
+  isAuthRedirect: state.auth.isAuthRedirect,
+  apiID: state.auth.apiID,
+  apiSecret: state.auth.apiSecret
+});
+
+export default connect(mapStateToProps)(App);

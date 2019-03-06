@@ -1,8 +1,7 @@
 import { connect } from 'react-redux';
 import React, { Component } from 'react';
 import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown } from 'semantic-ui-react';
-import { fetchAllStocks } from '../actions/stockActions';
-import API from './../utils/api';
+import { fetchStocks } from '../actions/stockActions';
 
 class AllStocks extends Component {
   constructor(props) {
@@ -21,7 +20,7 @@ class AllStocks extends Component {
   }
 
   componentDidMount() {
-    this.props.fetchAllStocks();
+    this.props.dispatch(fetchStocks());
   }
 
   componentWillReceiveProps(nextProps) {
@@ -91,8 +90,8 @@ class AllStocks extends Component {
   }
 
   render() {
-    const { error, itemsPerPage, isLoaded, currentPage, totalPages, showPageRange } = this.state;
-    const { items, success } = this.props;
+    const { itemsPerPage, currentPage, totalPages, showPageRange } = this.state;
+    const { items, success, isLoaded, error } = this.props;
 
     if (error) {
         return ( 'Error: ' + error );
@@ -201,7 +200,8 @@ class AllStocks extends Component {
 const mapStateToProps = state => ({
   items: state.stocks.items,
   success: state.stocks.success,
-  isLoaded: true
-})
+  error: state.stocks.error,
+  isLoaded: state.stocks.isLoaded
+});
 
-export default connect(mapStateToProps, { fetchAllStocks })(AllStocks);
+export default connect(mapStateToProps)(AllStocks);

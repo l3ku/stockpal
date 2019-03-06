@@ -1,35 +1,19 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Icon, Label, Menu, Table, Loader, Dimmer } from 'semantic-ui-react';
-import API from './../utils/api';
+import { fetchGainerStocks } from '../actions/stockActions';
 
-export class GainerStocks extends Component {
+class GainerStocks extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      error: null,
-      isLoaded: false,
-      items: []
-    };
   }
 
   componentDidMount() {
-    API.getGainerStocks(
-      (result) => {
-        this.setState({
-          isLoaded: true,
-          items: result.data
-        });
-      },
-      (error) => {
-        this.setState({
-          isLoaded: true,
-          error: error
-        });
-      });
+    this.props.dispatch(fetchGainerStocks());
   }
 
   render() {
-    const { error, isLoaded, items } = this.state;
+    const { error, isLoaded, items } = this.props;
     if (error || items.length < 0) {
       return (
         <div>Error: {error.message}</div>
@@ -80,3 +64,12 @@ export class GainerStocks extends Component {
     }
   }
 }
+
+const mapStateToProps = state => ({
+  items: state.gainerStocks.items,
+  success: state.gainerStocks.success,
+  error: state.gainerStocks.error,
+  isLoaded: state.gainerStocks.isLoaded
+})
+
+export default connect(mapStateToProps)(GainerStocks);

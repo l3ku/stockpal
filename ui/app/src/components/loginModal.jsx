@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, Header, Grid, Loader } from 'semantic-ui-react'
-import API from './../utils/api';
+import { authenticate } from '../actions/authActions';
 
-export class LoginModal extends Component {
+class LoginModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: null,
       isLoading: false,
     };
     // Bind custom functions to the class instance
@@ -16,23 +16,7 @@ export class LoginModal extends Component {
   handleLoginProviderAuth(evt) {
     this.setState({ isLoading: true });
     const provider = evt.currentTarget.name;
-    API.getLoginAuthLink(provider,
-      (result) => {
-        this.setState({
-          isLoading: false
-        });
-        if ( result.success ) {
-          window.location = result.data.auth_url;
-        } else {
-          // @TODO: errors
-        }
-      },
-      (error) => {
-        this.setState({
-          isLoading: false,
-          error: error
-        });
-      });
+    this.props.dispatch(authenticate(provider));
   }
 
   render() {
@@ -52,3 +36,6 @@ export class LoginModal extends Component {
     );
   }
 }
+
+export default connect()(LoginModal);
+
