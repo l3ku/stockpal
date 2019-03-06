@@ -6,16 +6,10 @@ import AllStocks from './components/allStocks';
 import {LoginModal} from './components/loginModal';
 import {StockChart} from './components/stockChart';
 import './dist/main.css';
-import { instanceOf } from 'prop-types';
-import { withCookies, Cookies } from 'react-cookie';
 import API from './utils/api';
 import user_avatar_placeholder from './user-avatar-placeholder.png';
 
 class App extends Component {
-  static propTypes = {
-    cookies: instanceOf(Cookies).isRequired
-  };
-
   constructor(props) {
     super(props);
     const { cookies } = props;
@@ -70,35 +64,6 @@ class App extends Component {
         // TODO: errors
       }
     );
-  }
-
-  maybeLogin() {
-    // Check for the login request
-    if ( this.state.isAuthRedirect ) {
-      var login_provider = window.location.pathname.replace('/login/', '').replace('/', '');
-      // Tell the server what data we got from the authentication endpoint.
-      // The authentication response to use is the full current URL.
-      API.sendLoginAuthResponse(
-        login_provider,
-        window.location.href,
-        (res) => {
-          // Add cookie and redirect to home URL if successful
-          if ( res.success ) {
-            var cookie_opts = {path: '/', maxAge: res.data.expires_in};
-            this.props.cookies.set('_api_id', res.data.api_id, cookie_opts);
-            this.props.cookies.set('_api_secret', res.data.api_secret, cookie_opts);
-            window.location.href = '/';
-          } else {
-            // TODO: errors
-            console.log(res);
-          }
-        },
-        (err) => {
-          console.log(err);
-          // TODO: errors
-        }
-      );
-    }
   }
 
   logout() {

@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { CookiesProvider } from 'react-cookie';
 import { Provider } from 'react-redux';
 import App from './App';
 import './dist/index.css';
@@ -8,11 +7,9 @@ import * as serviceWorker from './utils/serviceWorker';
 import store from './utils/store';
 
 const root = (
-  <CookiesProvider>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </CookiesProvider>
+  <Provider store={store}>
+    <App />
+  </Provider>
 );
 
 ReactDOM.render(root, document.getElementById('root'));
