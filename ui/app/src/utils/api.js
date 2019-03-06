@@ -1,10 +1,4 @@
 export default class API {
-  static getStockChart(symbol, successCallback, errorCallback) {
-    fetch('/api/v1/stock/' + encodeURIComponent(symbol) + '/chart')
-      .then(res => res.json())
-      .then((res) => successCallback(res), (err) => errorCallback(err));
-  }
-
   static getUserInfo(apiID, apiSecret, successCallback, errorCallback) {
     fetch('/api/protected/userinfo/' + encodeURIComponent(apiID), {
       headers: {'X-API-Key': apiSecret}
