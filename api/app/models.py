@@ -52,6 +52,21 @@ class User(db.Model):
         # this model.
         return UserStock.query.join(Stock).filter_by(user_id=self.id).all()
 
+    def addStock(self, symbol):
+        # Is this stock a valid stock?
+        db_stock = Stock.query.filter_by(symbol=symbol).first()
+        if db_stock is None:
+            return (False, {'reason': f'Unknown stock symbol: {symbol}','target': None})
+
+        # Does the user already have this stock?
+        user_stock = UserStock.query.filter_by(user_id=self.id, symbol=symbol).first()
+        if user_stock is not None:
+            return (False, {'reason': f'Stock {symbol} already exists for this user', 'target': None})
+
+        user_stock = UserStock(self.id, symbol)
+        db.session.add(user_stock)
+        db.session.commit()
+        return (True, None)
 
 ##
 # Models the one-to-many User(1) -> Stock(N) relationship.
