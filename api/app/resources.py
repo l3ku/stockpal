@@ -78,7 +78,11 @@ class UserStocks(Resource):
                 return {'success': False, 'error': obj}
             db_user = obj # In case of success we know that obj is the DB model user instead of error object
             stocks = db_user.getStocks()
-
+             # Collect the information inside a list of dicts
+            return_data = []
+            for stock in stocks:
+                return_data.append({'symbol': stock.symbol, 'name': stock.name, 'type': stock.type, 'is_enabled': stock.is_enabled})
+            return {'success': True, 'data': return_data}
         except ValueError as err:
             return {'success': False, 'error': {'reason': str(err), 'target': None}}
         except AuthlibBaseError as err:
