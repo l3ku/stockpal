@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
+import { connect } from 'react-redux';
 import API from './../utils/api';
 import ReactEcharts from 'echarts-for-react';
 import {Icon, Card} from 'semantic-ui-react';
 
-export class StockChart extends Component {
+class StockChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -187,3 +188,8 @@ export class StockChart extends Component {
       );
     }
 }
+
+const mapStateToProps = (state, ownProps) => {};
+
+export default connect(mapStateToProps)(StockChart)
+

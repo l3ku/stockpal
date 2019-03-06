@@ -5,7 +5,7 @@ import GainerStocks from './components/gainerStocks';
 import AllStocks from './components/allStocks';
 import UserStocks from './components/userStocks';
 import LoginModal from './components/loginModal';
-import {StockChart} from './components/stockChart';
+import StockChart from './components/stockChart';
 import './dist/main.css';
 import API from './utils/api';
 import user_avatar_placeholder from './user-avatar-placeholder.png';
