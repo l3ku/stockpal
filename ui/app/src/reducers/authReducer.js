@@ -14,7 +14,9 @@ const initialState = {
   // have to be retreived from the Cookies anywhere else.
   apiID: Cookie.get('_api_id') ? Cookie.get('_api_id') : null,
   apiSecret: Cookie.get('_api_secret') ? Cookie.get('_api_secret') : null,
-  isAuthRedirect: window.location.pathname.includes('/login/')
+  isAuthRedirect: window.location.pathname.includes('/login/'),
+  isLoggedIn: Cookie.get('_api_id') && Cookie.get('_api_secret'),
+  error: null
 };
 
 export default function(state=initialState, action) {
@@ -25,10 +27,17 @@ export default function(state=initialState, action) {
       Cookie.set('_api_secret', action.apiSecret, cookie_opts);
       return {
         ...state,
-        success: action.success,
+        success: true,
         error: null,
         apiID: action.apiID,
         apiSecret: action.apiSecret
+      };
+    case RECEIVE_LOGIN_ERROR:
+      return {
+        ...state,
+        success: false,
+        error: action.error,
+        isAuthRedirect: false
       };
     default:
       return state;

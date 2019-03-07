@@ -7,12 +7,8 @@ export const requestAuthLink = () => {
     type: types.REQUEST_AUTHENTICATION_LINK
   };
 };
-export const receiveAuthLink = (response) => {
-  if ( response.success ) {
-    window.location = response.data.auth_url;
-  } else {
-    return receiveAuthLinkError(response.error);
-  }
+export const receiveAuthLink = (data) => {
+  window.location = data.auth_url;
 };
 export const receiveAuthLinkError = (error) => {
   return {
@@ -26,7 +22,7 @@ export const authenticate = (provider) => {
     return fetch('/api/oauth/authenticate/' + encodeURIComponent(provider))
       .then(res => res.json())
       .then(
-        (res) => dispatch(receiveAuthLink(res)),
+        (res) => res.success ? dispatch(receiveAuthLink(res.data)) : dispatch(receiveAuthLinkError(res.error)),
         (err) => dispatch(receiveAuthLinkError(err))
       );
   };
@@ -36,15 +32,11 @@ export const requestLogin = () => {
     type: types.REQUEST_LOGIN
   };
 }
-export const receiveLogin = (response) => {
-  if ( response.success ) {
-    const cookie_opts = { path: '/', maxAge: response.data.expires_in };
-    Cookie.set('_api_id', response.data.api_id, cookie_opts);
-    Cookie.set('_api_secret', response.data.api_secret, cookie_opts);
-    window.location.href = '/';
-  } else {
-    return receiveLoginError(response.error);
-  }
+export const receiveLogin = (data) => {
+  const cookie_opts = { path: '/', maxAge: data.expires_in };
+  Cookie.set('_api_id', data.api_id, cookie_opts);
+  Cookie.set('_api_secret', data.api_secret, cookie_opts);
+  window.location.href = '/';
 }
 export const requestLoginError = (error) => {
   return {
@@ -53,6 +45,8 @@ export const requestLoginError = (error) => {
   };
 }
 export const receiveLoginError = (error) => {
+  Cookie.remove('_api_id');
+  Cookie.remove('_api_secret');
   return {
     type: types.RECEIVE_LOGIN_ERROR,
     error: error
@@ -73,7 +67,7 @@ export const login = () => {
       })})
       .then(res => res.json())
       .then(
-        (res) => dispatch(receiveLogin(res)),
+        (res) => res.success ? dispatch(receiveLogin(res.data)) : dispatch(receiveLoginError(res.error)),
         (err) => dispatch(receiveLoginError(err))
       );
   }
@@ -84,13 +78,9 @@ export const requestLogout = () => {
   };
 }
 export const receiveLogout = (response) => {
-  if ( response.success ) {
-    Cookie.remove('_api_id');
-    Cookie.remove('_api_secret');
-    window.location.href = '/';
-  } else {
-    return receiveLogoutError(response.error);
-  }
+  Cookie.remove('_api_id');
+  Cookie.remove('_api_secret');
+  window.location.href = '/';
 }
 export const receiveLogoutError = (error) => {
   return {
@@ -102,7 +92,7 @@ export const logout = () => {
   return (dispatch, getState) => {
     dispatch(requestLogout());
     const auth = getState().auth;
-    if ( ! (auth.apiID && auth.apiSecret) ) {
+    if ( !auth.isLoggedIn ) {
       return receiveLogoutError('You must be logged in to logout');
     }
 
@@ -114,7 +104,7 @@ export const logout = () => {
       })})
       .then(res => res.json())
       .then(
-        (res) => dispatch(receiveLogout(res)),
+        (res) => res.success ? dispatch(receiveLogin(res.data)) : dispatch(receiveLogoutError(res.error)),
         (err) => dispatch(receiveLogoutError(err))
       );
   }

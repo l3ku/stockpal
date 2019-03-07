@@ -8,16 +8,13 @@ import LoginModal from './components/loginModal';
 import StockChart from './components/stockChart';
 import './dist/main.css';
 import API from './utils/api';
-import user_avatar_placeholder from './user-avatar-placeholder.png';
 import { login, logout } from './actions/authActions';
+import { maybeGetUserInfo } from './actions/userActions';
 
 class App extends Component {
   constructor(props) {
     super(props);
-    const { cookies } = props;
     this.state = {
-      userPicture: user_avatar_placeholder,
-      userName: 'Loading...',
       activePage: null,
       activeView: null,
       activeModal: null,
@@ -26,7 +23,6 @@ class App extends Component {
     };
 
     // Bind custom functions to the class instance
-    this.maybeGetUserInfo = this.maybeGetUserInfo.bind(this);
     this.showStock = this.showStock.bind(this);
     this.setPreviousView = this.setPreviousView.bind(this);
   }
@@ -39,48 +35,29 @@ class App extends Component {
       this.props.dispatch(login());
     }
 
-    this.maybeGetUserInfo();
-  }
-
-  maybeGetUserInfo() {
-    if ( !(this.props.apiID && this.props.apiSecret) ) {
-      return;
-    }
-
-    API.getUserInfo(this.props.apiID, this.props.apiSecret,
-      (res) => {
-        if ( res.success ) {
-
-          this.setState({userName: res.data.user_name, userPicture: res.data.user_picture_url});
-        } else {
-          // If the user info fetch fails, it means that the user is no longer
-          // logged in validly and should thus relogin. As a concequence, the
-          // invalid cookies and state should be cleaned.
-          this.setState({apiID: null, apiSecret: null});
-          this.props.cookies.remove('_api_id');
-          this.props.cookies.remove('_api_secret');
-        }
-      },
-      (err) => {
-        console.log(err);
-        // TODO: errors
-      }
-    );
+    this.props.dispatch(maybeGetUserInfo());
   }
 
   setPreviousView() {
-    this.setState({activeSTock: null, activeView: this.state.previousView});
+    this.setState({ activeSTock: null, activeView: this.state.previousView });
   }
 
   showStock(evt) {
     let symbol = evt.currentTarget.getAttribute('data-stock-symbol');
-    this.setState({activeStock: symbol, activeView: 'stock-chart', previousView: this.state.activeView});
+    this.setState({ activeStock: symbol, activeView: 'stock-chart', previousView: this.state.activeView });
   }
 
   render() {
     // Don't render anything if there is a login in progress
     if ( this.props.isAuthRedirect ) {
-      return;
+      return 'Loading...';
+    }
+    if ( this.props.authError ) {
+      return (
+        <div>
+          <p>Login failed due to an unexpected error: "{this.props.authError}". <a href="/">Click here</a> to return to the home page.</p>
+        </div>
+      );
     }
 
     const activePage = this.state.activePage;
@@ -113,11 +90,11 @@ class App extends Component {
         </Menu.Item>
       </React.Fragment>
     );
-    if ( this.props.apiID && this.props.apiSecret ) {
+    if ( this.props.isLoggedIn ) {
       const trigger = (
         <div>
-          <span className="main-menu-user-name">{this.state.userName}</span>
-          <Image className="main-menu-user-picture" avatar src={this.state.userPicture} />
+          <span className="main-menu-user-name">{this.props.user.name}</span>
+          <Image className="main-menu-user-picture" avatar src={this.props.user.picture} />
         </div>
       );
       activeMenu = (
@@ -138,7 +115,7 @@ class App extends Component {
           className='login-modal'
           dimmer='blurring'
           open={this.state.activeModal === 'login'}
-          onClose={() => this.setState({activeModal: false})}
+          onClose={() => this.setState({ activeModal: false })}
           size='small'
         >
           <LoginModal />
@@ -160,7 +137,7 @@ class App extends Component {
               <Menu.Item name='all-stocks' active={activeView === 'all-stocks'} onClick={this.handleSecondaryMenuClick}>
                 All Stocks
               </Menu.Item>
-              <Menu.Item disabled={!(this.props.apiID && this.props.apiSecret)} name='user-stocks' active={activeView === 'user-stocks'} onClick={this.handleSecondaryMenuClick}>
+              <Menu.Item disabled={this.props.isLoggedIn === false} name='user-stocks' active={activeView === 'user-stocks'} onClick={this.handleSecondaryMenuClick}>
                 My Stocks
               </Menu.Item>
             </Menu>
@@ -179,7 +156,13 @@ class App extends Component {
 const mapStateToProps = state => ({
   isAuthRedirect: state.auth.isAuthRedirect,
   apiID: state.auth.apiID,
-  apiSecret: state.auth.apiSecret
+  apiSecret: state.auth.apiSecret,
+  isLoggedIn: state.auth.isLoggedIn,
+  authError: state.auth.error,
+  user: {
+    name: state.user.userName,
+    picture: state.user.userPicture
+  }
 });
 
 export default connect(mapStateToProps)(App);

@@ -7,11 +7,10 @@ export const requestStocks = (type=types.REQUEST_STOCKS) => {
     type: type
   };
 };
-export const receiveStocks = (response, type=types.RECEIVE_STOCKS) => {
+export const receiveStocks = (data, type=types.RECEIVE_STOCKS) => {
   return {
     type: type,
-    success: response.success,
-    items: response.data,
+    items: data,
     receivedAt: Date.now()
   };
 };
@@ -29,7 +28,7 @@ const fetchStocksFromAPI = () => {
     return fetch('/api/v1/stock')
       .then(res => res.json())
       .then(
-        (res) => dispatch(receiveStocks(res)),
+        (res) => res.success ? dispatch(receiveStocks(res.data)) : dispatch(receiveStocksError(res.error)),
         (err) => dispatch(receiveStocksError(err))
       );
   };
@@ -51,7 +50,7 @@ const fetchGainerStocksFromAPI = () => {
     return fetch('/api/v1/gainers')
       .then(res => res.json())
       .then(
-        (res) => dispatch(receiveStocks(res, types.RECEIVE_GAINER_STOCKS)),
+        (res) => res.success ? dispatch(receiveStocks(res.data, types.RECEIVE_GAINER_STOCKS)) : dispatch(receiveStocksError(res.error, types.RECEIVE_GAINER_STOCKS_ERROR)),
         (err) => dispatch(receiveStocksError(err, types.RECEIVE_GAINER_STOCKS_ERROR))
       );
   };
