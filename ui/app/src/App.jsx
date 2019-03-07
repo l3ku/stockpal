@@ -9,7 +9,7 @@ import StockChart from './components/stockChart';
 import './dist/main.css';
 import API from './utils/api';
 import user_avatar_placeholder from './user-avatar-placeholder.png';
-import { login } from './actions/authActions';
+import { login, logout } from './actions/authActions';
 
 class App extends Component {
   constructor(props) {
@@ -27,7 +27,6 @@ class App extends Component {
 
     // Bind custom functions to the class instance
     this.maybeGetUserInfo = this.maybeGetUserInfo.bind(this);
-    this.logout = this.logout.bind(this);
     this.showStock = this.showStock.bind(this);
     this.setPreviousView = this.setPreviousView.bind(this);
   }
@@ -65,20 +64,6 @@ class App extends Component {
       (err) => {
         console.log(err);
         // TODO: errors
-      }
-    );
-  }
-
-  logout() {
-    API.logout(this.props.apiID, this.props.apiSecret,
-      (res) => {
-        this.setState({apiID: null, apiSecret: null});
-        this.props.cookies.remove('_api_id');
-        this.props.cookies.remove('_api_secret');
-      },
-      (err) => {
-        // TODO: errors
-        console.log(err);
       }
     );
   }
@@ -140,7 +125,7 @@ class App extends Component {
           <Dropdown trigger={trigger} pointing='top right' icon={null}>
             <Dropdown.Menu>
               <Dropdown.Item>My Account</Dropdown.Item>
-              <Dropdown.Item onClick={this.logout}><span className="main-menu-logout-link">Logout</span></Dropdown.Item>
+              <Dropdown.Item onClick={() => this.props.dispatch(logout())}><span className="main-menu-logout-link">Logout</span></Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Menu.Item>
