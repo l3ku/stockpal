@@ -110,9 +110,9 @@ class Authenticate(Resource):
         try:
             return {'success': True, 'data': {'auth_url': initOAuth2Session(auth_provider)}}
         except ValueError as err:
-            return {'success': False, 'errors': [str(err)]}
+            return {'success': False, 'error': str(err)}
         except AuthlibBaseError as err:
-            return {'success': False, 'errors': [err.description]}
+            return {'success': False, 'error': err.description}
 
 
 class Login(Resource):
@@ -125,9 +125,9 @@ class Login(Resource):
             login_id, login_secret, login_expires_in = OAuth2Login(auth_provider, auth_response)
             return {'success': True, 'data': {'api_id': login_id, 'api_secret': login_secret, 'expires_in': login_expires_in}}
         except ValueError as err:
-            return {'success': False, 'errors': [str(err)]}
+            return {'success': False, 'error': str(err)}
         except AuthlibBaseError as err:
-            return {'success': False, 'errors': [err.description]}
+            return {'success': False, 'error': err.description}
 
 
 class Logout(Resource):
@@ -142,6 +142,6 @@ class Logout(Resource):
         try:
             return {'success': logout(login_id, login_secret)}
         except ValueError as err:
-            return {'success': False, 'errors': [str(err)]}
+            return {'success': False, 'error': str(err)}
         except AuthlibBaseError as err:
-            return {'success': False, 'errors': [err.description]}
+            return {'success': False, 'error': err.description}
