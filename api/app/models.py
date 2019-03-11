@@ -66,6 +66,21 @@ class User(db.Model):
         db.session.commit()
         return { 'success': True }
 
+    def deleteStock(self, symbol):
+        # Is this stock a valid stock?
+        db_stock = Stock.query.filter_by(symbol=symbol).first()
+        if db_stock is None:
+            return (False, {'reason': f'Unknown stock symbol: "{symbol}"','target': None})
+
+        # Does the user even have this stock?
+        user_stock = UserStock.query.filter_by(user_id=self.id, stock_symbol=symbol).first()
+        if user_stock is None:
+            return (False, {'reason': f'User does not have stock "{symbol}"', 'target': None})
+
+        # Finally, perform actual deletion
+        db.session.delete(user_stock)
+        db.session.commit()
+        return { 'success': True }
 ##
 # Models the one-to-many User(1) -> Stock(N) relationship.
 ##

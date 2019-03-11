@@ -104,6 +104,22 @@ class UserStocks(Resource):
         except AuthlibBaseError as err:
             return {'success': False, 'error': {'reason': 'err.description', 'target': None}}
 
+    def delete(self, login_id):
+        try:
+            success, obj = authenticate(login_id)
+            if not success:
+                return {'success': False, 'error': obj}
+            db_user = obj # In case of success we know that obj is the DB model user instead of error object
+            parser = reqparse.RequestParser()
+            parser.add_argument('stock_symbol', required=True, help="Stock symbol is required")
+            args = parser.parse_args()
+            return db_user.deleteStock(args['stock_symbol'])
+
+        except ValueError as err:
+            return {'success': False, 'error': {'reason': str(err), 'target': None}}
+        except AuthlibBaseError as err:
+            return {'success': False, 'error': {'reason': err.description, 'target': None}}
+
 
 class Authenticate(Resource):
     def get(self, auth_provider):
