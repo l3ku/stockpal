@@ -1,10 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 import time
 import random
 import string
-
-db = SQLAlchemy()
+from app import db
 
 class AppMetaData(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

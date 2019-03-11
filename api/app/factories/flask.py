@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
-from app.models import db
+from app import db
 from app.controller import main
 from app.settings import app_config
 

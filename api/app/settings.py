@@ -14,6 +14,8 @@ class Config(object):
     SECRET_KEY = 'REPLACE ME'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = mysql_uri
+    SQLALCHEMY_POOL_RECYCLE = 499
+    SQLALCHEMY_POOL_TIMEOUT = 20
 
 class ProdConfig(Config):
     ENV = 'prod'
