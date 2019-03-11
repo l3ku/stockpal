@@ -23,7 +23,10 @@ def authenticate(login_id):
         return (False, {'reason': 'missing_header', 'target': 'X-API-Key'})
     login_secret = request.headers['X-API-Key']
     db_logged_in_user = LoggedInUser.query.filter_by(login_id=login_id).first()
-    return db_logged_in_user.validateLogin(login_secret)
+    if db_logged_in_user is None:
+        return (False, {'reason': 'invalid_login', 'target': None})
+    else:
+        return db_logged_in_user.validateLogin(login_secret)
 
 class ListGainers(Resource):
     def get(self):
