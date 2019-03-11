@@ -1,3 +1,4 @@
+from celery.signals import worker_ready
 from app import celery
 from app.models import db, Stock
 import requests
@@ -18,3 +19,8 @@ def updateStocksFromAPI():
             db_stock.type = stock['type']
             db_stock.is_enabled = stock['isEnabled']
     db.session.commit()
+
+@worker_ready.connect
+def updateStocksInit(sender, **k):
+    with sender.app.connection() as conn:
+        sender.app.send_task('app.tasks.updateStocksFromAPI', connection=conn)
