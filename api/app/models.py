@@ -47,23 +47,24 @@ class User(db.Model):
         # We always ẃant to be nice and return the information of the stocks instead
         # of the plain IDs and delegating the SQL join type functionality outside of
         # this model.
-        return UserStock.query.join(Stock).filter_by(user_id=self.id).all()
+        print(Stock.query.join(UserStock).filter_by(user_id=self.id).all())
+        return Stock.query.join(UserStock).filter_by(user_id=self.id).all()
 
     def addStock(self, symbol):
         # Is this stock a valid stock?
         db_stock = Stock.query.filter_by(symbol=symbol).first()
         if db_stock is None:
-            return (False, {'reason': f'Unknown stock symbol: {symbol}','target': None})
+            return (False, {'reason': f'Unknown stock symbol: "{symbol}"','target': None})
 
         # Does the user already have this stock?
-        user_stock = UserStock.query.filter_by(user_id=self.id, symbol=symbol).first()
+        user_stock = UserStock.query.filter_by(user_id=self.id, stock_symbol=symbol).first()
         if user_stock is not None:
-            return (False, {'reason': f'Stock {symbol} already exists for this user', 'target': None})
+            return (False, {'reason': f'Stock "{symbol}" already exists for this user', 'target': None})
 
         user_stock = UserStock(self.id, symbol)
         db.session.add(user_stock)
         db.session.commit()
-        return (True, None)
+        return { 'success': True }
 
 ##
 # Models the one-to-many User(1) -> Stock(N) relationship.
