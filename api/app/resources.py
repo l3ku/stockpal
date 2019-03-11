@@ -105,7 +105,7 @@ class UserStocks(Resource):
         except ValueError as err:
             return {'success': False, 'error': {'reason': str(err), 'target': None}}
         except AuthlibBaseError as err:
-            return {'success': False, 'error': {'reason': 'err.description', 'target': None}}
+            return {'success': False, 'error': {'reason': err.description, 'target': None}}
 
     def delete(self, login_id):
         try:
