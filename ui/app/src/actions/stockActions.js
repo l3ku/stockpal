@@ -103,3 +103,64 @@ export const fetchUserStocks = () => {
   }
 }
 
+
+export const addUserStock = (symbol) => {
+  return (dispatch, getState) => {
+    const userStocks = getState().userStocks;
+    const auth = getState().auth;
+
+    // Don't make unnecessary API requests if the stock already exists
+    if ( userStocks.length > 0 && userStocks.find(val => val.symbol === symbol) !== undefined ) {
+      return dispatch(stockActionError('Stock already exists in user stocks', types.RECEIVE_ADD_USER_STOCK_ERROR));
+    }
+
+    // Don't attempt to do anything if the user is not currently logged in
+    if ( !auth.isLoggedIn ) {
+      return dispatch(stockActionError('User is not logged in', types.RECEIVE_ADD_USER_STOCK_ERROR));
+    }
+
+    return fetch('/api/protected/stocks/' + encodeURIComponent(auth.apiID), {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'X-API-Key': auth.apiSecret
+      },
+      body: JSON.stringify({
+        'stock_symbol': symbol
+      })
+    })
+    .then(res => res.json())
+    .then(
+      (res) => res.success ? dispatch({ 'type': types.RECEIVE_ADD_USER_STOCK, 'symbol': symbol }) : dispatch(stockActionError(res.error, types.RECEIVE_ADD_USER_STOCK_ERROR)),
+      (err) => dispatch(stockActionError(err, types.RECEIVE_ADD_USER_STOCK_ERROR))
+    );
+  }
+}
+
+export const deleteUserStock = (symbol) => {
+  return (dispatch, getState) => {
+    const userStocks = getState().userStocks;
+    const auth = getState().auth;
+
+    // Don't attempt to do anything if the user is not currently logged in
+    if ( !auth.isLoggedIn ) {
+      return dispatch(stockActionError('User is not logged in', types.RECEIVE_USER_STOCKS_ERROR));
+    }
+
+    return fetch('/api/protected/stocks/' + encodeURIComponent(auth.apiID), {
+        method: 'DELETE',
+        headers: {
+          'content-type': 'application/json',
+          'X-API-Key': auth.apiSecret
+        },
+        body: JSON.stringify({
+          'stock_symbol': symbol
+        })
+      })
+      .then(res => res.json())
+      .then(
+        (res) => res.success ? dispatch({ 'type': types.RECEIVE_DELETE_USER_STOCK, 'symbol': symbol }) : dispatch(stockActionError(res.error, types.RECEIVE_DELETE_USER_STOCK_ERROR)),
+        (err) => dispatch(stockActionError(err, types.RECEIVE_DELETE_USER_STOCK_ERROR))
+      );
+  };
+};

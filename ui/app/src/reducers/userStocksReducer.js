@@ -2,6 +2,12 @@ import {
   REQUEST_USER_STOCKS,
   RECEIVE_USER_STOCKS,
   RECEIVE_USER_STOCKS_ERROR,
+  REQUEST_ADD_USER_STOCK,
+  RECEIVE_ADD_USER_STOCK,
+  RECEIVE_ADD_USER_STOCK_ERROR,
+  REQUEST_DELETE_USER_STOCK,
+  RECEIVE_DELETE_USER_STOCK,
+  RECEIVE_DELETE_USER_STOCK_ERROR
 } from '../actions/types';
 import API from '../utils/api';
 
@@ -21,6 +27,17 @@ export default function(state=initialState, action) {
         success: true,
         items: action.items,
         isLoaded: true
+      };
+    case RECEIVE_ADD_USER_STOCK:
+      return {
+        success: true,
+        symbol: action.symbol
+      };
+    case RECEIVE_DELETE_USER_STOCK:
+      return {
+        success: true,
+        items: state.items.filter(obj => obj.symbol !== action.symbol),
+        symbol: action.symbol
       };
     default:
       return state;
