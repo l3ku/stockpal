@@ -45,8 +45,6 @@ export const requestLoginError = (error) => {
   };
 }
 export const receiveLoginError = (error) => {
-  Cookie.remove('_api_id');
-  Cookie.remove('_api_secret');
   return {
     type: types.RECEIVE_LOGIN_ERROR,
     error: error
@@ -78,8 +76,6 @@ export const requestLogout = () => {
   };
 }
 export const receiveLogout = (response) => {
-  Cookie.remove('_api_id');
-  Cookie.remove('_api_secret');
   window.location.href = '/';
 }
 export const receiveLogoutError = (error) => {
@@ -92,6 +88,7 @@ export const logout = () => {
   return (dispatch, getState) => {
     dispatch(requestLogout());
     const auth = getState().auth;
+    dispatch(invalidateLogin())
     if ( !auth.isLoggedIn ) {
       return receiveLogoutError('You must be logged in to logout');
     }
@@ -109,6 +106,10 @@ export const logout = () => {
       );
   }
 }
-
+export const invalidateLogin = () => {
+  return (dispatch, getState) => {
+    return dispatch({ 'type': types.INVALIDATE_LOGIN });
+  }
+}
 
 

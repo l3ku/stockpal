@@ -1,37 +1,27 @@
-import { REQUEST_USER_STOCKS } from '../actions/types';
+import {
+  REQUEST_USER_STOCKS,
+  RECEIVE_USER_STOCKS,
+  RECEIVE_USER_STOCKS_ERROR,
+} from '../actions/types';
 import API from '../utils/api';
 
 const initialState = {
   items: [],
   success: null,
   isLoaded: false,
-  errors: null
+  error: null,
+  symbol: null
 };
 
 export default function(state=initialState, action) {
   switch ( action.type ) {
-    case REQUEST_USER_STOCKS:
-      // Don't refetch items if they have already been previously loaded succesfully...
-      if ( state.success && state.items.length > 0 ) {
-        return state;
-      } else {
-        var newState = { ...state };
-        API.getUserStocks(
-          action.apiID,
-          action.apiSecret,
-          (result) => {
-            newState.success = result.success;
-            newState.payload = result.data;
-            newState.error = null;
-          },
-          (error) => {
-            newState.success = false;
-            newState.payload = [];
-            newState.error = error;
-          }
-        );
-        return newState;
-      }
+    case RECEIVE_USER_STOCKS:
+      return {
+        ...state,
+        success: true,
+        items: action.items,
+        isLoaded: true
+      };
     default:
       return state;
   }

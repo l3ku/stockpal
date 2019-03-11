@@ -15,11 +15,18 @@ export default function(state=initialState, action) {
     case RECEIVE_USER_INFO:
       return {
         ...state,
-        success: action.success,
+        success: true,
         error: null,
         userName: action.data.user_name,
         userPicture: action.data.user_picture_url,
         userEmail: action.data.user_email,
+        isLoaded: true
+      };
+    case RECEIVE_USER_INFO_ERROR:
+      return {
+        ...state,
+        success: false,
+        error: action.error,
         isLoaded: true
       };
     default:

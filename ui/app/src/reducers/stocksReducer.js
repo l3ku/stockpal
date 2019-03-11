@@ -16,7 +16,7 @@ export default function(state=initialState, action) {
     case RECEIVE_STOCKS:
       return {
         ...state,
-        success: action.success,
+        success: true,
         error: null,
         items: action.items,
         isLoaded: true

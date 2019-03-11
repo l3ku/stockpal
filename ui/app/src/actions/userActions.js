@@ -1,18 +1,19 @@
 import * as types from './types';
+import { invalidateLogin } from './authActions';
 
-export const requestUserInfo = () => {
+const requestUserInfo = () => {
   return {
     type: types.REQUEST_USER_INFO
   };
 };
-export const receiveUserInfo = (response) => {
+const receiveUserInfo = (response) => {
   return {
     type: types.RECEIVE_USER_INFO,
-    success: response.success,
-    data: response.data
+    success: true,
+    data: response
   };
 };
-export const receiveUserInfoError = (error) => {
+const receiveUserInfoError = (error) => {
   return {
     type: types.RECEIVE_USER_INFO_ERROR,
     success: false,
@@ -28,8 +29,8 @@ export const maybeGetUserInfo = () => {
         })
         .then(res => res.json())
         .then(
-          (res) => dispatch(receiveUserInfo(res)),
-          (err) => dispatch(receiveUserInfoError(err))
+          (res) => res.success ? dispatch(receiveUserInfo(res.data)) : dispatch(receiveUserInfoError(res.error)) && dispatch(invalidateLogin()),
+          (err) => dispatch(receiveUserInfoError(err)) && dispatch(invalidateLogin())
         );
     } else {
       return Promise.resolve();

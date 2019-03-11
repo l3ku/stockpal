@@ -8,7 +8,7 @@ const initialState = {
   items: [],
   success: null,
   isLoaded: false,
-  errors: null
+  error: null
 };
 
 export default function(state=initialState, action) {
@@ -16,8 +16,7 @@ export default function(state=initialState, action) {
     case RECEIVE_GAINER_STOCKS:
       return {
         ...state,
-        success: action.success,
-        error: null,
+        success: true,
         items: action.items,
         isLoaded: true
       };

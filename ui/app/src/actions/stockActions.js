@@ -2,19 +2,19 @@ import * as types from './types';
 import API from '../utils/api';
 
 // General actions common for all stock types
-export const requestStocks = (type=types.REQUEST_STOCKS) => {
+const requestStocks = (type=types.REQUEST_STOCKS) => {
   return {
     type: type
   };
 };
-export const receiveStocks = (data, type=types.RECEIVE_STOCKS) => {
+const receiveStocks = (data, type=types.RECEIVE_STOCKS) => {
   return {
     type: type,
     items: data,
     receivedAt: Date.now()
   };
 };
-export const receiveStocksError = (error, type=types.RECEIVE_STOCKS_ERROR) => {
+const stockActionError = (error, type=types.RECEIVE_STOCKS_ERROR) => {
   return {
     type: type,
     error: error
@@ -28,8 +28,8 @@ const fetchStocksFromAPI = () => {
     return fetch('/api/v1/stock')
       .then(res => res.json())
       .then(
-        (res) => res.success ? dispatch(receiveStocks(res.data)) : dispatch(receiveStocksError(res.error)),
-        (err) => dispatch(receiveStocksError(err))
+        (res) => res.success ? dispatch(receiveStocks(res.data)) : dispatch(stockActionError(res.error)),
+        (err) => dispatch(stockActionError(err))
       );
   };
 };
@@ -50,8 +50,8 @@ const fetchGainerStocksFromAPI = () => {
     return fetch('/api/v1/gainers')
       .then(res => res.json())
       .then(
-        (res) => res.success ? dispatch(receiveStocks(res.data, types.RECEIVE_GAINER_STOCKS)) : dispatch(receiveStocksError(res.error, types.RECEIVE_GAINER_STOCKS_ERROR)),
-        (err) => dispatch(receiveStocksError(err, types.RECEIVE_GAINER_STOCKS_ERROR))
+        (res) => res.success ? dispatch(receiveStocks(res.data, types.RECEIVE_GAINER_STOCKS)) : dispatch(stockActionError(res.error, types.RECEIVE_GAINER_STOCKS_ERROR)),
+        (err) => dispatch(stockActionError(err, types.RECEIVE_GAINER_STOCKS_ERROR))
       );
   };
 };
@@ -68,22 +68,38 @@ export const fetchGainerStocks = () => {
 
 // Actions for the stocks of users
 const fetchUserStocksFromAPI = () => {
-  return dispatch => {
-    dispatch(requestStocks(types.REQUEST_GAINER_STOCKS));
-    return fetch('/api/v1/gainers')
-      .then(res => res.json())
-      .then(
-        (res) => dispatch(receiveStocks(res, types.RECEIVE_USER_STOCKS)),
-        (err) => dispatch(receiveStocksError(err, types.RECEIVE_USER_STOCKS_ERROR))
-      );
+  return (dispatch, getState) => {
+    const auth = getState().auth;
+    const userStocks = getState().userStocks;
+    dispatch(requestStocks(types.REQUEST_USER_STOCKS));
+    if ( auth.isLoggedIn ) {
+
+      return fetch('/api/protected/stocks/' + encodeURIComponent(auth.apiID), {
+          headers: {
+            'X-API-Key': auth.apiSecret
+          },
+        })
+        .then(res => res.json())
+        .then(
+          (res) => res.success ? dispatch(receiveStocks(res.data, types.RECEIVE_USER_STOCKS)) : dispatch(stockActionError(res.error, types.RECEIVE_USER_STOCKS_ERROR)),
+          (err) => dispatch(stockActionError(err, types.RECEIVE_USER_STOCKS_ERROR))
+        );
+    } else {
+      return dispatch(stockActionError('User not logged in', types.RECEIVE_USER_STOCKS_ERROR));
+    }
+
   };
 };
 export const fetchUserStocks = () => {
   return (dispatch, getState) => {
     const userStocks = getState().userStocks;
-    if ( !userStocks.isLoaded && (userStocks.items === undefined || userStocks.items.length === 0) ) {
+    // Don't make external API requests if there is no need to (data already present)
+    if ( !userStocks.isLoaded || userStocks.items === undefined || userStocks.items.length === 0 ) {
       return dispatch(fetchUserStocksFromAPI());
+    } else {
+      return dispatch(receiveStocks(userStocks.items, types.RECEIVE_USER_STOCKS))
     }
     return Promise.resolve();
   }
 }
+
