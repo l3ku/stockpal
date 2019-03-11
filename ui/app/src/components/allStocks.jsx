@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import React, { Component } from 'react';
-import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown } from 'semantic-ui-react';
-import { fetchStocks } from '../actions/stockActions';
+import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown, Button } from 'semantic-ui-react';
+import { fetchStocks, addUserStock } from '../actions/stockActions';
 
 class AllStocks extends Component {
   constructor(props) {
@@ -91,7 +91,7 @@ class AllStocks extends Component {
 
   render() {
     const { itemsPerPage, currentPage, totalPages, showPageRange } = this.state;
-    const { items, success, isLoaded, error } = this.props;
+    const { items, success, isLoaded, error, userStockSymbols, isLoggedIn } = this.props;
 
     if (error) {
         return ( 'Error: ' + error );
@@ -114,10 +114,9 @@ class AllStocks extends Component {
       // The index of the first stock to show. Should be adjusted according to the current page.
       const begin = (currentPage-1) * itemsPerPage;
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
-      const end = Math.min(begin+itemsPerPage, items.length-1);
+      const end = Math.min(begin+itemsPerPage, items.length);
       const itemsSliced = items.slice(begin, end);
-      const paginationStart = Math.min(Math.max(currentPage-Math.floor(showPageRange/2), 0)+1, totalPages-showPageRange+1);
-      const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
+      const paginationStart = Math.min(1, Math.abs(Math.max(currentPage-Math.floor(showPageRange/2), 0)+1), Math.abs(totalPages-showPageRange+1));      const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
       const paginationArray = [...Array(paginationEnd-paginationStart+1)];
       const stockTypeDescriptions = this.getStockTypeDescriptions();
 
@@ -131,6 +130,7 @@ class AllStocks extends Component {
               <Table.HeaderCell>Name</Table.HeaderCell>
               <Table.HeaderCell>Type</Table.HeaderCell>
               <Table.HeaderCell>Enabled</Table.HeaderCell>
+              <Table.HeaderCell>Actions</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -140,7 +140,7 @@ class AllStocks extends Component {
                   <Table.Cell width={3}>
                     <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={item.symbol}>{item.symbol}</a>
                   </Table.Cell>
-                  <Table.Cell width={7}>
+                  <Table.Cell width={6}>
                     {item.name}
                   </Table.Cell>
                   <Table.Cell width={4}>
@@ -148,6 +148,9 @@ class AllStocks extends Component {
                   </Table.Cell>
                   <Table.Cell width={2} className={item.is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
                     {item.is_enabled ? 'Yes' : 'No'}
+                  </Table.Cell>
+                  <Table.Cell width={1}>
+                    <Button disabled={!isLoggedIn || userStockSymbols.indexOf(item.symbol) !== -1} onClick={() => this.props.dispatch(addUserStock(item.symbol))}>Add</Button>
                   </Table.Cell>
                 </Table.Row>
               );
@@ -201,7 +204,9 @@ const mapStateToProps = state => ({
   items: state.stocks.items,
   success: state.stocks.success,
   error: state.stocks.error,
-  isLoaded: state.stocks.isLoaded
+  isLoaded: state.stocks.isLoaded,
+  isLoggedIn: state.auth.isLoggedIn,
+  userStockSymbols: state.userStocks.items.map(item => item.symbol)
 });
 
 export default connect(mapStateToProps)(AllStocks);

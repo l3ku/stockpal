@@ -1,8 +1,7 @@
 import { connect } from 'react-redux';
 import React, { Component } from 'react';
-import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown } from 'semantic-ui-react';
-import { fetchUserStocks } from '../actions/stockActions';
-import API from './../utils/api';
+import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown, Button } from 'semantic-ui-react';
+import { fetchUserStocks, deleteUserStock } from '../actions/stockActions';
 
 class UserStocks extends Component {
   constructor(props) {
@@ -106,23 +105,23 @@ class UserStocks extends Component {
     } else if (isLoaded && items.length === 0) {
       return (
         <div>
-          Seems like you have not added any stocks yet...
+          No results found! Go and add some stocks! :)
         </div>
       );
     } else {
-      const { currentPage, itemsPerPage, showPageRange } = this.state;
+     const { currentPage, itemsPerPage, showPageRange } = this.state;
       // The index of the first stock to show. Should be adjusted according to the current page.
       const begin = (currentPage-1) * itemsPerPage;
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
-      const end = Math.min(begin+itemsPerPage, items.length-1);
+      const end = Math.min(begin+itemsPerPage, items.length);
       const itemsSliced = items.slice(begin, end);
-      const paginationStart = Math.min(Math.max(currentPage-Math.floor(showPageRange/2), 0)+1, totalPages-showPageRange+1);
+      const paginationStart = Math.min(1, Math.abs(Math.max(currentPage-Math.floor(showPageRange/2), 0)+1), Math.abs(totalPages-showPageRange+1));
       const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
       const paginationArray = [...Array(paginationEnd-paginationStart+1)];
       const stockTypeDescriptions = this.getStockTypeDescriptions();
 
       // What items for page options show
-      const itemsPerPageOptions = [10, 20, 50, 100];
+      const itemsPerPageOptions = [50, 100, 150, 300];
       return (
         <Table celled>
           <Table.Header>
@@ -131,23 +130,27 @@ class UserStocks extends Component {
               <Table.HeaderCell>Name</Table.HeaderCell>
               <Table.HeaderCell>Type</Table.HeaderCell>
               <Table.HeaderCell>Enabled</Table.HeaderCell>
+              <Table.HeaderCell>Actions</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {itemsSliced && itemsSliced.map(item => {
               return (
                 <Table.Row key={item.symbol}>
-                  <Table.Cell width={3}>
+                  <Table.Cell width={2}>
                     <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={item.symbol}>{item.symbol}</a>
                   </Table.Cell>
-                  <Table.Cell width={7}>
+                  <Table.Cell width={6}>
                     {item.name}
                   </Table.Cell>
                   <Table.Cell width={4}>
                     {stockTypeDescriptions[item.type.toLowerCase()] ? stockTypeDescriptions[item.type.toLowerCase()]: item.type}
                   </Table.Cell>
-                  <Table.Cell width={2} className={item.is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
+                  <Table.Cell width={1} className={item.is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
                     {item.is_enabled ? 'Yes' : 'No'}
+                  </Table.Cell>
+                  <Table.Cell width={1}>
+                    <Button negative onClick={() => window.confirm('Are you sure you want to remove "' + item.symbol + '"?') && this.props.dispatch(deleteUserStock(item.symbol))}>Remove</Button>
                   </Table.Cell>
                 </Table.Row>
               );
@@ -201,7 +204,8 @@ const mapStateToProps = (state, ownProps) => ({
   items: state.userStocks.items,
   success: state.userStocks.success,
   isLoaded: state.userStocks.isLoaded,
-  error: state.userStocks.error
+  error: state.userStocks.error,
+  userStocks: state.userStocks.items
 })
 
 
