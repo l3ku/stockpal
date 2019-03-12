@@ -88,7 +88,7 @@ export const logout = () => {
   return (dispatch, getState) => {
     dispatch(requestLogout());
     const auth = getState().auth;
-    dispatch(invalidateLogin())
+    dispatch(invalidateLogin());
     if ( !auth.isLoggedIn ) {
       return receiveLogoutError('You must be logged in to logout');
     }
@@ -101,7 +101,7 @@ export const logout = () => {
       })})
       .then(res => res.json())
       .then(
-        (res) => res.success ? dispatch(receiveLogin(res.data)) : dispatch(receiveLogoutError(res.error)),
+        (res) => res.success ? dispatch(receiveLogout(res.data)) : dispatch(receiveLogoutError(res.error)),
         (err) => dispatch(receiveLogoutError(err))
       );
   }
