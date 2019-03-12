@@ -103,7 +103,7 @@ class LoggedInUser(db.Model):
         self.user_id = user_id
         self.resetUserLogin(expire_time=expire_time)
 
-    def resetUserLogin(self, expire_time, id_length=100, secret_length=500):
+    def resetUserLogin(self, expire_time, id_length=20, secret_length=200):
         # Ensure that the login_id is unique in the DB by iterating until a unique one is found.
         # If login_id length is big, there is an extremely low chance that this loop will be executed
         # many times.
