@@ -10,6 +10,7 @@ import './dist/main.css';
 import API from './utils/api';
 import { login, logout } from './actions/authActions';
 import { maybeGetUserInfo } from './actions/userActions';
+import { fetchStocks, fetchUserStocks } from './actions/stockActions';
 
 class App extends Component {
   constructor(props) {
@@ -35,7 +36,12 @@ class App extends Component {
       this.props.dispatch(login());
     }
 
-    this.props.dispatch(maybeGetUserInfo());
+    if ( this.props.isLoggedIn ) {
+      this.props.dispatch(maybeGetUserInfo());
+      this.props.dispatch(fetchUserStocks());
+    }
+
+    this.props.dispatch(fetchStocks());
   }
 
   setPreviousView() {
