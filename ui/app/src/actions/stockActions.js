@@ -164,3 +164,14 @@ export const deleteUserStock = (symbol) => {
       );
   };
 };
+
+export const changeStocksPage = (page) => {
+  return dispatch => {
+    return dispatch({ 'type': types.CHANGE_STOCKS_PAGE, 'page': page });
+  };
+}
+export const changeStocksPerPage = (stocksPerPage) => {
+  return dispatch => {
+    return dispatch({ 'type': types.CHANGE_STOCKS_PER_PAGE, 'itemsPerPage': stocksPerPage });
+  };
+};

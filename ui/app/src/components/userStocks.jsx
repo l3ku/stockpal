@@ -24,7 +24,7 @@ class UserStocks extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if ( nextProps.success && nextProps.items ) {
+    if ( nextProps.success && nextProps.items.length > 0 ) {
       this.setState({
         isLoaded: true,
         totalPages: Math.ceil(nextProps.items.length / this.state.itemsPerPage)

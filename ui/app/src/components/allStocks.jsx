@@ -1,35 +1,15 @@
 import { connect } from 'react-redux';
 import React, { Component } from 'react';
 import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown, Button } from 'semantic-ui-react';
-import { fetchStocks, addUserStock } from '../actions/stockActions';
+import { fetchStocks, addUserStock, changeStocksPerPage, changeStocksPage } from '../actions/stockActions';
 
 class AllStocks extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      itemsPerPage: 50,
-      currentPage: 1,
-      totalPages: 0,
-      showPageRange: 10
-    };
-    // Bind custom functions to the class instance
-    this.changePage = this.changePage.bind(this);
-    this.incrementPage = this.incrementPage.bind(this);
-    this.decrementPage = this.decrementPage.bind(this);
-    this.changeItemsPerPage = this.changeItemsPerPage.bind(this);
   }
 
   componentDidMount() {
     this.props.dispatch(fetchStocks());
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if ( nextProps.success && nextProps.items ) {
-      this.setState({
-        isLoaded: true,
-        totalPages: Math.ceil(nextProps.items.length / this.state.itemsPerPage)
-      });
-    }
   }
 
   getStockTypeDescriptions() {
@@ -48,51 +28,8 @@ class AllStocks extends Component {
     };
   }
 
-  changePage(evt) {
-    const page = parseInt(evt.currentTarget.getAttribute('data-page'));
-
-    // Do nothing on current page click
-    if ( page !== this.state.currentPage ) {
-      this.setState({currentPage: page});
-    }
-  }
-
-  changeItemsPerPage(evt) {
-    const itemsPerPage = parseInt(evt.currentTarget.getAttribute('data-items-per-page'));
-    if ( itemsPerPage !== this.state.itemsPerPage ) {
-
-      // We need to ensure that if the maximum number of pages changes, we need to go back to
-      // to the last page if we are above the limit. E.g. on last page when 50 items/page, and
-      // changes to 300/page => out of range on pages.
-      var currentPage = this.state.currentPage;
-      const newTotalPages = Math.ceil(this.props.items.length / itemsPerPage);
-      if ( currentPage > newTotalPages ) {
-        currentPage = newTotalPages;
-      }
-      this.setState({
-        itemsPerPage: itemsPerPage,
-        totalPages: newTotalPages,
-        currentPage: currentPage
-      });
-    }
-  }
-
-  incrementPage(evt) {
-    if ( this.state.currentPage < this.state.totalPages ) {
-      this.setState({currentPage: this.state.currentPage + 1});
-    }
-  }
-
-  decrementPage(evt) {
-    if ( this.state.currentPage > 1 ) {
-      this.setState({currentPage: this.state.currentPage - 1});
-    }
-  }
-
   render() {
-    const { itemsPerPage, currentPage, totalPages, showPageRange } = this.state;
-    const { items, success, isLoaded, error, userStockSymbols, isLoggedIn } = this.props;
-
+    const { itemsPerPage, currentPage, totalPages, showPageRange, items, success, isLoaded, error, userStockSymbols, isLoggedIn } = this.props;
     if (error) {
         return ( 'Error: ' + error );
     } else if (!isLoaded) {
@@ -110,7 +47,6 @@ class AllStocks extends Component {
         </div>
       );
     } else {
-      const { currentPage, itemsPerPage, showPageRange } = this.state;
       // The index of the first stock to show. Should be adjusted according to the current page.
       const begin = (currentPage-1) * itemsPerPage;
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
@@ -161,30 +97,30 @@ class AllStocks extends Component {
             <Table.Row>
               <Table.HeaderCell colSpan='4'>
                 <Menu floated='right' pagination>
-                  <Menu.Item key={1} data-page={1} disabled={totalPages === 0 || currentPage === 1} as='a' onClick={this.changePage}>
+                  <Menu.Item key={1} disabled={totalPages === 0 || currentPage === 1} as='a' onClick={() => this.props.dispatch(changeStocksPage(1))}>
                     <Icon name='angle double left' />
                   </Menu.Item>
-                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === 1} onClick={this.decrementPage} icon>
+                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === 1} onClick={() => this.props.dispatch(changeStocksPage(currentPage-1))} icon>
                     <Icon name='chevron left' />
                   </Menu.Item>
                   {totalPages > 0 && paginationArray.map((page, index) => {
                     return (
-                      <Menu.Item key={paginationStart+index} data-page={paginationStart+index} active={currentPage === paginationStart+index} as='a' onClick={this.changePage}>
+                      <Menu.Item key={paginationStart+index} active={currentPage === paginationStart+index} as='a' onClick={() => this.props.dispatch(changeStocksPage(paginationStart+index))}>
                         {paginationStart+index}
                       </Menu.Item>
                     );
                   })}
-                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === totalPages} onClick={this.incrementPage} icon>
+                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === totalPages} onClick={() => this.props.dispatch(changeStocksPage(currentPage+1))} icon>
                     <Icon name='chevron right' />
                   </Menu.Item>
-                  <Menu.Item data-page={totalPages} disabled={totalPages === 0 || currentPage === totalPages} as='a' onClick={this.changePage}>
+                  <Menu.Item disabled={totalPages === 0 || currentPage === totalPages} as='a' onClick={() => this.props.dispatch(changeStocksPage(totalPages))}>
                     <Icon name='angle double right' />
                   </Menu.Item>
                    <Dropdown item text='Show items'>
                     <Dropdown.Menu>
                       {itemsPerPageOptions.map(option => {
                         return (
-                          <Dropdown.Item key={option} active={itemsPerPage === option} onClick={this.changeItemsPerPage} data-items-per-page={option}>{option}</Dropdown.Item>
+                          <Dropdown.Item key={option} active={itemsPerPage === option} onClick={() => this.props.dispatch(changeStocksPerPage(option))}>{option}</Dropdown.Item>
                         );
                       })}
                     </Dropdown.Menu>
@@ -206,7 +142,11 @@ const mapStateToProps = state => ({
   error: state.stocks.error,
   isLoaded: state.stocks.isLoaded,
   isLoggedIn: state.auth.isLoggedIn,
-  userStockSymbols: state.userStocks.items.map(item => item.symbol)
+  userStockSymbols: state.userStocks.items.map(item => item.symbol),
+  totalPages: state.stocks.totalPages,
+  itemsPerPage: state.stocks.itemsPerPage,
+  showPageRange: state.stocks.showPageRange,
+  currentPage: state.stocks.currentPage,
 });
 
 export default connect(mapStateToProps)(AllStocks);
