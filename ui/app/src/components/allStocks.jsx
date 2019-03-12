@@ -52,7 +52,8 @@ class AllStocks extends Component {
       // The index of the last stock to show. Should be either begin + amount of items or the last item.
       const end = Math.min(begin+itemsPerPage, items.length);
       const itemsSliced = items.slice(begin, end);
-      const paginationStart = Math.min(1, Math.abs(Math.max(currentPage-Math.floor(showPageRange/2), 0)+1), Math.abs(totalPages-showPageRange+1));      const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
+      const paginationStart = Math.max(1, Math.max(currentPage-Math.floor(showPageRange/2), 0)+1, Math.min(totalPages-showPageRange+1, 1));
+      const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
       const paginationArray = [...Array(paginationEnd-paginationStart+1)];
       const stockTypeDescriptions = this.getStockTypeDescriptions();
 
