@@ -3,7 +3,7 @@ import {
   RECEIVE_USER_INFO,
   RECEIVE_USER_INFO_ERROR
 } from '../actions/types';
-import user_avatar_placeholder from '../user-avatar-placeholder.png';
+import user_avatar_placeholder from '../img/user-avatar-placeholder.png';
 
 const initialState = {
   userPicture: user_avatar_placeholder,
