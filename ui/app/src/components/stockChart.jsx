@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import API from './../utils/api';
 import ReactEcharts from 'echarts-for-react';
 import {Icon, Card} from 'semantic-ui-react';
+import { getStockTypeDescription } from '../utils/helpers';
 
 class StockChart extends Component {
   constructor(props) {
@@ -15,23 +16,6 @@ class StockChart extends Component {
       error: null,
     };
     this.getOption = this.getOption.bind(this);
-  }
-
-  // TODO: move this somewhere in utils because it is used multiple times
-  getStockTypeDescriptions() {
-    // Refers to the common issue type (AD - ADR).
-    // See https://github.com/iexg/IEX-API/issues/264 for an explanation.
-    return {
-      ad: 'American Depository Receipt',
-      re: 'Real Estate Investment Trust',
-      ce: 'Closed end fund',
-      si: 'Secondary Issue',
-      lp: 'Limited Partnerships',
-      cs: 'Common Stock',
-      et: 'Exchange Traded Fund',
-      crypto: 'Cryptocurrency',
-      ps: 'Preferred Stock',
-    };
   }
 
   componentDidMount() {
@@ -145,7 +129,6 @@ class StockChart extends Component {
     if ( !(this.state.stockInfoIsLoaded && this.state.stockChartIsLoaded) ) {
       return 'Loading...';
     }
-    const stockTypeDescriptions = this.getStockTypeDescriptions();
     const stockInfo = this.state.stockInfoData;
 
     // Show an indication in case of an error
@@ -157,6 +140,9 @@ class StockChart extends Component {
     if ( !stockInfo ) {
       return 'Sorry, no results were found...';
     }
+
+    const type = stockInfo.type.toLowerCase;
+    const stockTypeDescription = getStockTypeDescription(type);
     return (
       <section className="single-stock">
         <div className="single-stock-back-icon-wrapper">
@@ -172,7 +158,7 @@ class StockChart extends Component {
                   <div><strong>Symbol:</strong> {stockInfo.symbol}</div>
                 </div>
                 <div className="single-stock-info single-stock-type">
-                  <div><strong>Type:</strong> {stockTypeDescriptions[stockInfo.type.toLowerCase()] ? stockTypeDescriptions[stockInfo.type.toLowerCase()]: stockInfo.type}</div>
+                  <div><strong>Type:</strong> {stockTypeDescription ? stockTypeDescription: type}</div>
                 </div>
                 <div className="single-stock-info single-stock-is-enabled">
                   <div><strong>Is enabled:</strong> {stockInfo.is_enabled ? 'Yes' : 'No'}</div>

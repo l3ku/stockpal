@@ -13,7 +13,7 @@ const initialState = {
   error: null,
   itemsPerPage: 50,
   showPageRange: 10,
-  totalPages: 0,
+  totalPages: 1,
   currentPage: 1
 };
 

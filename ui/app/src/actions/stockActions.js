@@ -175,3 +175,25 @@ export const changeStocksPerPage = (stocksPerPage) => {
     return dispatch({ 'type': types.CHANGE_STOCKS_PER_PAGE, 'itemsPerPage': stocksPerPage });
   };
 };
+
+export const changeGainerStocksPage = (page) => {
+  return dispatch => {
+    return dispatch({ 'type': types.CHANGE_GAINER_STOCKS_PAGE, 'page': page });
+  };
+}
+export const changeGainerStocksPerPage = (stocksPerPage) => {
+  return dispatch => {
+    return dispatch({ 'type': types.CHANGE_GAINER_STOCKS_PER_PAGE, 'itemsPerPage': stocksPerPage });
+  };
+};
+
+export const changeUserStocksPage = (page) => {
+  return dispatch => {
+    return dispatch({ 'type': types.CHANGE_USER_STOCKS_PAGE, 'page': page });
+  };
+}
+export const changeUserStocksPerPage = (stocksPerPage) => {
+  return dispatch => {
+    return dispatch({ 'type': types.CHANGE_USER_STOCKS_PER_PAGE, 'itemsPerPage': stocksPerPage });
+  };
+};

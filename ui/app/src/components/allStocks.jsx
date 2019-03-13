@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import React, { Component } from 'react';
 import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown, Button } from 'semantic-ui-react';
 import { fetchStocks, addUserStock, changeStocksPerPage, changeStocksPage } from '../actions/stockActions';
+import { getStockTypeDescription } from '../utils/helpers';
 
 class AllStocks extends Component {
   constructor(props) {
@@ -10,22 +11,6 @@ class AllStocks extends Component {
 
   componentDidMount() {
     this.props.dispatch(fetchStocks());
-  }
-
-  getStockTypeDescriptions() {
-    // Refers to the common issue type (AD - ADR).
-    // See https://github.com/iexg/IEX-API/issues/264 for an explanation.
-    return {
-      ad: 'American Depository Receipt',
-      re: 'Real Estate Investment Trust',
-      ce: 'Closed end fund',
-      si: 'Secondary Issue',
-      lp: 'Limited Partnerships',
-      cs: 'Common Stock',
-      et: 'Exchange Traded Fund',
-      crypto: 'Cryptocurrency',
-      ps: 'Preferred Stock',
-    };
   }
 
   render() {
@@ -55,7 +40,6 @@ class AllStocks extends Component {
       const paginationStart = Math.max(1, Math.max(currentPage-Math.floor(showPageRange/2), 0)+1, Math.min(totalPages-showPageRange+1, 1));
       const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
       const paginationArray = [...Array(paginationEnd-paginationStart+1)];
-      const stockTypeDescriptions = this.getStockTypeDescriptions();
 
       // What items for page options show
       const itemsPerPageOptions = [50, 100, 150, 300];
@@ -72,22 +56,25 @@ class AllStocks extends Component {
           </Table.Header>
           <Table.Body>
             {itemsSliced && itemsSliced.map(item => {
+              const { symbol, name, is_enabled } = item;
+              const type = item.type.toLowerCase();
+              const stockTypeDescription = getStockTypeDescription(type);
               return (
-                <Table.Row key={item.symbol}>
+                <Table.Row key={symbol}>
                   <Table.Cell width={3}>
                     <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={item.symbol}>{item.symbol}</a>
                   </Table.Cell>
                   <Table.Cell width={6}>
-                    {item.name}
+                    {name}
                   </Table.Cell>
                   <Table.Cell width={4}>
-                    {stockTypeDescriptions[item.type.toLowerCase()] ? stockTypeDescriptions[item.type.toLowerCase()]: item.type}
+                    {stockTypeDescription ? stockTypeDescription : type}
                   </Table.Cell>
-                  <Table.Cell width={2} className={item.is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
-                    {item.is_enabled ? 'Yes' : 'No'}
+                  <Table.Cell width={2} className={is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
+                    {is_enabled ? 'Yes' : 'No'}
                   </Table.Cell>
                   <Table.Cell width={1}>
-                    <Button disabled={!isLoggedIn || userStockSymbols.indexOf(item.symbol) !== -1} onClick={() => this.props.dispatch(addUserStock(item.symbol))}>Add</Button>
+                    <Button disabled={!isLoggedIn || userStockSymbols.indexOf(symbol) !== -1} onClick={() => this.props.dispatch(addUserStock(symbol))}>Add</Button>
                   </Table.Cell>
                 </Table.Row>
               );
