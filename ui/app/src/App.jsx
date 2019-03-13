@@ -11,6 +11,7 @@ import API from './utils/api';
 import { login, logout } from './actions/authActions';
 import { maybeGetUserInfo } from './actions/userActions';
 import { fetchStocks, fetchUserStocks } from './actions/stockActions';
+import appLogo from './img/graph.png';
 
 class App extends Component {
   constructor(props) {
@@ -128,7 +129,16 @@ class App extends Component {
         </Modal>
         <header>
           <Menu className="main-menu">
-            <a href="/"><Header as='h1' className='main-menu-app-title'>Stockpal</Header></a>
+            <a href="/">
+              <div className='logo-title-container'>
+                <div className='logo-container'>
+                  <img className='logo' src={appLogo} />
+                </div>
+                <div className='main-menu-app-title-container'>
+                  <Header as='h1' className='main-menu-app-title'>Stockpal</Header>
+                </div>
+              </div>
+            </a>
             <Menu.Menu position='right'>
               {activeMenu}
             </Menu.Menu>

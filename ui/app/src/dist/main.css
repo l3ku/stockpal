@@ -37,10 +37,20 @@ section.single-stock .single-stock-card {
 .stockpal-wrapper .main-menu {
   display: flex;
   align-items: center; }
-  .stockpal-wrapper .main-menu .main-menu-app-title {
-    font-family: 'Cabin Sketch';
-    font-size: 2.3rem;
-    margin-left: 20px; }
+  .stockpal-wrapper .main-menu .logo-title-container {
+    margin-left: 10px; }
+    .stockpal-wrapper .main-menu .logo-title-container .logo-container {
+      display: inline-block;
+      vertical-align: middle; }
+      .stockpal-wrapper .main-menu .logo-title-container .logo-container .logo {
+        max-height: 40px; }
+    .stockpal-wrapper .main-menu .logo-title-container .main-menu-app-title-container {
+      display: inline-block;
+      vertical-align: middle; }
+      .stockpal-wrapper .main-menu .logo-title-container .main-menu-app-title-container .main-menu-app-title {
+        font-family: 'Cabin Sketch';
+        font-size: 2.3rem;
+        margin-left: 20px; }
   .stockpal-wrapper .main-menu .main-menu-user-name {
     margin-right: 10px; }
   .stockpal-wrapper .main-menu .main-menu-user-picture {

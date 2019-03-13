@@ -3,10 +3,24 @@
   .main-menu {
     display: flex;
     align-items: center;
-    .main-menu-app-title {
-      font-family: 'Cabin Sketch';
-      font-size: 2.3rem;
-      margin-left: 20px;
+    .logo-title-container {
+      margin-left: 10px;
+      .logo-container {
+        display: inline-block;
+        vertical-align: middle;
+        .logo {
+          max-height: 40px;
+        }
+      }
+      .main-menu-app-title-container {
+        display: inline-block;
+        vertical-align: middle;
+        .main-menu-app-title {
+          font-family: 'Cabin Sketch';
+          font-size: 2.3rem;
+          margin-left: 20px;
+        }
+      }
     }
     .main-menu-user-name {
       margin-right: 10px;
