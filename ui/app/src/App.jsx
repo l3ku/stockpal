@@ -18,7 +18,7 @@ class App extends Component {
     super(props);
     this.state = {
       activePage: null,
-      activeView: null,
+      activeView: 'market-overview',
       activeModal: null,
       activeStock: null,
       previousView: null,
