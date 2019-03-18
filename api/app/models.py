@@ -50,21 +50,29 @@ class User(db.Model):
         print(Stock.query.join(UserStock).filter_by(user_id=self.id).all())
         return Stock.query.join(UserStock).filter_by(user_id=self.id).all()
 
-    def addStock(self, symbol):
-        # Is this stock a valid stock?
-        db_stock = Stock.query.filter_by(symbol=symbol).first()
-        if db_stock is None:
-            return (False, {'reason': f'Unknown stock symbol: "{symbol}"','target': None})
+    def addStocks(self, symbols):
+        errors = []
+        for symbol in symbols:
+            # Is this stock a valid stock?
+            db_stock = Stock.query.filter_by(symbol=symbol).first()
+            if db_stock is None:
+                errors.append({'reason': f'Unknown stock symbol: "{symbol}"','target': symbol})
+                continue
 
-        # Does the user already have this stock?
-        user_stock = UserStock.query.filter_by(user_id=self.id, stock_symbol=symbol).first()
-        if user_stock is not None:
-            return (False, {'reason': f'Stock "{symbol}" already exists for this user', 'target': None})
+            # Does the user already have this stock?
+            user_stock = UserStock.query.filter_by(user_id=self.id, stock_symbol=symbol).first()
+            if user_stock is not None:
+                errors.append({'reason': f'Stock "{symbol}" already exists for this user', 'target': symbol})
+                continue
 
-        user_stock = UserStock(self.id, symbol)
-        db.session.add(user_stock)
-        db.session.commit()
-        return { 'success': True }
+            user_stock = UserStock(self.id, symbol)
+            db.session.add(user_stock)
+            db.session.commit()
+
+        if len(errors) == 0:
+            return { 'success': True }
+        else:
+            return { 'success': False, 'error': errors }
 
     def deleteStock(self, symbol):
         # Is this stock a valid stock?

@@ -98,9 +98,13 @@ class UserStocks(Resource):
                 return {'success': False, 'error': obj}
             db_user = obj # In case of success we know that obj is the DB model user instead of error object
             parser = reqparse.RequestParser()
-            parser.add_argument('stock_symbol', required=True, help="Stock symbol is required")
+            parser.add_argument('stock_symbols', action='append', required=True, help="Stock symbols are required")
             args = parser.parse_args()
-            return db_user.addStock(args['stock_symbol'])
+            stock_symbols = args['stock_symbols']
+            print(stock_symbols)
+            if not isinstance(stock_symbols, list):
+                return {'success': False, 'error': 'Stock symbols should be provided in a list'}
+            return db_user.addStocks(stock_symbols)
 
         except ValueError as err:
             return {'success': False, 'error': {'reason': str(err), 'target': None}}
