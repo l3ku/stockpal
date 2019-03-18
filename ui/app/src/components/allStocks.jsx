@@ -1,8 +1,10 @@
-import { connect } from 'react-redux';
 import React, { Component } from 'react';
-import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown, Button } from 'semantic-ui-react';
-import { fetchStocks, addUserStock, changeStocksPerPage, changeStocksPage } from '../actions/stockActions';
+import { connect } from 'react-redux';
+import { Icon, Label, Menu, Table, Loader, Dimmer, Dropdown, Checkbox } from 'semantic-ui-react';
+import { fetchStocks, addUserStocks } from '../actions/stockActions';
+import { toggleSelectedItems, resetSelectedItems } from '../actions/tableActions';
 import { getStockTypeDescription } from '../utils/helpers';
+import Pagination from './table/pagination';
 
 class AllStocks extends Component {
   constructor(props) {
@@ -14,7 +16,7 @@ class AllStocks extends Component {
   }
 
   render() {
-    const { itemsPerPage, currentPage, totalPages, showPageRange, items, success, isLoaded, error, userStockSymbols, isLoggedIn } = this.props;
+    const { selectedItems, items, success, isLoaded, error, userStockSymbols, isLoggedIn } = this.props;
     if (error) {
         return ( 'Error: ' + error );
     } else if (!isLoaded) {
@@ -32,17 +34,15 @@ class AllStocks extends Component {
         </div>
       );
     } else {
-      // The index of the first stock to show. Should be adjusted according to the current page.
-      const begin = (currentPage-1) * itemsPerPage;
-      // The index of the last stock to show. Should be either begin + amount of items or the last item.
-      const end = Math.min(begin+itemsPerPage, items.length);
-      const itemsSliced = items.slice(begin, end);
-      const paginationStart = Math.max(1, Math.max(currentPage-Math.floor(showPageRange/2), 0)+1, Math.min(totalPages-showPageRange+1, 1));
-      const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
-      const paginationArray = [...Array(paginationEnd-paginationStart+1)];
 
-      // What items for page options show
-      const itemsPerPageOptions = [50, 100, 150, 300];
+      let selectionOption = (
+        <a href="#" onClick={() => this.props.dispatch(toggleSelectedItems(items.map(item => item.symbol), 'ALL_STOCKS'))}>Select all</a>
+      );
+      if ( selectedItems.length > 0 ) {
+        selectionOption = (
+          <a href="#" onClick={() => this.props.dispatch(resetSelectedItems('ALL_STOCKS'))}>Remove selection</a>
+        );
+      }
       return (
         <Table celled>
           <Table.Header>
@@ -51,11 +51,18 @@ class AllStocks extends Component {
               <Table.HeaderCell>Name</Table.HeaderCell>
               <Table.HeaderCell>Type</Table.HeaderCell>
               <Table.HeaderCell>Enabled</Table.HeaderCell>
-              <Table.HeaderCell>Actions</Table.HeaderCell>
+              <Table.HeaderCell>
+              <Dropdown text='Actions'>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => this.props.dispatch(addUserStocks(selectedItems))} text='Add' disabled={!isLoggedIn || selectedItems.length === 0}/>
+                </Dropdown.Menu>
+              </Dropdown>
+              {selectionOption}
+              </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {itemsSliced && itemsSliced.map(item => {
+            {items && items.map(item => {
               const { symbol, name, is_enabled } = item;
               const type = item.type.toLowerCase();
               const stockTypeDescription = getStockTypeDescription(type);
@@ -74,7 +81,7 @@ class AllStocks extends Component {
                     {is_enabled ? 'Yes' : 'No'}
                   </Table.Cell>
                   <Table.Cell width={1}>
-                    <Button disabled={!isLoggedIn || userStockSymbols.indexOf(symbol) !== -1} onClick={() => this.props.dispatch(addUserStock(symbol))}>Add</Button>
+                    <Checkbox disabled={!isLoggedIn || userStockSymbols.indexOf(symbol) !== -1} checked={selectedItems.indexOf(symbol) !== -1} onChange={() => this.props.dispatch(toggleSelectedItems([symbol], 'ALL_STOCKS'))}/>
                   </Table.Cell>
                 </Table.Row>
               );
@@ -82,41 +89,7 @@ class AllStocks extends Component {
           </Table.Body>
 
           <Table.Footer>
-            <Table.Row>
-              <Table.HeaderCell colSpan='4'>
-                <Menu floated='right' pagination>
-                  <Menu.Item key={1} disabled={totalPages === 0 || currentPage === 1} as='a' onClick={() => this.props.dispatch(changeStocksPage(1))}>
-                    <Icon name='angle double left' />
-                  </Menu.Item>
-                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === 1} onClick={() => this.props.dispatch(changeStocksPage(currentPage-1))} icon>
-                    <Icon name='chevron left' />
-                  </Menu.Item>
-                  {totalPages > 0 && paginationArray.map((page, index) => {
-                    return (
-                      <Menu.Item key={paginationStart+index} active={currentPage === paginationStart+index} as='a' onClick={() => this.props.dispatch(changeStocksPage(paginationStart+index))}>
-                        {paginationStart+index}
-                      </Menu.Item>
-                    );
-                  })}
-                  <Menu.Item as='a' disabled={totalPages === 0 || currentPage === totalPages} onClick={() => this.props.dispatch(changeStocksPage(currentPage+1))} icon>
-                    <Icon name='chevron right' />
-                  </Menu.Item>
-                  <Menu.Item disabled={totalPages === 0 || currentPage === totalPages} as='a' onClick={() => this.props.dispatch(changeStocksPage(totalPages))}>
-                    <Icon name='angle double right' />
-                  </Menu.Item>
-                   <Dropdown item text='Show items'>
-                    <Dropdown.Menu>
-                      {itemsPerPageOptions.map(option => {
-                        return (
-                          <Dropdown.Item key={option} active={itemsPerPage === option} onClick={() => this.props.dispatch(changeStocksPerPage(option))}>{option}</Dropdown.Item>
-                        );
-                      })}
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </Menu>
-                <small>Showing {itemsSliced.length} items, total {totalPages} pages</small>
-              </Table.HeaderCell>
-            </Table.Row>
+            <Pagination namespace="ALL_STOCKS" />
           </Table.Footer>
         </Table>
       );
@@ -124,17 +97,22 @@ class AllStocks extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  items: state.stocks.items,
-  success: state.stocks.success,
-  error: state.stocks.error,
-  isLoaded: state.stocks.isLoaded,
-  isLoggedIn: state.auth.isLoggedIn,
-  userStockSymbols: state.userStocks.items.map(item => item.symbol),
-  totalPages: state.stocks.totalPages,
-  itemsPerPage: state.stocks.itemsPerPage,
-  showPageRange: state.stocks.showPageRange,
-  currentPage: state.stocks.currentPage,
-});
+const mapStateToProps = state => {
+  const namespace = 'ALL_STOCKS';
+  const content = state.table[namespace].content;
+  const pagination = state.table[namespace].pagination;
+  const begin = (pagination.currentPage-1) * pagination.itemsPerPage;
+  const end = Math.min(begin+pagination.itemsPerPage, content.items.length);
+
+  return {
+    items: content.items.slice(begin, end),
+    selectedItems: content.selectedItems,
+    success: content.success,
+    error: content.error,
+    isLoaded: content.isLoaded,
+    isLoggedIn: state.auth.isLoggedIn,
+    userStockSymbols: state.table['USER_STOCKS'].content.items.map(item => item.symbol),
+  }
+};
 
 export default connect(mapStateToProps)(AllStocks);
