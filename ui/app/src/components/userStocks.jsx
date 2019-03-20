@@ -84,11 +84,9 @@ const mapStateToProps = state => {
   const namespace = 'USER_STOCKS';
   const content = state.table[namespace].content;
   const pagination = state.table[namespace].pagination;
-  const begin = (pagination.currentPage-1) * pagination.itemsPerPage;
-  const end = Math.min(begin+pagination.itemsPerPage, content.items.length);
 
   return {
-    items: content.items.slice(begin, end),
+    items: content.items.slice(content.showItemsStart, content.showItemsEnd),
     selectedItems: content.selectedItems,
     success: content.success,
     error: content.error,

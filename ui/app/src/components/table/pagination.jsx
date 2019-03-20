@@ -6,16 +6,18 @@ import { changePage, changeItemsPerPage } from '../../actions/tableActions';
 class Pagination extends Component {
   constructor(props) {
     super(props);
-    this.changePageFunc = this.changePageFunc.bind(this);
   }
 
   changePageFunc = (page) => {
-    const namespace = this.props.namespace;
-    this.props.dispatch(changePage(page, namespace));
+    this.props.dispatch(changePage(page, this.props.namespace));
+  }
+
+  changeItemsPerPageFunc = (itemsPerPage) => {
+    this.props.dispatch(changeItemsPerPage(itemsPerPage, this.props.namespace));
   }
 
   render() {
-    const { dispatch, currentPage, totalPages, itemsPerPage, showPageRange } = this.props;
+    const { dispatch, currentPage, totalPages, itemsPerPage, showPageRange, itemsOnPage } = this.props;
 
     const paginationStart = Math.max(1, Math.max(currentPage-Math.floor(showPageRange/2), 0)+1, Math.min(totalPages-showPageRange+1, 1));
     const paginationEnd = Math.min(paginationStart+showPageRange-1, totalPages);
@@ -50,13 +52,13 @@ class Pagination extends Component {
               <Dropdown.Menu>
                 {itemsPerPageOptions.map(option => {
                   return (
-                    <Dropdown.Item key={option} active={itemsPerPage === option} onClick={() => this.changePageFunc(option)}>{option}</Dropdown.Item>
+                    <Dropdown.Item key={option} active={itemsPerPage === option} onClick={() => this.changeItemsPerPageFunc(option)}>{option}</Dropdown.Item>
                   );
                 })}
               </Dropdown.Menu>
             </Dropdown>
           </Menu>
-          <small>Total {totalPages} pages</small>
+          <small>Showing {itemsOnPage} items, total {totalPages} pages</small>
         </Table.HeaderCell>
       </Table.Row>
     );
@@ -67,12 +69,14 @@ const mapStateToProps = (state, ownProps) => {
   const namespace = ownProps.namespace;
   const namespacedState = state.table[namespace];
   const pagination = namespacedState.pagination;
+  const content = namespacedState.content;
   return {
     currentPage: pagination.currentPage,
     totalPages: pagination.totalPages,
     itemsPerPage: pagination.itemsPerPage,
     showPageRange: pagination.showPageRange,
-    currentPage: pagination.currentPage
+    currentPage: pagination.currentPage,
+    itemsOnPage: content.showItemsEnd - content.showItemsStart
   };
 };
 

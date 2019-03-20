@@ -19,6 +19,8 @@ const defaultState = {
   },
   content: {
     items: [],
+    showItemsStart: 0,
+    showItemsEnd: 0,
     selectedItems: [],
     success: null,
     isLoaded: false,
@@ -39,20 +41,25 @@ export default function(state=initialState, action) {
     const pagination = namespacedState.pagination;
     const content = namespacedState.content;
     var newState = state;
+    var begin, end;
 
     switch ( action.type ) {
       case RECEIVE_ITEMS:
+        begin = (pagination.currentPage-1) * pagination.itemsPerPage;
+        end = Math.min(begin+pagination.itemsPerPage, action.items.length);
         newState[namespace] = {
           ...namespacedState,
           pagination: {
             ...pagination,
-            totalPages: Math.ceil(action.items.length / pagination.itemsPerPage)
+            totalPages: Math.ceil(action.items.length / pagination.itemsPerPage),
           },
           content: {
             ...content,
             success: true,
             isLoaded: true,
             items: action.items,
+            showItemsStart: begin,
+            showItemsEnd: end
           }
         };
         return JSON.parse(JSON.stringify(newState)); // Hack for returning deep copy of object
@@ -108,12 +115,19 @@ export default function(state=initialState, action) {
         return JSON.parse(JSON.stringify(newState)); // Hack for returning deep copy of object
 
       case CHANGE_PAGE:
+        begin = (action.page-1) * pagination.itemsPerPage;
+        end = Math.min(begin+pagination.itemsPerPage, content.items.length);
         if ( action.page !== pagination.currentPage && action.page <= pagination.totalPages ) {
           newState[namespace] = {
             ...namespacedState,
             pagination: {
               ...pagination,
               currentPage: action.page
+            },
+            content: {
+              ...content,
+              showItemsStart: begin,
+              showItemsEnd: end
             }
           };
         }
@@ -129,6 +143,9 @@ export default function(state=initialState, action) {
           if ( currentPage > newTotalPages ) {
             currentPage = newTotalPages;
           }
+          begin = (pagination.currentPage-1) * action.itemsPerPage;
+          end = Math.min(begin+action.itemsPerPage, content.items.length);
+
           newState[namespace] = {
             ...namespacedState,
             pagination: {
@@ -136,6 +153,11 @@ export default function(state=initialState, action) {
               itemsPerPage: action.itemsPerPage,
               totalPages: newTotalPages,
               currentPage: currentPage
+            },
+            content: {
+              ...content,
+              showItemsStart: begin,
+              showItemsEnd: end
             }
           };
         }

@@ -20,14 +20,16 @@ export const receiveItems = (data, namespace) => {
 export const requestItemsError = (error, namespace) => {
   return {
     type: types.REQUEST_ITEMS_ERROR,
-    error: error
+    error: error,
+    namespace: namespace
   };
 };
 
-export const receiveItemsError = (error) => {
+export const receiveItemsError = (error, namespace) => {
   return {
     type: types.RECEIVE_ITEMS_ERROR,
-    error: error
+    error: error,
+    namespace: namespace
   };
 };
 
