@@ -11,6 +11,7 @@ from authlib.common.errors import AuthlibBaseError
 from app.models import db, AppMetaData, LoggedInUser, User, Stock
 from app.tasks import updateStocksFromAPI
 from urllib.parse import quote
+import app.ml
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
