@@ -55,7 +55,11 @@ class StockInfo(Resource):
 class StockChart(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
-        response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/5y')
+        parser = reqparse.RequestParser()
+        parser.add_argument('range')
+        args = parser.parse_args()
+        interval = quote(args['range']) if args['range'] else '5y'
+        response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/{interval}')
         return {'success': True, 'data': response.json()}
 
 
