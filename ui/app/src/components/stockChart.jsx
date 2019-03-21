@@ -146,9 +146,12 @@ class StockChart extends Component {
   }
 
   render() {
-    if ( !(this.state.stockInfoIsLoaded && this.state.stockChartIsLoaded) ) {
-      return 'Loading...';
+    if ( !this.state.stockInfoIsLoaded ) {
+      return (
+        <div className='stock-info-loading-indication'>Loading stock info...</div>
+      );
     }
+
     const stockInfo = this.state.stockInfoData;
 
     // Show an indication in case of an error
@@ -161,16 +164,40 @@ class StockChart extends Component {
       return 'Sorry, no results were found...';
     }
 
-    const intervalOptions = [
-      { name: '1d', description: 'One day' },
-      { name: '1m', description: 'One month' },
-      { name: '3m', description: 'Three months' },
-      { name: '6m', description: 'Sixth months' },
-      { name: 'ytd', description: 'Year-to-date' },
-      { name: '1y', description: 'One year' },
-      { name: '2y', description: 'Two years' },
-      { name: '5y', description: 'Five years' }
-    ];
+    let stockChartContent = (
+      <div className='stock-chart-loading-indication'>Loading stock chart...</div>
+    );
+    let eChartsClass = 'stock-chart-echarts';
+    if ( this.state.stockChartIsLoaded || (!this.state.stockChartIsLoaded && this.state.stockChartData.length > 0) ) {
+      eChartsClass += this.state.stockChartIsLoaded ? '' : ' disabled';
+
+      const intervalOptions = [
+        { name: '1d', description: 'One day' },
+        { name: '1m', description: 'One month' },
+        { name: '3m', description: 'Three months' },
+        { name: '6m', description: 'Sixth months' },
+        { name: 'ytd', description: 'Year-to-date' },
+        { name: '1y', description: 'One year' },
+        { name: '2y', description: 'Two years' },
+        { name: '5y', description: 'Five years' }
+      ];
+      stockChartContent = (
+        <>
+          <div className='stock-chart-interval-options'>
+            {intervalOptions.map(option => {
+              var className = 'stock-chart-interval-option';
+              className += this.state.interval === option.name ? ' selected' : '';
+              return (
+                <a key={option.name} href="#" className={className} onClick={() => this.changeInterval(option.name)}>{option.name}</a>
+              );
+            })}
+          </div>
+          <ReactEcharts className={eChartsClass} option={this.getOption()}/>
+        </>
+      );
+    }
+
+
     const type = stockInfo.type.toLowerCase();
     const stockTypeDescription = getStockTypeDescription(type);
 
@@ -196,18 +223,7 @@ class StockChart extends Component {
                 </div>
 
               </div>
-              <div className='stock-chart-interval-options'>
-                {intervalOptions.map(option => {
-                  var className = 'stock-chart-interval-option';
-                  className += this.state.interval === option.name ? ' selected' : '';
-                  return (
-                    <a key={option.name} href="#" className={className} onClick={() => this.changeInterval(option.name)}>{option.name}</a>
-                  );
-                })}
-              </div>
-            <ReactEcharts
-              option={this.getOption()}
-            />
+              {stockChartContent}
           </Card.Content>
         </Card>
       </section>
