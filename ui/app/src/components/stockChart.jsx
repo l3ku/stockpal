@@ -13,11 +13,16 @@ class StockChart extends Component {
       stockChartData: [],
       stockChartIsLoaded: false,
       error: null,
+      interval: '5y'
     };
-    this.getOption = this.getOption.bind(this);
   }
 
   componentDidMount() {
+    this.fetchStockInfo();
+    this.fetchStockChart();
+  }
+
+  fetchStockInfo = () => {
     // We should show the info of the stock along with the chart
     fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol))
       .then(res => res.json())
@@ -35,8 +40,24 @@ class StockChart extends Component {
           });
         }
       );
+  }
 
-    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol) + '/chart')
+  changeInterval = (interval) => {
+    const stateInterval = this.state.interval;
+    if ( interval === stateInterval ) {
+      return;
+    }
+
+    this.setState({
+        interval: interval,
+        stockChartIsLoaded: false
+      },
+      this.fetchStockChart
+    );
+  }
+
+  fetchStockChart = () => {
+    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol) + '/chart?range=' + encodeURIComponent(this.state.interval))
       .then(res => res.json())
       .then(
         (res) => {
@@ -54,7 +75,7 @@ class StockChart extends Component {
       );
   }
 
-  getOption() {
+  getOption = () => {
     const seriesData = [];
     const xAxisData = [];
     for ( let i = 0; i < this.state.stockChartData.length; ++i ) {
@@ -140,8 +161,19 @@ class StockChart extends Component {
       return 'Sorry, no results were found...';
     }
 
-    const type = stockInfo.type.toLowerCase;
+    const intervalOptions = [
+      { name: '1d', description: 'One day' },
+      { name: '1m', description: 'One month' },
+      { name: '3m', description: 'Three months' },
+      { name: '6m', description: 'Sixth months' },
+      { name: 'ytd', description: 'Year-to-date' },
+      { name: '1y', description: 'One year' },
+      { name: '2y', description: 'Two years' },
+      { name: '5y', description: 'Five years' }
+    ];
+    const type = stockInfo.type.toLowerCase();
     const stockTypeDescription = getStockTypeDescription(type);
+
     return (
       <section className="single-stock">
         <div className="single-stock-back-icon-wrapper">
@@ -157,12 +189,21 @@ class StockChart extends Component {
                   <div><strong>Symbol:</strong> {stockInfo.symbol}</div>
                 </div>
                 <div className="single-stock-info single-stock-type">
-                  <div><strong>Type:</strong> {stockTypeDescription ? stockTypeDescription: type}</div>
+                  <div><strong>Type:</strong> {stockTypeDescription ? stockTypeDescription : type}</div>
                 </div>
                 <div className="single-stock-info single-stock-is-enabled">
                   <div><strong>Is enabled:</strong> {stockInfo.is_enabled ? 'Yes' : 'No'}</div>
                 </div>
 
+              </div>
+              <div className='stock-chart-interval-options'>
+                {intervalOptions.map(option => {
+                  var className = 'stock-chart-interval-option';
+                  className += this.state.interval === option.name ? ' selected' : '';
+                  return (
+                    <a key={option.name} href="#" className={className} onClick={() => this.changeInterval(option.name)}>{option.name}</a>
+                  );
+                })}
               </div>
             <ReactEcharts
               option={this.getOption()}
@@ -174,7 +215,5 @@ class StockChart extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {};
-
-export default connect(mapStateToProps)(StockChart)
+export default connect()(StockChart)
 
