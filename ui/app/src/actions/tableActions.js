@@ -1,5 +1,4 @@
 import * as types from './types';
-import API from '../utils/api';
 
 export const requestItems = (namespace) => {
   return {

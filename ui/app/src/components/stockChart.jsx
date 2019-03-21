@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import API from './../utils/api';
 import ReactEcharts from 'echarts-for-react';
 import {Icon, Card} from 'semantic-ui-react';
 import { getStockTypeDescription } from '../utils/helpers';

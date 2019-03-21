@@ -7,7 +7,6 @@ import UserStocks from './components/userStocks';
 import LoginModal from './components/loginModal';
 import StockChart from './components/stockChart';
 import './dist/main.css';
-import API from './utils/api';
 import { login, logout } from './actions/authActions';
 import { maybeGetUserInfo } from './actions/userActions';
 import { fetchStocks, fetchUserStocks } from './actions/stockActions';
