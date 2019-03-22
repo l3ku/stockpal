@@ -5,5 +5,37 @@ section.single-stock {
       display: inline-block;
       text-align: left;
     }
+    .stock-chart-interval-options {
+      text-align: right;
+      padding-right: 10px;
+      .stock-chart-interval-option-wrapper {
+        display: inline-block;
+        position: relative;
+        .stock-chart-interval-option {
+          margin-right: 4px;
+          &.selected {
+            font-weight: bold;
+            text-decoration: underline;
+          }
+        }
+        .stock-chart-interval-option-tooltip {
+          visibility: hidden;
+          width: 50px;
+          background-color: black;
+          color: #fff;
+          text-align: center;
+          position: absolute;
+          z-index: 1;
+          border-radius: 6px;
+          padding: 2px 4px;
+          left: 0;
+          top: 15px;
+          font-size: 10px;
+        }
+        &:hover .stock-chart-interval-option-tooltip {
+          visibility: visible;
+        }
+      }
+    }
   }
 }

@@ -188,7 +188,10 @@ class StockChart extends Component {
               var className = 'stock-chart-interval-option';
               className += this.state.interval === option.name ? ' selected' : '';
               return (
-                <a key={option.name} href="#" className={className} onClick={() => this.changeInterval(option.name)}>{option.name}</a>
+                <div class="stock-chart-interval-option-wrapper">
+                  <a key={option.name} href="#" className={className} onClick={() => this.changeInterval(option.name)}>{option.name}</a>
+                  <span className="stock-chart-interval-option-tooltip">{option.description}</span>
+                </div>
               );
             })}
           </div>
