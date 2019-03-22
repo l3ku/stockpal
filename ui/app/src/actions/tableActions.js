@@ -1,26 +1,29 @@
 import * as types from './types';
 
-export const requestItems = (namespace) => {
+export const requestItems = (namespace, refresh=false) => {
   return {
     type: types.REQUEST_ITEMS,
-    namespace: namespace
+    namespace: namespace,
+    refresh: refresh
   };
 };
 
-export const receiveItems = (data, namespace) => {
+export const receiveItems = (data, namespace, refresh=false) => {
   return {
     type: types.RECEIVE_ITEMS,
     items: data,
     namespace: namespace,
-    receivedAt: Date.now()
+    receivedAt: Date.now(),
+    refresh: refresh
   };
 };
 
-export const requestItemsError = (error, namespace) => {
+export const requestItemsError = (error, namespace, refresh=false) => {
   return {
     type: types.REQUEST_ITEMS_ERROR,
     error: error,
-    namespace: namespace
+    namespace: namespace,
+    refresh: refresh
   };
 };
 

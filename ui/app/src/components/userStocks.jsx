@@ -15,9 +15,23 @@ class UserStocks extends Component {
   }
 
   render() {
-    const {items, success, isLoaded, error, userStockSymbols, isLoggedIn } = this.props;
+    const { items, success, isLoaded, error, userStockSymbols, isLoggedIn, isRefreshing } = this.props;
+    let refreshButtonText = (
+      <>Refresh <Icon name="refresh"/></>
+    );
+    if ( isRefreshing ) {
+      refreshButtonText = 'Refreshing...';
+    }
+    const refreshButton = (
+      <a href="#" onClick={() => this.props.dispatch(fetchUserStocks(true))}>{refreshButtonText}</a>
+    );
     if (error) {
-        return ( 'Error: ' + error );
+        return (
+          <div>
+            Error: {error}
+            {refreshButton}
+          </div>
+        );
     } else if (!isLoaded) {
       return (
         <div>
@@ -30,51 +44,55 @@ class UserStocks extends Component {
       return (
         <div>
           Sorry, no results...
+          {refreshButton}
         </div>
       );
     } else {
       return (
-        <Table celled>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Symbol</Table.HeaderCell>
-              <Table.HeaderCell>Name</Table.HeaderCell>
-              <Table.HeaderCell>Type</Table.HeaderCell>
-              <Table.HeaderCell>Enabled</Table.HeaderCell>
-              <Table.HeaderCell>Actions</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {items && items.map(item => {
-              const { symbol, name, is_enabled } = item;
-              const type = item.type.toLowerCase();
-              const stockTypeDescription = getStockTypeDescription(type);
-              return (
-                <Table.Row key={item.symbol}>
-                  <Table.Cell width={2}>
-                    <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={symbol}>{symbol}</a>
-                  </Table.Cell>
-                  <Table.Cell width={6}>
-                    {name}
-                  </Table.Cell>
-                  <Table.Cell width={4}>
-                    {stockTypeDescription ? stockTypeDescription : type}
-                  </Table.Cell>
-                  <Table.Cell width={1} className={is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
-                    {is_enabled ? 'Yes' : 'No'}
-                  </Table.Cell>
-                  <Table.Cell width={1}>
-                    <Button negative onClick={() => window.confirm(`Are you sure you want to remove "${symbol}"?`) && this.props.dispatch(deleteUserStock(symbol))}>Remove</Button>
-                  </Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
+        <div>
+          {refreshButton}
+          <Table celled>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Symbol</Table.HeaderCell>
+                <Table.HeaderCell>Name</Table.HeaderCell>
+                <Table.HeaderCell>Type</Table.HeaderCell>
+                <Table.HeaderCell>Enabled</Table.HeaderCell>
+                <Table.HeaderCell>Actions</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {items && items.map(item => {
+                const { symbol, name, is_enabled } = item;
+                const type = item.type.toLowerCase();
+                const stockTypeDescription = getStockTypeDescription(type);
+                return (
+                  <Table.Row key={item.symbol}>
+                    <Table.Cell width={2}>
+                      <a href='#' onClick={this.props.showStockFunc} data-stock-symbol={symbol}>{symbol}</a>
+                    </Table.Cell>
+                    <Table.Cell width={6}>
+                      {name}
+                    </Table.Cell>
+                    <Table.Cell width={4}>
+                      {stockTypeDescription ? stockTypeDescription : type}
+                    </Table.Cell>
+                    <Table.Cell width={1} className={is_enabled ? 'positive stock-is-enabled' : 'error stock-not-enabled'}>
+                      {is_enabled ? 'Yes' : 'No'}
+                    </Table.Cell>
+                    <Table.Cell width={1}>
+                      <Button negative onClick={() => window.confirm(`Are you sure you want to remove "${symbol}"?`) && this.props.dispatch(deleteUserStock(symbol))}>Remove</Button>
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
 
-          <Table.Footer>
-            <Pagination namespace="USER_STOCKS" />
-          </Table.Footer>
-        </Table>
+            <Table.Footer>
+              <Pagination namespace="USER_STOCKS" />
+            </Table.Footer>
+          </Table>
+        </div>
       );
     }
   }
@@ -93,6 +111,7 @@ const mapStateToProps = state => {
     isLoaded: content.isLoaded,
     isLoggedIn: state.auth.isLoggedIn,
     userStockSymbols: state.table['USER_STOCKS'].content.items.map(item => item.symbol),
+    isRefreshing: content.isRefreshing
   }
 };
 

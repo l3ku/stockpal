@@ -44,15 +44,15 @@ export const fetchGainerStocks = () => {
   }
 }
 
-export const fetchUserStocks = () => {
+export const fetchUserStocks = (refresh=false) => {
   const namespace = 'USER_STOCKS';
   return (dispatch, getState) => {
     const userStocks = getState().table[namespace].content;
 
     // Don't make external API requests if there is no need to (data already present)
-    if ( !userStocks.isLoaded || userStocks.items === undefined || userStocks.items.length === 0 ) {
+    if ( refresh || !userStocks.isLoaded || userStocks.items === undefined || userStocks.items.length === 0 ) {
       const auth = getState().auth;
-      dispatch(requestItems(namespace));
+      dispatch(requestItems(namespace, refresh));
       if ( auth.isLoggedIn ) {
         return fetch('/api/protected/stocks/' + encodeURIComponent(auth.apiID), {
             headers: {
@@ -61,8 +61,8 @@ export const fetchUserStocks = () => {
           })
           .then(res => res.json())
           .then(
-            (res) => res.success ? dispatch(receiveItems(res.data, namespace)) : dispatch(receiveItemsError(res.error, namespace)),
-            (err) => dispatch(receiveItemsError(err, namespace))
+            (res) => res.success ? dispatch(receiveItems(res.data, namespace, refresh)) : dispatch(receiveItemsError(res.error, namespace, refresh)),
+            (err) => dispatch(receiveItemsError(err, namespace, refresh))
           );
       } else {
         return dispatch(requestItemsError('User not logged in', namespace));

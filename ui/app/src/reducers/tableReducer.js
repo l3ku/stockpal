@@ -25,6 +25,7 @@ const defaultState = {
     success: null,
     isLoaded: false,
     error: null,
+    isRefreshing: false
   }
 };
 const initialState = {
@@ -44,6 +45,19 @@ export default function(state=initialState, action) {
     var begin, end;
 
     switch ( action.type ) {
+      case REQUEST_ITEMS:
+        if ( action.refresh ) {
+          newState[namespace] = {
+            ...namespacedState,
+            content: {
+              ...content,
+              isRefreshing: true
+            }
+          }
+          return JSON.parse(JSON.stringify(newState));
+        }
+        return state;
+
       case RECEIVE_ITEMS:
         begin = (pagination.currentPage-1) * pagination.itemsPerPage;
         end = Math.min(begin+pagination.itemsPerPage, action.items.length);
@@ -59,7 +73,8 @@ export default function(state=initialState, action) {
             isLoaded: true,
             items: action.items,
             showItemsStart: begin,
-            showItemsEnd: end
+            showItemsEnd: end,
+            isRefreshing: false
           }
         };
         return JSON.parse(JSON.stringify(newState)); // Hack for returning deep copy of object
