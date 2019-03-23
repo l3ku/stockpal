@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import ReactEcharts from 'echarts-for-react';
-import {Icon, Card} from 'semantic-ui-react';
+import {Icon, Button, Card, Grid} from 'semantic-ui-react';
 import { getStockTypeDescription } from '../utils/helpers';
 
 class StockChart extends Component {
@@ -13,12 +13,18 @@ class StockChart extends Component {
       stockChartData: [],
       stockChartIsLoaded: false,
       error: null,
-      interval: '5y'
+      interval: '5y',
+      stockLogo: '', // TODO: provide a default stock logo
+      stockNews: [],
+      stockNewsIsLoaded: false,
+      activeStockNewsArticle: null
     };
   }
 
   componentDidMount() {
     this.fetchStockInfo();
+    this.fetchStockNews();
+    this.fetchStockLogo();
     this.fetchStockChart();
   }
 
@@ -29,13 +35,50 @@ class StockChart extends Component {
       .then(
         (res) => {
           this.setState({
-            stockInfoIsLoaded: true,
             stockInfoData: res.data[0]
           });
         },
         (err) => {
           this.setState({
+            error: err
+          });
+        }
+      );
+  }
+
+  fetchStockLogo = () => {
+    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol) + '/logo')
+      .then(res => res.json())
+      .then(
+        (res) => {
+          this.setState({
+            stockLogo: res.data.url,
+            stockInfoIsLoaded: true
+          });
+        },
+        (err) => {
+          this.setState({
             stockInfoIsLoaded: true,
+            error: err
+          });
+        }
+      );
+  }
+
+  fetchStockNews = () => {
+    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol) + '/news')
+      .then(res => res.json())
+      .then(
+        (res) => {
+          this.setState({
+            stockNewsIsLoaded: true,
+            stockNews: res.data,
+            activeStockNewsArticle: res.data[0] ? 0 : null
+          });
+        },
+        (err) => {
+          this.setState({
+            stockNewsIsLoaded: true,
             error: err
           });
         }
@@ -145,23 +188,79 @@ class StockChart extends Component {
     };
   }
 
+  changeActiveStockNewsArticle = (article) => {
+    if ( article >= 0 && article < this.state.stockNews.length ) {
+      this.setState({
+        activeStockNewsArticle: article
+      });
+    }
+  }
+
   render() {
-    if ( !this.state.stockInfoIsLoaded ) {
-      return (
-        <div className='stock-info-loading-indication'>Loading stock info...</div>
-      );
-    }
-
+    let stockInfoContent = (
+      <div className='stock-info-loading-indication'>Loading stock info...</div>
+    );
     const stockInfo = this.state.stockInfoData;
-
-    // Show an indication in case of an error
-    if ( this.state.error ) {
-      return 'Error: ' + this.state.error;
+    if ( this.state.stockInfoIsLoaded ) {
+      if ( !stockInfo ) {
+        stockInfoContent = (
+          'Error: ' + this.state.error
+        );
+      } else {
+        const type = stockInfo.type.toLowerCase();
+        const stockTypeDescription = getStockTypeDescription(type);
+        stockInfoContent = (
+          <div className="single-stock-info-wrapper">
+            <div className="single-stock-info single-stock-logo">
+              <img src={this.state.stockLogo} alt={`Could not load logo of ${stockInfo.name}...`}/>
+            </div>
+            <h3>{stockInfo.name}</h3>
+            <div className="single-stock-info single-stock-symbol">
+              <div><strong>Symbol:</strong> {stockInfo.symbol}</div>
+            </div>
+            <div className="single-stock-info single-stock-type">
+              <div><strong>Type:</strong> {stockTypeDescription ? stockTypeDescription : type}</div>
+            </div>
+            <div className="single-stock-info single-stock-is-enabled">
+              <div><strong>Is enabled:</strong> {stockInfo.is_enabled ? 'Yes' : 'No'}</div>
+            </div>
+          </div>
+        );
+      }
     }
 
-    // Show no results found in case of an empty result
-    if ( !stockInfo ) {
-      return 'Sorry, no results were found...';
+    let stockNewsContent = (
+      <div className='stock-chart-news-indication'>Loading stock news...</div>
+    );
+    if ( this.state.stockNewsIsLoaded ) {
+      const stockNews = this.state.stockNews;
+      const activeArticle = this.state.activeStockNewsArticle;
+      if ( stockNews.length === 0 ) {
+        stockNewsContent = 'Sorry, no news articles were found.'
+      } else {
+        stockNewsContent = (
+          <Grid>
+            <Grid.Column width={2}>
+              <Button className="single-stock-news-article-toggle" onClick={() => this.changeActiveStockNewsArticle(this.state.activeStockNewsArticle-1)} disabled={activeArticle === 0} icon="angle left"/>
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Card className="stockpal-card single-stock-news-card">
+                <Card.Content header={stockNews[activeArticle].headline}/>
+                <Card.Content className="stockpal-card-content">
+                  <p dangerouslySetInnerHTML={{__html: stockNews[activeArticle].summary}}></p>
+                  <a href={stockNews[activeArticle].url} target="_blank">Show full article at IEX</a>
+                </Card.Content>
+                <Card.Content className="stockpal-card-content">
+                  <div><strong><i>Posted at {new Date(stockNews[activeArticle].datetime).toLocaleString()} in {stockNews[activeArticle].source}</i></strong></div>
+                </Card.Content>
+              </Card>
+            </Grid.Column>
+            <Grid.Column width={2}>
+              <Button className="single-stock-news-article-toggle" onClick={() => this.changeActiveStockNewsArticle(this.state.activeStockNewsArticle+1)} disabled={activeArticle === stockNews.length-1} icon="angle right"/>
+            </Grid.Column>
+          </Grid>
+        );
+      }
     }
 
     let stockChartContent = (
@@ -200,10 +299,6 @@ class StockChart extends Component {
       );
     }
 
-
-    const type = stockInfo.type.toLowerCase();
-    const stockTypeDescription = getStockTypeDescription(type);
-
     return (
       <section className="single-stock">
         <div className="single-stock-back-icon-wrapper">
@@ -211,24 +306,35 @@ class StockChart extends Component {
             <Icon name='arrow left' size='large'/>Back
           </a>
         </div>
-        <Card className="single-stock-card">
-          <Card.Content header={stockInfo.name} />
-          <Card.Content>
-            <div className="single-stock-info-wrapper">
-                <div className="single-stock-info single-stock-symbol">
-                  <div><strong>Symbol:</strong> {stockInfo.symbol}</div>
-                </div>
-                <div className="single-stock-info single-stock-type">
-                  <div><strong>Type:</strong> {stockTypeDescription ? stockTypeDescription : type}</div>
-                </div>
-                <div className="single-stock-info single-stock-is-enabled">
-                  <div><strong>Is enabled:</strong> {stockInfo.is_enabled ? 'Yes' : 'No'}</div>
-                </div>
-
-              </div>
-              {stockChartContent}
-          </Card.Content>
+        <Card className="stockpal-card single-stock-title-card">
+          <Card.Content header={stockInfo.name ? stockInfo.name : 'Loading...'} />
         </Card>
+        <Grid>
+          <Grid.Column width={4} className="stock-view-column">
+            <Card className="stockpal-card single-stock-card stock-card-information">
+              <Card.Content header="Information" className="single-stock-card-header"/>
+              <Card.Content className="stockpal-card-content">
+                {stockInfoContent}
+              </Card.Content>
+            </Card>
+          </Grid.Column>
+          <Grid.Column width={6} className="stock-view-column">
+            <Card className="stockpal-card single-stock-card stock-card-news">
+              <Card.Content header="News" className="single-stock-card-header"/>
+              <Card.Content className="stockpal-card-content">
+                {stockNewsContent}
+              </Card.Content>
+            </Card>
+          </Grid.Column>
+          <Grid.Column width={6} className="stock-view-column">
+            <Card className="stockpal-card single-stock-card stock-card-chart">
+              <Card.Content header="Chart" className="single-stock-card-header"/>
+              <Card.Content className="stockpal-card-content">
+                {stockChartContent}
+              </Card.Content>
+            </Card>
+          </Grid.Column>
+        </Grid>
       </section>
     );
   }

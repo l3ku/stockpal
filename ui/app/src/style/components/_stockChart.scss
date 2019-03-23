@@ -1,9 +1,39 @@
 section.single-stock {
-  .single-stock-card {
+  .stockpal-card {
     width: 100%;
+    .stockpal-card-content {
+      height: 100%;
+    }
+  }
+  .single-stock-title-card {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 10px;
+    text-decoration: underline;
+    box-shadow: none;
+  }
+  .single-stock-news-article-toggle {
+    margin-top: 50px;
+  }
+  .single-stock-news-card {
+    margin: 0 auto;
+  }
+  .single-stock-card {
+    height: 500px;
+    .single-stock-card-header {
+      text-align: center;
+    }
+    .content {
+      flex-grow: 0;
+    }
     .single-stock-info-wrapper {
-      display: inline-block;
-      text-align: left;
+      text-align: center;
+      .single-stock-logo>img {
+        border-radius: 15%;
+        display: block;
+        box-shadow: 0 4px 5px 0 #d4d4d5, 0 0 1px 1px #d4d4d5;
+        margin: 0 auto;
+      }
     }
     .stock-chart-interval-options {
       text-align: right;
