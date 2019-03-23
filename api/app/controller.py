@@ -14,7 +14,10 @@ v1_base_url = api_base_url + '/v1'
 # Endpoints for API v1.0
 api.add_resource(ListGainers, v1_base_url + '/gainers')
 api.add_resource(StockChart, v1_base_url + '/stock/<string:symbol>/chart')
-api.add_resource(StockInfo, v1_base_url + '/stock/<string:symbol>', v1_base_url + '/stock')
+api.add_resource(StockInfo, v1_base_url + '/stock/<string:symbol>', v1_base_url, v1_base_url + '/stock/<string:symbol>', v1_base_url + '/', v1_base_url + '/stock')
+api.add_resource(StockLogo, v1_base_url + '/stock/<string:symbol>/logo')
+api.add_resource(StockNews, v1_base_url + '/stock/<string:symbol>/news')
+
 
 # Authentication
 # @TODO: GET /api/oauth should return all providers

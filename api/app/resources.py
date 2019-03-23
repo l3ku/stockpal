@@ -51,6 +51,15 @@ class StockInfo(Resource):
     def post(self):
         updateStocksFromAPI.delay()
 
+class StockLogo(Resource):
+    def get(self, symbol):
+        response = requests.get(f'{iex_api_url}/stock/{symbol}/logo')
+        return {'success': True, 'data': response.json()}
+
+class StockNews(Resource):
+    def get(self, symbol):
+        response = requests.get(f'{iex_api_url}/stock/{symbol}/news/last/10')
+        return {'success': True, 'data': response.json()}
 
 class StockChart(Resource):
     def get(self, symbol):
