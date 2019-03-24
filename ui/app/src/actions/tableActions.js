@@ -100,3 +100,11 @@ export const resetSelectedItems = (namespace) => {
     namespace: namespace
   };
 };
+
+export const searchItems = (searchString, namespace) => {
+  return {
+    type: types.SEARCH_ITEMS,
+    searchString: searchString,
+    namespace: namespace
+  };
+}

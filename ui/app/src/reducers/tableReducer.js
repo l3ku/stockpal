@@ -7,7 +7,8 @@ import {
   CHANGE_ITEMS_PER_PAGE,
   TOGGLE_SELECTED_ITEMS,
   RESET_SELECTED_ITEMS,
-  RECEIVE_ACTION_ON_ITEMS
+  RECEIVE_ACTION_ON_ITEMS,
+  SEARCH_ITEMS
 } from '../actions/types';
 
 const defaultState = {
@@ -19,13 +20,16 @@ const defaultState = {
   },
   content: {
     items: [],
+    showItems: [],
     showItemsStart: 0,
     showItemsEnd: 0,
     selectedItems: [],
     success: null,
     isLoaded: false,
     error: null,
-    isRefreshing: false
+    isRefreshing: false,
+    searchString: null,
+    searchResults: [],
   }
 };
 const initialState = {
@@ -45,6 +49,50 @@ export default function(state=initialState, action) {
     var begin, end;
 
     switch ( action.type ) {
+      case SEARCH_ITEMS:
+        const searchString = action.searchString;
+        if ( searchString !== content.searchString ) {
+          var searchResults = [];
+          if ( searchString.trim() === "" ) {
+            searchResults = [...content.items.keys()];
+          } else {
+            content.items.forEach((item, index) => {
+              Object.keys(item).forEach(key => {
+                if ( typeof item[key] === 'string' && item[key].toLowerCase().includes(searchString) && !searchResults.includes(index) ) {
+                  searchResults.push(index);
+                }
+              });
+            });
+          }
+
+          var currentPage = pagination.currentPage;
+          var newTotalPages = Math.ceil(searchResults.length / pagination.itemsPerPage);
+          newTotalPages = newTotalPages === 0 ? 1 : newTotalPages;
+          if ( currentPage > newTotalPages ) {
+            currentPage = newTotalPages;
+          }
+          const begin = (currentPage-1) * pagination.itemsPerPage;
+          const end = Math.min(begin+pagination.itemsPerPage, searchResults.length);
+          newState[namespace] = {
+            ...namespacedState,
+            pagination: {
+              ...pagination,
+              totalPages: newTotalPages,
+              currentPage: currentPage,
+
+            },
+            content: {
+              ...content,
+              searchString: searchString,
+              showItems: searchResults,
+              showItemsStart: begin,
+              showItemsEnd: end
+            }
+          };
+          return JSON.parse(JSON.stringify(newState));
+        }
+        return state;
+
       case REQUEST_ITEMS:
         if ( action.refresh ) {
           newState[namespace] = {
@@ -72,6 +120,7 @@ export default function(state=initialState, action) {
             success: true,
             isLoaded: true,
             items: action.items,
+            showItems: [...action.items.keys()],
             showItemsStart: begin,
             showItemsEnd: end,
             isRefreshing: false
@@ -131,7 +180,7 @@ export default function(state=initialState, action) {
 
       case CHANGE_PAGE:
         begin = (action.page-1) * pagination.itemsPerPage;
-        end = Math.min(begin+pagination.itemsPerPage, content.items.length);
+        end = Math.min(begin+pagination.itemsPerPage, content.showItems.length);
         if ( action.page !== pagination.currentPage && action.page <= pagination.totalPages ) {
           newState[namespace] = {
             ...namespacedState,
@@ -154,12 +203,13 @@ export default function(state=initialState, action) {
           // to the last page if we are above the limit. E.g. on last page when 50 items/page, and
           // changes to 300/page => out of range on pages.
           var currentPage = pagination.currentPage;
-          const newTotalPages = Math.ceil(content.items.length / action.itemsPerPage);
+          var newTotalPages = Math.ceil(searchResults.length / pagination.itemsPerPage);
+          newTotalPages = newTotalPages === 0 ? 1 : newTotalPages;
           if ( currentPage > newTotalPages ) {
             currentPage = newTotalPages;
           }
           begin = (pagination.currentPage-1) * action.itemsPerPage;
-          end = Math.min(begin+action.itemsPerPage, content.items.length);
+          end = Math.min(begin+action.itemsPerPage, content.showItems.length);
 
           newState[namespace] = {
             ...namespacedState,
@@ -167,7 +217,7 @@ export default function(state=initialState, action) {
               ...pagination,
               itemsPerPage: action.itemsPerPage,
               totalPages: newTotalPages,
-              currentPage: currentPage
+              currentPage: currentPage === 0 ? 1 : 0
             },
             content: {
               ...content,
