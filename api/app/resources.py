@@ -51,6 +51,16 @@ class StockInfo(Resource):
     def post(self):
         updateStocksFromAPI.delay()
 
+class StockCompany(Resource):
+    def get(self, symbol):
+        symbol_esc = quote(symbol, safe='')
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        if is_stock_known is None:
+            return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
+        else:
+            response = requests.get(f'{iex_api_url}/stock/{symbol}/company')
+            return {'success': True, 'data': response.json()}
+
 class StockLogo(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')

@@ -17,6 +17,7 @@ api.add_resource(StockChart, v1_base_url + '/stock/<string:symbol>/chart')
 api.add_resource(StockInfo, v1_base_url + '/stock/<string:symbol>', v1_base_url, v1_base_url + '/stock/<string:symbol>', v1_base_url + '/', v1_base_url + '/stock')
 api.add_resource(StockLogo, v1_base_url + '/stock/<string:symbol>/logo')
 api.add_resource(StockNews, v1_base_url + '/stock/<string:symbol>/news')
+api.add_resource(StockCompany, v1_base_url + '/stock/<string:symbol>/company')
 
 
 # Authentication
