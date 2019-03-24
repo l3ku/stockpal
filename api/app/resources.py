@@ -53,23 +53,37 @@ class StockInfo(Resource):
 
 class StockLogo(Resource):
     def get(self, symbol):
-        response = requests.get(f'{iex_api_url}/stock/{symbol}/logo')
-        return {'success': True, 'data': response.json()}
+        symbol_esc = quote(symbol, safe='')
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        if is_stock_known is None:
+            return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
+        else:
+            response = requests.get(f'{iex_api_url}/stock/{symbol}/logo')
+            return {'success': True, 'data': response.json()}
 
 class StockNews(Resource):
     def get(self, symbol):
-        response = requests.get(f'{iex_api_url}/stock/{symbol}/news/last/10')
-        return {'success': True, 'data': response.json()}
+        symbol_esc = quote(symbol, safe='')
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        if is_stock_known is None:
+            return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
+        else:
+            response = requests.get(f'{iex_api_url}/stock/{symbol}/news/last/10')
+            return {'success': True, 'data': response.json()}
 
 class StockChart(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
-        parser = reqparse.RequestParser()
-        parser.add_argument('range')
-        args = parser.parse_args()
-        interval = quote(args['range']) if args['range'] else '5y'
-        response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/{interval}')
-        return {'success': True, 'data': response.json()}
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        if is_stock_known is None:
+            return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
+        else:
+            parser = reqparse.RequestParser()
+            parser.add_argument('range')
+            args = parser.parse_args()
+            interval = quote(args['range']) if args['range'] else '5y'
+            response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/{interval}')
+            return {'success': True, 'data': response.json()}
 
 
 class UserInfo(Resource):
