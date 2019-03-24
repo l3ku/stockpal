@@ -3,6 +3,10 @@ section.single-stock {
     width: 100%;
     .stockpal-card-content {
       height: 100%;
+      overflow: scroll;
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
   .single-stock-title-card {

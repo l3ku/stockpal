@@ -1,15 +1,14 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import ReactEcharts from 'echarts-for-react';
-import {Icon, Button, Card, Grid} from 'semantic-ui-react';
+import {Icon, Button, Card, Grid, Table} from 'semantic-ui-react';
 import { getStockTypeDescription } from '../utils/helpers';
 
+// TODO: separate this component into child components
 class StockChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      stockInfoData: [],
-      stockInfoIsLoaded: false,
       stockChartData: [],
       stockChartIsLoaded: false,
       error: null,
@@ -17,33 +16,17 @@ class StockChart extends Component {
       stockLogo: '', // TODO: provide a default stock logo
       stockNews: [],
       stockNewsIsLoaded: false,
-      activeStockNewsArticle: null
+      activeStockNewsArticle: null,
+      stockCompany: [],
+      stockCompanyIsLoaded: false
     };
   }
 
   componentDidMount() {
-    this.fetchStockInfo();
+    this.fetchStockCompany();
     this.fetchStockNews();
     this.fetchStockLogo();
     this.fetchStockChart();
-  }
-
-  fetchStockInfo = () => {
-    // We should show the info of the stock along with the chart
-    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol))
-      .then(res => res.json())
-      .then(
-        (res) => {
-          this.setState({
-            stockInfoData: res.data[0]
-          });
-        },
-        (err) => {
-          this.setState({
-            error: err
-          });
-        }
-      );
   }
 
   fetchStockLogo = () => {
@@ -79,6 +62,25 @@ class StockChart extends Component {
         (err) => {
           this.setState({
             stockNewsIsLoaded: true,
+            error: err
+          });
+        }
+      );
+  }
+
+  fetchStockCompany = () => {
+    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol) + '/company')
+      .then(res => res.json())
+      .then(
+        (res) => {
+          this.setState({
+            stockCompanyIsLoaded: true,
+            stockCompany: res.data,
+          });
+        },
+        (err) => {
+          this.setState({
+            stockCompanyIsLoaded: true,
             error: err
           });
         }
@@ -197,34 +199,57 @@ class StockChart extends Component {
   }
 
   render() {
-    let stockInfoContent = (
-      <div className='stock-info-loading-indication'>Loading stock info...</div>
+    let stockCompanyContent = (
+      <div className="stock-company-loading-indication">Loading stock company info...</div>
     );
-    const stockInfo = this.state.stockInfoData;
-    if ( this.state.stockInfoIsLoaded ) {
-      if ( !stockInfo ) {
-        stockInfoContent = (
-          'Error: ' + this.state.error
-        );
+    const stockCompany = this.state.stockCompany;
+    if ( this.state.stockCompanyIsLoaded ) {
+      if ( stockCompany.length === 0 ) {
+        stockCompanyContent = 'Sorry, no information regarding the company was found...';
       } else {
-        const type = stockInfo.type.toLowerCase();
+        const type = stockCompany.issueType.toLowerCase();
         const stockTypeDescription = getStockTypeDescription(type);
-        stockInfoContent = (
-          <div className="single-stock-info-wrapper">
-            <div className="single-stock-info single-stock-logo">
-              <img src={this.state.stockLogo} alt={`Could not load logo of ${stockInfo.name}...`}/>
-            </div>
-            <h3>{stockInfo.name}</h3>
-            <div className="single-stock-info single-stock-symbol">
-              <div><strong>Symbol:</strong> {stockInfo.symbol}</div>
-            </div>
-            <div className="single-stock-info single-stock-type">
-              <div><strong>Type:</strong> {stockTypeDescription ? stockTypeDescription : type}</div>
-            </div>
-            <div className="single-stock-info single-stock-is-enabled">
-              <div><strong>Is enabled:</strong> {stockInfo.is_enabled ? 'Yes' : 'No'}</div>
-            </div>
-          </div>
+        stockCompanyContent = (
+          <Table celled>
+            <Table.Body>
+              <Table.Row>
+                <Table.HeaderCell>Symbol</Table.HeaderCell>
+                <Table.Cell>{stockCompany.symbol}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>Name</Table.HeaderCell>
+                <Table.Cell>{stockCompany.companyName}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>Issue type</Table.HeaderCell>
+                <Table.Cell>{stockTypeDescription ? stockTypeDescription : type}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>Exchange</Table.HeaderCell>
+                <Table.Cell>{stockCompany.exchange}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>Industry</Table.HeaderCell>
+                <Table.Cell>{stockCompany.industry}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>Website</Table.HeaderCell>
+                <Table.Cell><a href={stockCompany.website} target="_blank">{stockCompany.website}</a></Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>Description</Table.HeaderCell>
+                <Table.Cell>{stockCompany.description}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>CEO</Table.HeaderCell>
+                <Table.Cell>{stockCompany.CEO}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.HeaderCell>Sector</Table.HeaderCell>
+                <Table.Cell>{stockCompany.sector}</Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
         );
       }
     }
@@ -248,7 +273,7 @@ class StockChart extends Component {
                 <Card.Content header={stockNews[activeArticle].headline}/>
                 <Card.Content className="stockpal-card-content">
                   <p dangerouslySetInnerHTML={{__html: stockNews[activeArticle].summary}}></p>
-                  <a href={stockNews[activeArticle].url} target="_blank">Show full article at IEX</a>
+                  <a href={stockNews[activeArticle].url} target="_blank">Show full article</a>
                 </Card.Content>
                 <Card.Content className="stockpal-card-content">
                   <div><strong><i>Posted at {new Date(stockNews[activeArticle].datetime).toLocaleString()} in {stockNews[activeArticle].source}</i></strong></div>
@@ -287,7 +312,7 @@ class StockChart extends Component {
               var className = 'stock-chart-interval-option';
               className += this.state.interval === option.name ? ' selected' : '';
               return (
-                <div class="stock-chart-interval-option-wrapper">
+                <div className="stock-chart-interval-option-wrapper">
                   <a key={option.name} href="#" className={className} onClick={() => this.changeInterval(option.name)}>{option.name}</a>
                   <span className="stock-chart-interval-option-tooltip">{option.description}</span>
                 </div>
@@ -307,14 +332,14 @@ class StockChart extends Component {
           </a>
         </div>
         <Card className="stockpal-card single-stock-title-card">
-          <Card.Content header={stockInfo.name ? stockInfo.name : 'Loading...'} />
+          <Card.Content header={stockCompany.companyName ? stockCompany.companyName : 'Loading...'} />
         </Card>
         <Grid>
           <Grid.Column width={4} className="stock-view-column">
             <Card className="stockpal-card single-stock-card stock-card-information">
               <Card.Content header="Information" className="single-stock-card-header"/>
               <Card.Content className="stockpal-card-content">
-                {stockInfoContent}
+                {stockCompanyContent}
               </Card.Content>
             </Card>
           </Grid.Column>
