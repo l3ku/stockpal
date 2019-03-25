@@ -32,9 +32,8 @@ section.single-stock .stockpal-card {
   width: 100%; }
   section.single-stock .stockpal-card .stockpal-card-content {
     height: 100%;
-    overflow: scroll; }
-    section.single-stock .stockpal-card .stockpal-card-content::-webkit-scrollbar {
-      display: none; }
+    overflow: hidden;
+    overflow-y: auto; }
 section.single-stock .single-stock-title-card {
   text-align: center;
   font-size: 20px;
@@ -46,7 +45,7 @@ section.single-stock .single-stock-news-article-toggle {
 section.single-stock .single-stock-news-card {
   margin: 0 auto; }
 section.single-stock .single-stock-card {
-  height: 500px; }
+  height: 400px; }
   section.single-stock .single-stock-card .single-stock-card-header {
     text-align: center; }
   section.single-stock .single-stock-card .content {

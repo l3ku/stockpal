@@ -3,10 +3,8 @@ section.single-stock {
     width: 100%;
     .stockpal-card-content {
       height: 100%;
-      overflow: scroll;
-      &::-webkit-scrollbar {
-        display: none;
-      }
+      overflow: hidden;
+      overflow-y: auto;
     }
   }
   .single-stock-title-card {
@@ -23,7 +21,7 @@ section.single-stock {
     margin: 0 auto;
   }
   .single-stock-card {
-    height: 500px;
+    height: 400px;
     .single-stock-card-header {
       text-align: center;
     }

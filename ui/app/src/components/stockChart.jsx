@@ -210,46 +210,51 @@ class StockChart extends Component {
         const type = stockCompany.issueType.toLowerCase();
         const stockTypeDescription = getStockTypeDescription(type);
         stockCompanyContent = (
-          <Table celled>
-            <Table.Body>
-              <Table.Row>
-                <Table.HeaderCell>Symbol</Table.HeaderCell>
-                <Table.Cell>{stockCompany.symbol}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Name</Table.HeaderCell>
-                <Table.Cell>{stockCompany.companyName}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Issue type</Table.HeaderCell>
-                <Table.Cell>{stockTypeDescription ? stockTypeDescription : type}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Exchange</Table.HeaderCell>
-                <Table.Cell>{stockCompany.exchange}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Industry</Table.HeaderCell>
-                <Table.Cell>{stockCompany.industry}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Website</Table.HeaderCell>
-                <Table.Cell><a href={stockCompany.website} target="_blank">{stockCompany.website}</a></Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Description</Table.HeaderCell>
-                <Table.Cell>{stockCompany.description}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>CEO</Table.HeaderCell>
-                <Table.Cell>{stockCompany.CEO}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Sector</Table.HeaderCell>
-                <Table.Cell>{stockCompany.sector}</Table.Cell>
-              </Table.Row>
-            </Table.Body>
+          <div className="single-stock-info-wrapper">
+            <a className=".single-stock-logo" href={stockCompany.website} alt={`Logo of ${stockCompany.companyName}`}>
+              <img src={this.state.stockLogo}/>
+            </a>
+            <Table celled>
+              <Table.Body>
+                <Table.Row>
+                  <Table.HeaderCell>Symbol</Table.HeaderCell>
+                  <Table.Cell>{stockCompany.symbol}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>Name</Table.HeaderCell>
+                  <Table.Cell>{stockCompany.companyName}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>Issue type</Table.HeaderCell>
+                  <Table.Cell>{stockTypeDescription ? stockTypeDescription : type}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>Exchange</Table.HeaderCell>
+                  <Table.Cell>{stockCompany.exchange}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>Industry</Table.HeaderCell>
+                  <Table.Cell>{stockCompany.industry}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>Website</Table.HeaderCell>
+                  <Table.Cell><a href={stockCompany.website} target="_blank">{stockCompany.website}</a></Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>Description</Table.HeaderCell>
+                  <Table.Cell>{stockCompany.description}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>CEO</Table.HeaderCell>
+                  <Table.Cell>{stockCompany.CEO}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.HeaderCell>Sector</Table.HeaderCell>
+                  <Table.Cell>{stockCompany.sector}</Table.Cell>
+                </Table.Row>
+              </Table.Body>
           </Table>
+          </div>
         );
       }
     }
@@ -270,7 +275,7 @@ class StockChart extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <Card className="stockpal-card single-stock-news-card">
-                <Card.Content header={stockNews[activeArticle].headline}/>
+                <Card.Content header={`${stockNews[activeArticle].headline} (${activeArticle+1}/${stockNews.length})`}/>
                 <Card.Content className="stockpal-card-content">
                   <p dangerouslySetInnerHTML={{__html: stockNews[activeArticle].summary}}></p>
                   <a href={stockNews[activeArticle].url} target="_blank">Show full article</a>
@@ -335,7 +340,7 @@ class StockChart extends Component {
           <Card.Content header={stockCompany.companyName ? stockCompany.companyName : 'Loading...'} />
         </Card>
         <Grid>
-          <Grid.Column width={4} className="stock-view-column">
+          <Grid.Column width={8} className="stock-view-column">
             <Card className="stockpal-card single-stock-card stock-card-information">
               <Card.Content header="Information" className="single-stock-card-header"/>
               <Card.Content className="stockpal-card-content">
@@ -343,7 +348,7 @@ class StockChart extends Component {
               </Card.Content>
             </Card>
           </Grid.Column>
-          <Grid.Column width={6} className="stock-view-column">
+          <Grid.Column width={8} className="stock-view-column">
             <Card className="stockpal-card single-stock-card stock-card-news">
               <Card.Content header="News" className="single-stock-card-header"/>
               <Card.Content className="stockpal-card-content">
@@ -351,7 +356,9 @@ class StockChart extends Component {
               </Card.Content>
             </Card>
           </Grid.Column>
-          <Grid.Column width={6} className="stock-view-column">
+        </Grid>
+        <Grid>
+          <Grid.Column width={16} className="stock-view-column">
             <Card className="stockpal-card single-stock-card stock-card-chart">
               <Card.Content header="Chart" className="single-stock-card-header"/>
               <Card.Content className="stockpal-card-content">
