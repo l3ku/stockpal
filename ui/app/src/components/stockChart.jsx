@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import ReactEcharts from 'echarts-for-react';
-import {Icon, Button, Card, Grid, Table} from 'semantic-ui-react';
+import {Icon, Button, Card, Grid, Table, Dimmer, Loader} from 'semantic-ui-react';
 import { getStockTypeDescription } from '../utils/helpers';
 
 // TODO: separate this component into child components
@@ -200,7 +200,11 @@ class StockChart extends Component {
 
   render() {
     let stockCompanyContent = (
-      <div className="stock-company-loading-indication">Loading stock company info...</div>
+      <div className="stock-company-loading-indication">
+        <Dimmer active inverted>
+            <Loader />
+          </Dimmer>
+      </div>
     );
     const stockCompany = this.state.stockCompany;
     if ( this.state.stockCompanyIsLoaded ) {
@@ -260,7 +264,11 @@ class StockChart extends Component {
     }
 
     let stockNewsContent = (
-      <div className='stock-chart-news-indication'>Loading stock news...</div>
+      <div className='stock-chart-news-indication'>
+        <Dimmer active inverted>
+            <Loader />
+          </Dimmer>
+      </div>
     );
     if ( this.state.stockNewsIsLoaded ) {
       const stockNews = this.state.stockNews;
@@ -294,7 +302,11 @@ class StockChart extends Component {
     }
 
     let stockChartContent = (
-      <div className='stock-chart-loading-indication'>Loading stock chart...</div>
+      <div className='stock-chart-loading-indication'>
+        <Dimmer active inverted>
+            <Loader />
+          </Dimmer>
+      </div>
     );
     let eChartsClass = 'stock-chart-echarts';
     if ( this.state.stockChartIsLoaded || (!this.state.stockChartIsLoaded && this.state.stockChartData.length > 0) ) {
