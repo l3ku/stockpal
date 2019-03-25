@@ -28,7 +28,7 @@ class UserStocks extends Component {
     if (error) {
         return (
           <div>
-            Error: {error}
+            <p>Error: {error}</p>
             {refreshButton}
           </div>
         );
@@ -43,7 +43,7 @@ class UserStocks extends Component {
     } else if (isLoaded && items.length === 0) {
       return (
         <div>
-          Sorry, no results...
+          <p>Sorry, no results...</p>
           {refreshButton}
         </div>
       );

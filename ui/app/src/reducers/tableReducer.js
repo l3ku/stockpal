@@ -203,7 +203,8 @@ export default function(state=initialState, action) {
           // to the last page if we are above the limit. E.g. on last page when 50 items/page, and
           // changes to 300/page => out of range on pages.
           var currentPage = pagination.currentPage;
-          var newTotalPages = Math.ceil(searchResults.length / pagination.itemsPerPage);
+          var items = content.searchResults.length ? content.searchResults : content.showItems;
+          var newTotalPages = Math.ceil(items.length / action.itemsPerPage);
           newTotalPages = newTotalPages === 0 ? 1 : newTotalPages;
           if ( currentPage > newTotalPages ) {
             currentPage = newTotalPages;
