@@ -3,23 +3,24 @@ leo.toikka@tuni.fi
 https://github.com/l3ku/stockpal
 # Harjoitustyön vaihe 3
 ## Toteutetut toiminnallisuudet
-Toteutin yksittäisen osakkeen tietojen näyttämisen:
+Yksittäisen osakkeen tietojen näyttäminen:
 - yrityksen tiedot (nimi, kuvaus, toimitusjohtaja jne.)
 - osakkeeseen liittyvät uutiset
 - osakkeen kurssihistorian näyttäminen kuvaajana EChartsin avulla
 
-Koko näkymä näyttää seuraavalta:
+Koko yksittäisen osakkeen näkymä näyttää alla olevalta:
 ![Firefox_Screenshot_2019-03-25T09-56-15.630Z.png](https://www.dropbox.com/s/xtr8ip1h2zjmukt/Firefox_Screenshot_2019-03-25T09-56-15.630Z.png?dl=0&raw=1)
-Lisäksi useille osakkeille seuraavat toiminnallisuudet:
+Lisäksi kaikkien osakkeiden listaukselle seuraavat uudet toiminnallisuudet:
 - Useiden osakkeiden valitseminen kerralla
 - Haku kaikista osakkeista
-Koko näkymä näyttää seuraavalta:
+
+Koko näkymä näyttää nyt alla olevalta:
 ![Screen Shot 2019-03-25 at 11.58.16.png](https://www.dropbox.com/s/l9p79reokfi3djk/Screen%20Shot%202019-03-25%20at%2011.58.16.png?dl=0&raw=1)
 
 ## Datarajapinnan käyttöönotto
 Kokeilemalla eri vaihtoehtoja listauksesta https://rapidapi.com/collection/stock-market-apis päädyin lopullisesti valitsemaan Investors Exchange (IEX) Trading -rajapinnan, sillä se oli ilmainen ja riittävän kattava tarpeisiini (kurssihistoriatiedot 5v taaksepäin). Olin testaillut IEX-rajapinnan käyttöä jo harjoitustyön edellisessä vaiheessa, mutta tässä vaiheessa päätin "lukittautua" pysymään kyseisen rajapinnan käytössä. Toisaalta periaatteessa on myös mahdollista käyttää useita rajapintoja osakkeiden symbolien avulla (esim. Applella "AAPL").
 
-IEX:n rajapintaa käytetään sovelluksessa aina backendin kautta, jotta dataa voidaan muokata tarvittaessa ennen frontendille lähetystä (esimerkiksi turhien tietojen poisto ja erilaisten tietojen yhdistely). HTTP-pyyntöjen tekemiseksi käytettiin Pythonin näppärää requests-kirjastoa, jonka asentaminen tapahtui asettamalla backendin `requirements.txt`-tiedostoon rivit
+IEX:n rajapintaa käytetään sovelluksessa aina backendin kautta. Tämä mahdollistaa kätevästi esimerkiksi datan muokkauksen tarvittaessa ennen frontendille lähetystä, vaikkapa yhdistelemällä tietoja eri lähteistä tai poistamalla tarpeettomia attribuutteja datasta. HTTP-pyyntöjen tekemiseksi käytettiin Pythonin näppärää requests-kirjastoa, jonka asentaminen tapahtui asettamalla backendin `requirements.txt`-tiedostoon rivit
 ```
 # For accessing external APIs
 requests==2.21.0
@@ -36,7 +37,7 @@ class StockCompany(Resource):
             response = requests.get(f'{iex_api_url}/stock/{symbol}/company')
             return {'success': True, 'data': response.json()}
 ```
-Sovelluslogiikka siis tarkastaa, että osakesymboli on tunnettu ennen HTTP-pyynnön tekemistä, ja sen jälkeen yksinkertaisesti vain palauttaa IEX-API:n osoitteeseen https://api.iextrading.com/1.0/stock/{symbol}/company tehdyn pyynnön vastauksen. Sovellus päivittää tietokantaansa tuetut osakesymbolit tunneittain IEX:n [ref-data](https://iextrading.com/developer/docs/#reference-data)-endpointista. Toisena esimerkkinä osakkeiden kurssihistorian hakeminen:
+Sovelluslogiikka siis tarkastaa, että osakesymboli on tunnettu ennen HTTP-pyynnön tekemistä, ja sen jälkeen yksinkertaisesti vain palauttaa IEX-API:n osoitteeseen https://api.iextrading.com/1.0/stock/{symbol}/company tehdyn pyynnön vastauksen kutsumalla `requests`-kirjaston `get`-funktiota. Sovellus päivittää tietokantaansa tuetut osakesymbolit tunneittain IEX:n [ref-data](https://iextrading.com/developer/docs/#reference-data)-endpointista, jotta osakkeita on mahdollista listata käyttäjälle. Toisena esimerkkinä osakkeiden kurssihistorian hakeminen:
 ```
 class StockChart(Resource):
     def get(self, symbol):
@@ -58,6 +59,7 @@ Lopuksi vielä täytyy muistaa tehdä reititys kyseisille resursseille, jotta ni
 api.add_resource(StockChart, v1_base_url + '/stock/<string:symbol>/chart')
 api.add_resource(StockCompany, v1_base_url + '/stock/<string:symbol>/company')
 ```
+Kuten edellisistä koodeista voidaan havaita, sovellus ei tallenna omaan tietokantaansa yksittäisen osakkeiden "tarkkoja" tietoja, kuten yritystietoja, logoa, ja kurssihistoriaa, eli pelkästään [ref-data](https://iextrading.com/developer/docs/#reference-data)-endpointin tietoja käytetään osakelistauksen muodostamiseen, ja siten osakelistauksen symbolien avulla haetaan nämä "tarkemmat" tiedot IEX:n rajapinnasta. Kyseinen toimintalogiikka perustuu ideaan, että ei välttämättä ole järkevää tallentaa sovelluksen tietokantaan n. 9000 eri osakkeen yksityiskohtaisia tietoja yksi kerrallaan käyttäjän kysyessä niitä. Mikäli sovelluksen suorituskyky huolestuttaa toistuvien ulkoisten API-pyyntöjen suhteen, niin esimerkiksi UI:n ja Backendin välissä olevan Nginx-palvelimen HTTP-välimuistin käyttönotto voisi parantaa suorituskykyä huomattavasti, kun toistuvat API-pyynnöt palautettaisiin välimuistista sen sijaan, että pyyntö päätyisi backendille tai saati IEX:lle asti.
 Sovelluksen käyttöliittymän puolella osakkeen kurssihistoria näytetään react-echarts -kirjastoa hyödyntämällä, alla ote React-komponentista:
 ```
   getOption = () => {
