@@ -215,7 +215,7 @@ class StockChart extends Component {
         const stockTypeDescription = getStockTypeDescription(type);
         stockCompanyContent = (
           <div className="single-stock-info-wrapper">
-            <a className=".single-stock-logo" href={stockCompany.website} alt={`Logo of ${stockCompany.companyName}`}>
+            <a className=".single-stock-logo" href={stockCompany.website} target="_blank" alt={`Logo of ${stockCompany.companyName}`}>
               <img src={this.state.stockLogo}/>
             </a>
             <Table celled>
