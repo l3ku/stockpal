@@ -54,7 +54,7 @@ export const fetchUserStocks = (refresh=false) => {
       const auth = getState().auth;
       dispatch(requestItems(namespace, refresh));
       if ( auth.isLoggedIn ) {
-        return fetch('/api/protected/stocks/' + encodeURIComponent(auth.apiID), {
+        return fetch('/api/protected/stocks', {
             headers: {
               'X-API-Key': auth.apiSecret
             },
@@ -86,7 +86,7 @@ export const addUserStocks = (symbols) => {
       return dispatch(requestActionOnItemsError('User is not logged in', action, namespace));
     }
 
-    return fetch('/api/protected/stocks/' + encodeURIComponent(auth.apiID), {
+    return fetch('/api/protected/stocks', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -117,7 +117,7 @@ export const deleteUserStock = (symbol) => {
       return dispatch(requestActionOnItemsError('User is not logged in', action, namespace));
     }
 
-    return fetch('/api/protected/stocks/' + encodeURIComponent(auth.apiID), {
+    return fetch('/api/protected/stocks', {
         method: 'DELETE',
         headers: {
           'content-type': 'application/json',

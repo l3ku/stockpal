@@ -62,8 +62,8 @@ def OAuth2Login(auth_provider, auth_response):
         db.session.add(db_logged_in_user)
     else:
         db_logged_in_user.resetUserLogin(expire_time=login_expire_time)
-    login_id = db_logged_in_user.login_id
-    login_secret = db_logged_in_user.login_secret
+
+    api_secret = db_logged_in_user.api_secret
     login_expires_at = db_logged_in_user.expires_at
 
     # Save the OAuth2 token data to the database for the user. One user can only be logged in with
@@ -93,12 +93,12 @@ def OAuth2Login(auth_provider, auth_response):
     # authenticate to this API. NOTE: be sure to return the relative time in
     # seconds when the login expires, so the client can set the cookies for x
     # seconds without having to face any timezone issues.
-    return (login_id, login_secret, login_expire_time)
+    return (api_secret, login_expire_time)
 
 
-def logout(login_id, login_secret):
-    db_user = LoggedInUser.query.filter_by(login_id=login_id).first()
-    if db_user is None or login_secret != db_user.login_secret:
+def logout(api_secret):
+    db_user = LoggedInUser.query.filter_by(api_secret=api_secret).first()
+    if db_user is None or api_secret != db_user.api_secret:
         raise ValueError('Invalid login_id or login_secret')
     db.session.delete(db_user)
     db.session.commit()

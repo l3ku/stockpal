@@ -170,7 +170,6 @@ class App extends Component {
 
 const mapStateToProps = state => ({
   isAuthRedirect: state.auth.isAuthRedirect,
-  apiID: state.auth.apiID,
   apiSecret: state.auth.apiSecret,
   isLoggedIn: state.auth.isLoggedIn,
   authError: state.auth.error,

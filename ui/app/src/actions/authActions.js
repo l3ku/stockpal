@@ -34,7 +34,6 @@ export const requestLogin = () => {
 }
 export const receiveLogin = (data) => {
   const cookie_opts = { path: '/', maxAge: data.expires_in };
-  Cookie.set('_api_id', data.api_id, cookie_opts);
   Cookie.set('_api_secret', data.api_secret, cookie_opts);
   window.location.href = '/';
 }
@@ -95,10 +94,7 @@ export const logout = () => {
 
     return fetch('/api/oauth/logout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-API-Key': auth.apiSecret },
-      body: JSON.stringify({
-        'api_id': auth.apiID
-      })})
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': auth.apiSecret }})
       .then(res => res.json())
       .then(
         (res) => res.success ? dispatch(receiveLogout(res.data)) : dispatch(receiveLogoutError(res.error)),

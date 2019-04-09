@@ -47,7 +47,6 @@ class User(db.Model):
         # We always ẃant to be nice and return the information of the stocks instead
         # of the plain IDs and delegating the SQL join type functionality outside of
         # this model.
-        print(Stock.query.join(UserStock).filter_by(user_id=self.id).all())
         return Stock.query.join(UserStock).filter_by(user_id=self.id).all()
 
     def addStocks(self, symbols):
@@ -103,35 +102,30 @@ class UserStock(db.Model):
 
 class LoggedInUser(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey(User.id, onupdate='CASCADE', ondelete='CASCADE'), primary_key=True, nullable=False)
-    login_id = db.Column(db.String(200), unique=True, nullable=False)
-    login_secret = db.Column(db.String(1000), unique=False, nullable=False)
+    api_secret = db.Column(db.String(1000), unique=True, nullable=False)
     expires_at = db.Column(db.Integer(), default=0)
 
     def __init__(self, user_id, expire_time):
         self.user_id = user_id
         self.resetUserLogin(expire_time=expire_time)
 
-    def resetUserLogin(self, expire_time, id_length=20, secret_length=200):
-        # Ensure that the login_id is unique in the DB by iterating until a unique one is found.
-        # If login_id length is big, there is an extremely low chance that this loop will be executed
+    def resetUserLogin(self, expire_time, secret_length=200):
+        # Ensure that the api_secret is unique in the DB by iterating until a unique one is found.
+        # If api_secret length is big, there is an extremely low chance that this loop will be executed
         # many times.
         while True:
-            login_id = ''.join(random.choice(string.digits + string.ascii_letters) for i in range(id_length))
-            if self.query.filter_by(login_id=login_id).first() is None:
+            api_secret = ''.join(random.choice(string.digits + string.ascii_letters) for i in range(secret_length))
+            if self.query.filter_by(api_secret=api_secret).first() is None:
                 break
 
-        # Login secrets need not to be unique.
-        login_secret = ''.join(random.choice(string.digits + string.ascii_letters + string.punctuation) for i in range(secret_length))
-
         # Set the values into the model itself.
-        self.login_id = login_id
-        self.login_secret = login_secret
+        self.api_secret = api_secret
         self.expires_at = time.time() + expire_time
 
-    def validateLogin(self, login_secret):
-        # 1. Check that the login_secret is valid
-        if login_secret is None or self.login_secret != login_secret:
-            return (False, {'reason': 'invalid_login', 'target': None})
+    def validateLogin(self, api_secret):
+        # 1. Check that the api_secret is valid
+        if api_secret is None or self.api_secret != api_secret:
+            return (False, {'reason': 'invalid_login', 'target': 'api_secret'})
         # 2. Check that the login has not expired
         elif time.time() >= self.expires_at:
             return (False, {'reason': 'login_expired', 'target': None})

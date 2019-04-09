@@ -27,5 +27,5 @@ api.add_resource(Login, api_base_url + '/oauth/login/<string:auth_provider>')
 api.add_resource(Logout, api_base_url + '/oauth/logout')
 
 # Authenticated endpoints
-api.add_resource(UserInfo, api_base_url + '/protected/userinfo/<string:login_id>')
-api.add_resource(UserStocks, api_base_url + '/protected/stocks/<string:login_id>')
+api.add_resource(UserInfo, api_base_url + '/protected/userinfo')
+api.add_resource(UserStocks, api_base_url + '/protected/stocks')

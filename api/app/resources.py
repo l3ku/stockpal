@@ -16,17 +16,15 @@ iex_api_url = 'https://api.iextrading.com/1.0'
 
 
 # TODO: this could be moved elsewhere
-def authenticate(login_id):
-    if login_id is None:
-        return (False, {'reason': 'missing_parameter', 'target': 'api_id'})
+def authenticate():
     if 'X-API-Key' not in request.headers:
         return (False, {'reason': 'missing_header', 'target': 'X-API-Key'})
-    login_secret = request.headers['X-API-Key']
-    db_logged_in_user = LoggedInUser.query.filter_by(login_id=login_id).first()
+    api_secret = request.headers['X-API-Key']
+    db_logged_in_user = LoggedInUser.query.filter_by(api_secret=api_secret).first()
     if db_logged_in_user is None:
-        return (False, {'reason': 'invalid_login', 'target': None})
+        return (False, {'reason': 'invalid_login', 'target': 'expiration'})
     else:
-        return db_logged_in_user.validateLogin(login_secret)
+        return db_logged_in_user.validateLogin(api_secret)
 
 class ListGainers(Resource):
     def get(self):
@@ -95,15 +93,13 @@ class StockChart(Resource):
             response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/{interval}')
             return {'success': True, 'data': response.json()}
 
-
 class UserInfo(Resource):
-    def get(self, login_id):
+    def get(self):
         try:
-            success, obj = authenticate(login_id)
+            success, obj = authenticate()
             if not success:
                 return {'success': False, 'error': obj}
-            db_user = obj # In case of success we know that obj is the DB model user instead of error object
-            return {'success': True, 'data': {'user_name': db_user.name, 'user_email': db_user.email, 'user_picture_url': db_user.picture_url}}
+            return {'success': True, 'data': {'user_name': obj.name, 'user_email': obj.email, 'user_picture_url': obj.picture_url}}
         except ValueError as err:
             return {'success': False, 'error': {'reason': str(err), 'target': None}}
         except AuthlibBaseError as err:
@@ -111,13 +107,13 @@ class UserInfo(Resource):
 
 
 class UserStocks(Resource):
-    def get(self, login_id):
+    def get(self):
         try:
-            success, obj = authenticate(login_id)
+            success, obj = authenticate()
             if not success:
                 return {'success': False, 'error': obj}
-            db_user = obj # In case of success we know that obj is the DB model user instead of error object
-            stocks = db_user.getStocks()
+            stocks = obj.getStocks()
+
              # Collect the information inside a list of dicts
             return_data = []
             for stock in stocks:
@@ -128,36 +124,31 @@ class UserStocks(Resource):
         except AuthlibBaseError as err:
             return {'success': False, 'error': {'reason': 'err.description', 'target': None}}
 
-    def post(self, login_id):
+    def post(self):
         try:
-            success, obj = authenticate(login_id)
+            success, obj = authenticate()
             if not success:
                 return {'success': False, 'error': obj}
-            db_user = obj # In case of success we know that obj is the DB model user instead of error object
             parser = reqparse.RequestParser()
             parser.add_argument('stock_symbols', action='append', required=True, help="Stock symbols are required")
             args = parser.parse_args()
             stock_symbols = args['stock_symbols']
-            print(stock_symbols)
             if not isinstance(stock_symbols, list):
                 return {'success': False, 'error': 'Stock symbols should be provided in a list'}
-            return db_user.addStocks(stock_symbols)
+            return obj.addStocks(stock_symbols)
 
         except ValueError as err:
             return {'success': False, 'error': {'reason': str(err), 'target': None}}
         except AuthlibBaseError as err:
             return {'success': False, 'error': {'reason': err.description, 'target': None}}
 
-    def delete(self, login_id):
+
+    def delete(self, stock_symbol):
         try:
-            success, obj = authenticate(login_id)
+            success, obj = authenticate()
             if not success:
                 return {'success': False, 'error': obj}
-            db_user = obj # In case of success we know that obj is the DB model user instead of error object
-            parser = reqparse.RequestParser()
-            parser.add_argument('stock_symbol', required=True, help="Stock symbol is required")
-            args = parser.parse_args()
-            return db_user.deleteStock(args['stock_symbol'])
+            return obj.deleteStock(symbol)
 
         except ValueError as err:
             return {'success': False, 'error': {'reason': str(err), 'target': None}}
@@ -182,8 +173,8 @@ class Login(Resource):
         args = parser.parse_args()
         auth_response = args['authorization_response']
         try:
-            login_id, login_secret, login_expires_in = OAuth2Login(auth_provider, auth_response)
-            return {'success': True, 'data': {'api_id': login_id, 'api_secret': login_secret, 'expires_in': login_expires_in}}
+            api_secret, login_expires_in = OAuth2Login(auth_provider, auth_response)
+            return {'success': True, 'data': {'api_secret': api_secret, 'expires_in': login_expires_in}}
         except ValueError as err:
             return {'success': False, 'error': str(err)}
         except AuthlibBaseError as err:
@@ -192,13 +183,15 @@ class Login(Resource):
 
 class Logout(Resource):
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('api_id', required=True, help="API ID is required")
-        args = parser.parse_args()
-        login_id = args['api_id']
         if not 'X-API-Key' in request.headers:
             return {'success': False, 'error': {'reason': 'missing_header', 'target': 'X-API-Key'}}
-        login_secret = request.headers['X-API-Key']
+        api_secret = request.headers['X-API-Key']
+        try:
+            return {'success': logout(api_secret)}
+        except ValueError as err:
+            return {'success': False, 'error': str(err)}
+        except AuthlibBaseError as err:
+            return {'success': False, 'error': err.description}
         try:
             return {'success': logout(login_id, login_secret)}
         except ValueError as err:

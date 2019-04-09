@@ -23,8 +23,8 @@ const receiveUserInfoError = (error) => {
 export const maybeGetUserInfo = () => {
   return (dispatch, getState) => {
     const auth = getState().auth;
-    if ( auth.apiID && auth.apiSecret ) {
-      return fetch('/api/protected/userinfo/' + encodeURIComponent(auth.apiID), {
+    if ( auth.apiSecret ) {
+      return fetch('/api/protected/userinfo', {
           headers: {'X-API-Key': auth.apiSecret}
         })
         .then(res => res.json())
