@@ -9,7 +9,7 @@ import requests
 from app.auth import initOAuth2Session, OAuth2Login, logout
 from authlib.common.errors import AuthlibBaseError
 from app.models import db, AppMetaData, LoggedInUser, User, Stock
-from app.tasks import updateStocksFromAPI
+from app.tasks import updateStocksFromAPI, getMovingAverage
 from urllib.parse import quote
 
 iex_api_url = 'https://api.iextrading.com/1.0'
@@ -38,7 +38,7 @@ class StockInfo(Resource):
         if symbol is None:
             stocks_db_result = Stock.query.all()
         else:
-            stocks_db_result = Stock.query.filter_by(symbol=symbol)
+            stocks_db_result = Stock.query.filter_by(symbol=symbol).first()
 
         # Collect the information inside a list of dicts
         return_data = []
@@ -52,7 +52,7 @@ class StockInfo(Resource):
 class StockCompany(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
-        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc).first()
         if is_stock_known is None:
             return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
         else:
@@ -62,7 +62,7 @@ class StockCompany(Resource):
 class StockLogo(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
-        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc).first()
         if is_stock_known is None:
             return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
         else:
@@ -72,7 +72,7 @@ class StockLogo(Resource):
 class StockNews(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
-        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc).first()
         if is_stock_known is None:
             return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
         else:
@@ -82,7 +82,7 @@ class StockNews(Resource):
 class StockChart(Resource):
     def get(self, symbol):
         symbol_esc = quote(symbol, safe='')
-        is_stock_known = Stock.query.filter_by(symbol=symbol_esc)
+        is_stock_known = Stock.query.filter_by(symbol=symbol_esc).first()
         if is_stock_known is None:
             return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
         else:
@@ -192,9 +192,34 @@ class Logout(Resource):
             return {'success': False, 'error': str(err)}
         except AuthlibBaseError as err:
             return {'success': False, 'error': err.description}
+
+
+class MovingAverage(Resource):
+    def get(self, symbol):
         try:
-            return {'success': logout(login_id, login_secret)}
+            success, obj = authenticate()
+            if not success:
+                return {'success': False, 'error': obj}
+
+            symbol_esc = quote(symbol, safe='')
+            is_stock_known = Stock.query.filter_by(symbol=symbol_esc).first()
+            if is_stock_known is None:
+                return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
+            response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/5y')
+            parser = reqparse.RequestParser()
+            parser.add_argument('interval')
+            args = parser.parse_args()
+
+            interval = 200
+            if args['interval'] is not None:
+                interval = args['interval']
+
+            task = getMovingAverage.delay(response.json(), interval)
+            print(task)
+            return {'success': True, 'data': {'task_id': task.task_id}}
+
         except ValueError as err:
             return {'success': False, 'error': str(err)}
         except AuthlibBaseError as err:
             return {'success': False, 'error': err.description}
+

@@ -2,6 +2,7 @@ from celery.signals import worker_ready
 from app import celery
 from app.models import db, Stock
 import requests
+import pandas as pd
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
@@ -24,3 +25,13 @@ def updateStocksFromAPI():
 def updateStocksInit(sender, **k):
     with sender.app.connection() as conn:
         sender.app.send_task('app.tasks.updateStocksFromAPI', connection=conn)
+
+@celery.task
+def getMovingAverage(data, range):
+    df = pd.DataFrame(data)
+    ma = df['close'].rolling(window=range, center=False).mean()
+    result = []
+    for index, row in enumerate(data):
+        result.append({'date': row['date'], 'ma': ma[index]})
+    return result
+
