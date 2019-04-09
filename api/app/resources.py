@@ -11,6 +11,7 @@ from authlib.common.errors import AuthlibBaseError
 from app.models import db, AppMetaData, LoggedInUser, User, Stock
 from app.tasks import updateStocksFromAPI, getMovingAverage
 from urllib.parse import quote
+from celery.result import AsyncResult
 
 iex_api_url = 'https://api.iextrading.com/1.0'
 
@@ -223,3 +224,12 @@ class MovingAverage(Resource):
         except AuthlibBaseError as err:
             return {'success': False, 'error': err.description}
 
+
+class TaskResult(Resource):
+    def get(self, task_id):
+        task_result = AsyncResult(task_id)
+        response = {'success': True, 'pending': True}
+        if task_result.ready():
+            response['pending'] = False
+            response['result'] = task_result.get()
+        return response
