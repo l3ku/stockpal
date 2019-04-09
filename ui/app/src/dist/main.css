@@ -48,6 +48,11 @@ section.single-stock .single-stock-card {
   height: 400px; }
   section.single-stock .single-stock-card .single-stock-card-header {
     text-align: center; }
+    section.single-stock .single-stock-card .single-stock-card-header .header {
+      display: inline-block; }
+  section.single-stock .single-stock-card .expand-stock-chart-section-wrapper {
+    display: inline-block;
+    float: right; }
   section.single-stock .single-stock-card .content {
     flex-grow: 0; }
   section.single-stock .single-stock-card .single-stock-info-wrapper {
@@ -68,6 +73,11 @@ section.single-stock .single-stock-card {
         section.single-stock .single-stock-card .stock-chart-interval-options .stock-chart-interval-option-wrapper .stock-chart-interval-option.selected {
           font-weight: bold;
           text-decoration: underline; }
+        section.single-stock .single-stock-card .stock-chart-interval-options .stock-chart-interval-option-wrapper .stock-chart-interval-option.disabled {
+          color: currentColor;
+          cursor: not-allowed;
+          opacity: 0.5;
+          text-decoration: none; }
       section.single-stock .single-stock-card .stock-chart-interval-options .stock-chart-interval-option-wrapper .stock-chart-interval-option-tooltip {
         visibility: hidden;
         width: 50px;
@@ -82,6 +92,47 @@ section.single-stock .single-stock-card {
         top: 15px;
         font-size: 10px; }
       section.single-stock .single-stock-card .stock-chart-interval-options .stock-chart-interval-option-wrapper:hover .stock-chart-interval-option-tooltip {
+        visibility: visible; }
+
+.stock-modal {
+  padding: 35px; }
+  .stock-modal .single-stock-info-wrapper {
+    text-align: center; }
+    .stock-modal .single-stock-info-wrapper .single-stock-logo > img {
+      border-radius: 15%;
+      display: block;
+      box-shadow: 0 4px 5px 0 #d4d4d5, 0 0 1px 1px #d4d4d5;
+      margin: 0 auto; }
+  .stock-modal .stock-chart-interval-options {
+    text-align: right;
+    padding-right: 10px; }
+    .stock-modal .stock-chart-interval-options .stock-chart-interval-option-wrapper {
+      display: inline-block;
+      position: relative; }
+      .stock-modal .stock-chart-interval-options .stock-chart-interval-option-wrapper .stock-chart-interval-option {
+        margin-right: 4px; }
+        .stock-modal .stock-chart-interval-options .stock-chart-interval-option-wrapper .stock-chart-interval-option.selected {
+          font-weight: bold;
+          text-decoration: underline; }
+        .stock-modal .stock-chart-interval-options .stock-chart-interval-option-wrapper .stock-chart-interval-option.disabled {
+          color: currentColor;
+          cursor: not-allowed;
+          opacity: 0.5;
+          text-decoration: none; }
+      .stock-modal .stock-chart-interval-options .stock-chart-interval-option-wrapper .stock-chart-interval-option-tooltip {
+        visibility: hidden;
+        width: 50px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        position: absolute;
+        z-index: 1;
+        border-radius: 6px;
+        padding: 2px 4px;
+        left: 0;
+        top: 15px;
+        font-size: 10px; }
+      .stock-modal .stock-chart-interval-options .stock-chart-interval-option-wrapper:hover .stock-chart-interval-option-tooltip {
         visibility: visible; }
 
 .stockpal-wrapper .main-menu {

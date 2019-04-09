@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import ReactEcharts from 'echarts-for-react';
-import {Icon, Button, Card, Grid, Table, Dimmer, Loader} from 'semantic-ui-react';
+import {Icon, Button, Card, Grid, Table, Dimmer, Loader, Modal} from 'semantic-ui-react';
 import { getStockTypeDescription } from '../utils/helpers';
 
 // TODO: separate this component into child components
@@ -18,7 +18,9 @@ class StockChart extends Component {
       stockNewsIsLoaded: false,
       activeStockNewsArticle: null,
       stockCompany: [],
-      stockCompanyIsLoaded: false
+      stockCompanyIsLoaded: false,
+      stockIntervalIsLoading: false,
+      modalComponent: null
     };
   }
 
@@ -87,7 +89,14 @@ class StockChart extends Component {
       );
   }
 
-  changeInterval = (interval) => {
+
+  changeFullScreen = (evt, target) => {
+    evt.preventDefault();
+    this.setState({modalComponent: target});
+  }
+
+  changeInterval = (evt, interval) => {
+    evt.preventDefault();
     const stateInterval = this.state.interval;
     if ( interval === stateInterval ) {
       return;
@@ -95,7 +104,8 @@ class StockChart extends Component {
 
     this.setState({
         interval: interval,
-        stockChartIsLoaded: false
+        stockChartIsLoaded: false,
+        stockIntervalIsLoading: true
       },
       this.fetchStockChart
     );
@@ -108,13 +118,15 @@ class StockChart extends Component {
         (res) => {
           this.setState({
             stockChartIsLoaded: true,
-            stockChartData: res.data
+            stockChartData: res.data,
+            stockIntervalIsLoading: false
           });
         },
         (err) => {
           this.setState({
             stockChartIsLoaded: true,
-            error: err
+            error: err,
+            stockIntervalIsLoading: false
           });
         }
       );
@@ -125,7 +137,7 @@ class StockChart extends Component {
     const xAxisData = [];
     for ( let i = 0; i < this.state.stockChartData.length; ++i ) {
       let chartEntry = this.state.stockChartData[i];
-      seriesData[i] = chartEntry.low;
+      seriesData[i] = chartEntry.close;
       xAxisData[i] = chartEntry.date;
     };
     return {
@@ -200,7 +212,8 @@ class StockChart extends Component {
     };
   }
 
-  changeActiveStockNewsArticle = (article) => {
+  changeActiveStockNewsArticle = (evt, article) => {
+    evt.preventDefault();
     if ( article >= 0 && article < this.state.stockNews.length ) {
       this.setState({
         activeStockNewsArticle: article
@@ -248,15 +261,15 @@ class StockChart extends Component {
                 </Table.Row>
                 <Table.Row>
                   <Table.HeaderCell>Industry</Table.HeaderCell>
-                  <Table.Cell>{stockCompany.industry}</Table.Cell>
+                  <Table.Cell>{stockCompany.industry ? stockCompany.industry : '-'}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.HeaderCell>Website</Table.HeaderCell>
-                  <Table.Cell><a href={stockCompany.website} target="_blank">{stockCompany.website}</a></Table.Cell>
+                  <Table.Cell><a href={stockCompany.website ? stockCompany.website : '-'} target="_blank">{stockCompany.website}</a></Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.HeaderCell>Description</Table.HeaderCell>
-                  <Table.Cell>{stockCompany.description}</Table.Cell>
+                  <Table.Cell>{stockCompany.description ? stockCompany.description : '-'}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.HeaderCell>CEO</Table.HeaderCell>
@@ -289,7 +302,7 @@ class StockChart extends Component {
         stockNewsContent = (
           <Grid>
             <Grid.Column width={2}>
-              <Button className="single-stock-news-article-toggle" onClick={() => this.changeActiveStockNewsArticle(this.state.activeStockNewsArticle-1)} disabled={activeArticle === 0} icon="angle left"/>
+              <Button className="single-stock-news-article-toggle" onClick={(evt) => this.changeActiveStockNewsArticle(evt, this.state.activeStockNewsArticle-1)} disabled={activeArticle === 0} icon="angle left"/>
             </Grid.Column>
             <Grid.Column width={12}>
               <Card className="stockpal-card single-stock-news-card">
@@ -304,7 +317,7 @@ class StockChart extends Component {
               </Card>
             </Grid.Column>
             <Grid.Column width={2}>
-              <Button className="single-stock-news-article-toggle" onClick={() => this.changeActiveStockNewsArticle(this.state.activeStockNewsArticle+1)} disabled={activeArticle === stockNews.length-1} icon="angle right"/>
+              <Button className="single-stock-news-article-toggle" onClick={(evt) => this.changeActiveStockNewsArticle(evt, this.state.activeStockNewsArticle+1)} disabled={activeArticle === stockNews.length-1} icon="angle right"/>
             </Grid.Column>
           </Grid>
         );
@@ -338,9 +351,10 @@ class StockChart extends Component {
             {intervalOptions.map(option => {
               var className = 'stock-chart-interval-option';
               className += this.state.interval === option.name ? ' selected' : '';
+              className += this.state.stockIntervalIsLoading ? ' disabled' : '';
               return (
-                <div className="stock-chart-interval-option-wrapper">
-                  <a key={option.name} href="#" className={className} onClick={() => this.changeInterval(option.name)}>{option.name}</a>
+                <div key={option.name} className="stock-chart-interval-option-wrapper">
+                  <a href="#" className={className} onClick={(evt) => this.changeInterval(evt, option.name)}>{option.name}</a>
                   <span className="stock-chart-interval-option-tooltip">{option.description}</span>
                 </div>
               );
@@ -364,16 +378,48 @@ class StockChart extends Component {
         <Grid>
           <Grid.Column width={8} className="stock-view-column">
             <Card className="stockpal-card single-stock-card stock-card-information">
-              <Card.Content header="Information" className="single-stock-card-header"/>
+              <Card.Content className="single-stock-card-header">
+                <div className="header">Company</div>
+                <div className="expand-stock-chart-section-wrapper">
+                  <a href="#" onClick={(evt) => this.changeFullScreen(evt, 'stockCompany')} className="expand-stock-chart-section-button" ><Icon name="expand arrows alternate"/></a>
+                </div>
+              </Card.Content>
               <Card.Content className="stockpal-card-content">
+                <Modal
+                  className='stock-modal'
+                  dimmer='blurring'
+                  open={this.state.modalComponent === 'stockCompany'}
+                  onClose={() => this.setState({ modalComponent: null })}
+                  size='large'
+                  closeIcon
+                  centered={false}
+                >
+                  {stockCompanyContent}
+                </Modal>
                 {stockCompanyContent}
               </Card.Content>
             </Card>
           </Grid.Column>
           <Grid.Column width={8} className="stock-view-column">
             <Card className="stockpal-card single-stock-card stock-card-news">
-              <Card.Content header="News" className="single-stock-card-header"/>
+              <Card.Content className="single-stock-card-header">
+                <div className="header">News</div>
+                <div className="expand-stock-chart-section-wrapper">
+                  <a href="#" onClick={(evt) => this.changeFullScreen(evt, 'stockNews')} className="expand-stock-chart-section-button" ><Icon name="expand arrows alternate"/></a>
+                </div>
+              </Card.Content>
               <Card.Content className="stockpal-card-content">
+                <Modal
+                  className='stock-modal'
+                  dimmer='blurring'
+                  open={this.state.modalComponent === 'stockNews'}
+                  onClose={() => this.setState({ modalComponent: null })}
+                  size='large'
+                  closeIcon
+                  centered={false}
+                >
+                  {stockNewsContent}
+                </Modal>
                 {stockNewsContent}
               </Card.Content>
             </Card>
@@ -382,8 +428,24 @@ class StockChart extends Component {
         <Grid>
           <Grid.Column width={16} className="stock-view-column">
             <Card className="stockpal-card single-stock-card stock-card-chart">
-              <Card.Content header="Chart" className="single-stock-card-header"/>
+              <Card.Content className="single-stock-card-header">
+                <div className="header">Chart</div>
+                <div className="expand-stock-chart-section-wrapper">
+                  <a href="#" onClick={(evt) => this.changeFullScreen(evt, 'stockChart')} className="expand-stock-chart-section-button" ><Icon name="expand arrows alternate"/></a>
+                </div>
+              </Card.Content>
               <Card.Content className="stockpal-card-content">
+                <Modal
+                  className='stock-modal'
+                  dimmer='blurring'
+                  open={this.state.modalComponent === 'stockChart'}
+                  onClose={() => this.setState({ modalComponent: null })}
+                  size='large'
+                  closeIcon
+                  centered={false}
+                >
+                  {stockChartContent}
+                </Modal>
                 {stockChartContent}
               </Card.Content>
             </Card>

@@ -24,6 +24,13 @@ section.single-stock {
     height: 400px;
     .single-stock-card-header {
       text-align: center;
+      .header {
+        display: inline-block;
+      }
+    }
+    .expand-stock-chart-section-wrapper {
+      display: inline-block;
+      float: right;
     }
     .content {
       flex-grow: 0;
@@ -48,6 +55,12 @@ section.single-stock {
           &.selected {
             font-weight: bold;
             text-decoration: underline;
+          }
+          &.disabled {
+            color: currentColor;
+            cursor: not-allowed;
+            opacity: 0.5;
+            text-decoration: none;
           }
         }
         .stock-chart-interval-option-tooltip {
