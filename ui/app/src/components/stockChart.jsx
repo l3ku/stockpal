@@ -164,6 +164,16 @@ class StockChart extends Component {
           }
         }
       },
+      toolbox: {
+        show : true,
+        feature : {
+          saveAsImage : {
+            show: true,
+            title: 'Save',
+            name: this.state.stockSymbol,
+          }
+        }
+      },
       xAxis: [
         {
           name: 'Date',
