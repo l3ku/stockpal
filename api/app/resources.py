@@ -23,7 +23,7 @@ def authenticate():
     api_secret = request.headers['X-API-Key']
     db_logged_in_user = LoggedInUser.query.filter_by(api_secret=api_secret).first()
     if db_logged_in_user is None:
-        return (False, {'reason': 'invalid_login', 'target': 'expiration'})
+        return (False, {'reason': 'invalid_value', 'target': 'X-API-Key'})
     else:
         return db_logged_in_user.validateLogin(api_secret)
 
