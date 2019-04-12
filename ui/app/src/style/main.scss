@@ -1,6 +1,8 @@
 @import 'components/all';
 .stock-modal {
   padding: 35px;
+  resize: both;
+  overflow: auto;
   .single-stock-info-wrapper {
     text-align: center;
     .single-stock-logo>img {
@@ -10,13 +12,13 @@
       margin: 0 auto;
     }
   }
-  .stock-chart-interval-options {
+  .stock-chart-range-options {
     text-align: right;
     padding-right: 10px;
-    .stock-chart-interval-option-wrapper {
+    .stock-chart-range-option-wrapper {
       display: inline-block;
       position: relative;
-      .stock-chart-interval-option {
+      .stock-chart-range-option {
         margin-right: 4px;
         &.selected {
           font-weight: bold;
@@ -29,7 +31,7 @@
           text-decoration: none;
         }
       }
-      .stock-chart-interval-option-tooltip {
+      .stock-chart-range-option-tooltip {
         visibility: hidden;
         width: 50px;
         background-color: black;
@@ -43,10 +45,13 @@
         top: 15px;
         font-size: 10px;
       }
-      &:hover .stock-chart-interval-option-tooltip {
+      &:hover .stock-chart-range-option-tooltip {
         visibility: visible;
       }
     }
+  }
+  .stock-chart-echarts {
+    height: 600px;
   }
 }
 .stockpal-wrapper {

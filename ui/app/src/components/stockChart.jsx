@@ -10,16 +10,20 @@ class StockChart extends Component {
     super(props);
     this.state = {
       stockChartData: [],
+      stockChartMaData: [], // Data for moving average
+      stockChartMaTaskID: [], // TODO: set this into local storage for persistence?
+      maInterval: 200,
+      maPollObject: null,
       stockChartIsLoaded: false,
       error: null,
-      interval: '5y',
+      range: '5y',
       stockLogo: '', // TODO: provide a default stock logo
       stockNews: [],
       stockNewsIsLoaded: false,
       activeStockNewsArticle: null,
       stockCompany: [],
       stockCompanyIsLoaded: false,
-      stockIntervalIsLoading: false,
+      stockRangeIsLoading: false,
       modalComponent: null
     };
   }
@@ -29,6 +33,7 @@ class StockChart extends Component {
     this.fetchStockNews();
     this.fetchStockLogo();
     this.fetchStockChart();
+    this.fetchStockMovingAverage();
   }
 
   fetchStockLogo = () => {
@@ -95,58 +100,114 @@ class StockChart extends Component {
     this.setState({modalComponent: target});
   }
 
-  changeInterval = (evt, interval) => {
+  changeRange = (evt, range) => {
     evt.preventDefault();
-    const stateInterval = this.state.interval;
-    if ( interval === stateInterval ) {
+    const stateRange = this.state.range;
+    if ( range === stateRange ) {
       return;
     }
 
     this.setState({
-        interval: interval,
+        range: range,
         stockChartIsLoaded: false,
-        stockIntervalIsLoading: true
+        stockRangeIsLoading: true
       },
       this.fetchStockChart
     );
   }
 
   fetchStockChart = () => {
-    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol) + '/chart?range=' + encodeURIComponent(this.state.interval))
+    fetch('/api/v1/stock/' + encodeURIComponent(this.props.stockSymbol) + '/chart?range=' + encodeURIComponent(this.state.range))
       .then(res => res.json())
       .then(
         (res) => {
           this.setState({
             stockChartIsLoaded: true,
             stockChartData: res.data,
-            stockIntervalIsLoading: false
+            stockRangeIsLoading: false
           });
         },
         (err) => {
           this.setState({
             stockChartIsLoaded: true,
             error: err,
-            stockIntervalIsLoading: false
+            stockRangeIsLoading: false
+          });
+        }
+      );
+  }
+
+  fetchStockMovingAverage = () => {
+    fetch('/api/protected/stock/' + encodeURIComponent(this.props.stockSymbol) + '/movingaverage?interval=' + encodeURIComponent(this.state.maInterval), {
+      headers: {'X-API-Key': this.props.apiSecret}
+    })
+    .then(res => res.json())
+    .then(
+      (res) => {
+        this.setState({
+          stockChartMaTaskID: res.data.task_id
+        });
+      },
+      (err) => {
+        this.setState({
+          error: err
+        });
+      }
+    ).then(() => {
+      this.setState({maPollObject: setInterval(this.maTaskResultPoll, 4000)});
+    });
+  }
+
+  stopMaTaskResultPoll = () => {
+    clearInterval(this.state.maPollObject)
+  }
+
+  maTaskResultPoll = () => {
+    fetch('/api/protected/task/' + encodeURIComponent(this.state.stockChartMaTaskID), {
+        headers: {'X-API-Key': this.props.apiSecret}
+      })
+      .then(res => res.json())
+      .then(
+        (res) => {
+          // FIXME: what if an error occurs
+          if ( !res.pending ) {
+            this.stopMaTaskResultPoll();
+            this.setState({
+              stockChartMaData: res.result
+            });
+          }
+        },
+        (err) => {
+
+          this.stopMaTaskResultPoll();
+          this.setState({
+            error: err
           });
         }
       );
   }
 
   getOption = () => {
-    const seriesData = [];
-    const xAxisData = [];
+    let seriesData = [];
+    let maData = [];
+    let xAxisData = [];
+    let maIndex = 0;
     for ( let i = 0; i < this.state.stockChartData.length; ++i ) {
       let chartEntry = this.state.stockChartData[i];
       seriesData[i] = chartEntry.close;
       xAxisData[i] = chartEntry.date;
+      if ( this.state.stockChartMaData.length > 0 && this.state.stockChartMaData[maIndex]['date'] === chartEntry.date ) {
+        maData[maIndex] = this.state.stockChartMaData[i]['ma'];
+        ++maIndex;
+      }
     };
-    return {
+    let option = {
       title: {
         text: this.state.stockSymbol
       },
       calculable: true,
       legend: {
-        data: ['High', 'Date'],
+        data: ['Price', 'Date'],
         x: 'left'
       },
       dataZoom: [
@@ -207,9 +268,14 @@ class StockChart extends Component {
         {
           data: seriesData,
           type: 'line'
+        },
+        {
+          data: maData,
+          type: 'line'
         }
       ]
     };
+    return option;
   }
 
   changeActiveStockNewsArticle = (evt, article) => {
@@ -335,7 +401,7 @@ class StockChart extends Component {
     if ( this.state.stockChartIsLoaded || (!this.state.stockChartIsLoaded && this.state.stockChartData.length > 0) ) {
       eChartsClass += this.state.stockChartIsLoaded ? '' : ' disabled';
 
-      const intervalOptions = [
+      const rangeOptions = [
         { name: '1d', description: 'One day' },
         { name: '1m', description: 'One month' },
         { name: '3m', description: 'Three months' },
@@ -347,20 +413,20 @@ class StockChart extends Component {
       ];
       stockChartContent = (
         <>
-          <div className='stock-chart-interval-options'>
-            {intervalOptions.map(option => {
-              var className = 'stock-chart-interval-option';
-              className += this.state.interval === option.name ? ' selected' : '';
-              className += this.state.stockIntervalIsLoading ? ' disabled' : '';
+          <div className='stock-chart-range-options'>
+            {rangeOptions.map(option => {
+              var className = 'stock-chart-range-option';
+              className += this.state.range === option.name ? ' selected' : '';
+              className += this.state.stockRangeIsLoading ? ' disabled' : '';
               return (
-                <div key={option.name} className="stock-chart-interval-option-wrapper">
-                  <a href="#" className={className} onClick={(evt) => this.changeInterval(evt, option.name)}>{option.name}</a>
-                  <span className="stock-chart-interval-option-tooltip">{option.description}</span>
+                <div key={option.name} className="stock-chart-range-option-wrapper">
+                  <a href="#" className={className} onClick={(evt) => this.changeRange(evt, option.name)}>{option.name}</a>
+                  <span className="stock-chart-range-option-tooltip">{option.description}</span>
                 </div>
               );
             })}
           </div>
-          <ReactEcharts className={eChartsClass} option={this.getOption()}/>
+          <ReactEcharts className={eChartsClass} theme="macarons" option={this.getOption()}/>
         </>
       );
     }
@@ -456,5 +522,12 @@ class StockChart extends Component {
   }
 }
 
-export default connect()(StockChart)
+const mapStateToProps = state => {
+  return {
+    apiSecret: state.auth.apiSecret
+  }
+};
+
+
+export default connect(mapStateToProps)(StockChart)
 

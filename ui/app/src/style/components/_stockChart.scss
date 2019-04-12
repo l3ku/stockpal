@@ -44,13 +44,13 @@ section.single-stock {
         margin: 0 auto;
       }
     }
-    .stock-chart-interval-options {
+    .stock-chart-range-options {
       text-align: right;
       padding-right: 10px;
-      .stock-chart-interval-option-wrapper {
+      .stock-chart-range-option-wrapper {
         display: inline-block;
         position: relative;
-        .stock-chart-interval-option {
+        .stock-chart-range-option {
           margin-right: 4px;
           &.selected {
             font-weight: bold;
@@ -63,7 +63,7 @@ section.single-stock {
             text-decoration: none;
           }
         }
-        .stock-chart-interval-option-tooltip {
+        .stock-chart-range-option-tooltip {
           visibility: hidden;
           width: 50px;
           background-color: black;
