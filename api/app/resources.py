@@ -208,7 +208,7 @@ class MovingAverage(Resource):
                 return {'success': False, 'error': f'Unknown stock symbol: {symbol_esc}'}
             response = requests.get(iex_api_url + f'/stock/{symbol_esc}/chart/5y')
             parser = reqparse.RequestParser()
-            parser.add_argument('interval')
+            parser.add_argument('interval', type=int)
             args = parser.parse_args()
 
             interval = 200
