@@ -30,8 +30,14 @@ def updateStocksInit(sender, **k):
 def getMovingAverage(data, range):
     df = pd.DataFrame(data)
     ma = df['close'].rolling(window=range, center=False).mean()
+
     result = []
     for index, row in enumerate(data):
-        result.append({'date': row['date'], 'ma': ma[index]})
+
+        # Include NaN values as None
+        if ma[index] == ma[index]:
+            result.append({'date': row['date'], 'ma': ma[index]})
+        else:
+            result.append({'date': row['date'], 'ma': None})
     return result
 
