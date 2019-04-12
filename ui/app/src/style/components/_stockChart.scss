@@ -74,10 +74,10 @@ section.single-stock {
           border-radius: 6px;
           padding: 2px 4px;
           left: 0;
-          top: 15px;
+          top: 20px;
           font-size: 10px;
         }
-        &:hover .stock-chart-interval-option-tooltip {
+        &:hover .stock-chart-range-option-tooltip {
           visibility: visible;
         }
       }
