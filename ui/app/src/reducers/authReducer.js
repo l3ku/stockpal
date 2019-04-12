@@ -13,7 +13,7 @@ import Cookie from 'js-cookie';
 const initialState = {
   // The initial state should "preload" the API ID and secret values so they no longer
   // have to be retreived from the Cookies anywhere else.
-  apiSecret: Cookie.get('_api_secret') ? Cookie.get('_api_secret') : null,
+  apiSecret: Cookie.get('_api_secret') !== undefined ? Cookie.get('_api_secret') : null,
   isAuthRedirect: window.location.pathname.includes('/login/'),
   isLoggedIn: (Cookie.get('_api_secret') !== undefined),
   error: null
