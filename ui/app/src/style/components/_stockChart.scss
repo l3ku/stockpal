@@ -1,3 +1,8 @@
+div.echarts-for-react.stock-chart-echarts.disabled {
+
+  opacity: 0.4 !important;
+  pointer-events: none !important;
+}
 section.single-stock {
   .stockpal-card {
     width: 100%;
@@ -43,9 +48,6 @@ section.single-stock {
         box-shadow: 0 4px 5px 0 #d4d4d5, 0 0 1px 1px #d4d4d5;
         margin: 0 auto;
       }
-    }
-    .stock-chart-actions-menu .ui.dropdown .menu {
-      z-index: 999999 !important;
     }
     .stock-chart-range-options {
       text-align: right;

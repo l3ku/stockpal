@@ -24,7 +24,8 @@ class StockChart extends Component {
       stockCompany: [],
       stockCompanyIsLoaded: false,
       stockRangeIsLoading: false,
-      modalComponent: null
+      modalComponent: null,
+      stockChartIsDisabled: false
     };
   }
 
@@ -108,8 +109,8 @@ class StockChart extends Component {
 
     this.setState({
         range: range,
-        stockChartIsLoaded: false,
-        stockRangeIsLoading: true
+        stockRangeIsLoading: true,
+        stockChartIsDisabled: true
       },
       this.fetchStockChart
     );
@@ -121,15 +122,16 @@ class StockChart extends Component {
       .then(
         (res) => {
           this.setState({
-            stockChartIsLoaded: true,
             stockChartData: res.data,
-            stockRangeIsLoading: false
+            stockRangeIsLoading: false,
+            stockChartIsDisabled: false,
+            stockChartIsLoaded: true
           });
         },
         (err) => {
           this.setState({
-            stockChartIsLoaded: true,
             error: err,
+            stockChartIsLoaded: true,
             stockRangeIsLoading: false
           });
         }
@@ -175,12 +177,12 @@ class StockChart extends Component {
           if ( !res.pending ) {
             this.stopMaTaskResultPoll();
             this.setState({
-              stockChartMaData: res.result
+              stockChartMaData: res.result,
+              stockChartIsDisabled: false
             });
           }
         },
         (err) => {
-
           this.stopMaTaskResultPoll();
           this.setState({
             error: err
@@ -400,8 +402,8 @@ class StockChart extends Component {
       </div>
     );
     let eChartsClass = 'stock-chart-echarts';
-    if ( this.state.stockChartIsLoaded || (!this.state.stockChartIsLoaded && this.state.stockChartData.length > 0) ) {
-      eChartsClass += this.state.stockChartIsLoaded ? '' : ' disabled';
+    if ( this.state.stockChartIsLoaded ) {
+      eChartsClass += this.state.stockChartIsDisabled ? ' disabled' : '';
 
       const rangeOptions = [
         { name: '1d', description: 'One day' },
@@ -416,7 +418,7 @@ class StockChart extends Component {
       const movingAverageRangeOptions = [25, 50, 75, 100, 150, 200, 300, 400, 500];
       stockChartContent = (
         <Grid>
-          <Grid.Column width={1}>
+          <Grid.Column width={2}>
           <Menu secondary size='small' vertical className="stock-chart-actions-menu">
             <Menu.Item header>Actions</Menu.Item>
             <Dropdown item scrolling text='Moving average' disabled={!this.props.apiSecret}>
@@ -424,14 +426,14 @@ class StockChart extends Component {
                 <Dropdown.Header>Interval</Dropdown.Header>
                 {movingAverageRangeOptions.map(option => {
                   return (
-                    <Dropdown.Item key={option} active={this.state.maInterval === option} onClick={() => this.setState({maInterval: option, stockChartMaData: []}, this.fetchStockMovingAverage)}disabled={this.state.stockChartData.length <= option}>{option}</Dropdown.Item>
+                    <Dropdown.Item key={option} active={this.state.maInterval === option} onClick={() => this.setState({maInterval: option, stockChartMaData: [], stockChartIsDisabled: true}, this.fetchStockMovingAverage)}disabled={this.state.stockChartData.length <= option}>{option}</Dropdown.Item>
                   );
                 })}
               </Dropdown.Menu>
             </Dropdown>
             </Menu>
           </Grid.Column>
-          <Grid.Column width={15}>
+          <Grid.Column width={14}>
             <div className='stock-chart-range-options'>
               {rangeOptions.map(option => {
                 var className = 'stock-chart-range-option';
