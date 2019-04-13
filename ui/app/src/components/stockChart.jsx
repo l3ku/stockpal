@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import ReactEcharts from 'echarts-for-react';
-import {Icon, Button, Card, Grid, Table, Dimmer, Loader, Modal} from 'semantic-ui-react';
+import {Icon, Button, Card, Grid, Table, Dimmer, Loader, Modal, Menu, Dropdown} from 'semantic-ui-react';
 import { getStockTypeDescription } from '../utils/helpers';
 
 // TODO: separate this component into child components
@@ -12,7 +12,7 @@ class StockChart extends Component {
       stockChartData: [],
       stockChartMaData: [], // Data for moving average
       stockChartMaTaskID: [], // TODO: set this into local storage for persistence?
-      maInterval: 200,
+      maInterval: null,
       maPollObject: null,
       stockChartIsLoaded: false,
       error: null,
@@ -33,7 +33,6 @@ class StockChart extends Component {
     this.fetchStockNews();
     this.fetchStockLogo();
     this.fetchStockChart();
-    this.fetchStockMovingAverage();
   }
 
   fetchStockLogo = () => {
@@ -411,23 +410,41 @@ class StockChart extends Component {
         { name: '2y', description: 'Two years' },
         { name: '5y', description: 'Five years' }
       ];
+      const movingAverageRangeOptions = [25, 50, 75, 100, 150, 200, 300, 400, 500];
       stockChartContent = (
-        <>
-          <div className='stock-chart-range-options'>
-            {rangeOptions.map(option => {
-              var className = 'stock-chart-range-option';
-              className += this.state.range === option.name ? ' selected' : '';
-              className += this.state.stockRangeIsLoading ? ' disabled' : '';
-              return (
-                <div key={option.name} className="stock-chart-range-option-wrapper">
-                  <a href="#" className={className} onClick={(evt) => this.changeRange(evt, option.name)}>{option.name}</a>
-                  <span className="stock-chart-range-option-tooltip">{option.description}</span>
-                </div>
-              );
-            })}
-          </div>
-          <ReactEcharts className={eChartsClass} theme="macarons" option={this.getOption()}/>
-        </>
+        <Grid>
+          <Grid.Column width={1}>
+          <Menu secondary size='small' vertical disabled={!this.props.apiSecret} className="stock-chart-actions-menu">
+            <Menu.Item header>Actions</Menu.Item>
+            <Dropdown item scrolling text='Moving average'>
+              <Dropdown.Menu>
+                <Dropdown.Header>Interval</Dropdown.Header>
+                {movingAverageRangeOptions.map(option => {
+                  return (
+                    <Dropdown.Item key={option} active={this.state.maInterval === option} onClick={() => this.setState({maInterval: option, stockChartMaData: []}, this.fetchStockMovingAverage)}disabled={this.state.stockChartData.length <= option}>{option}</Dropdown.Item>
+                  );
+                })}
+              </Dropdown.Menu>
+            </Dropdown>
+            </Menu>
+          </Grid.Column>
+          <Grid.Column width={15}>
+            <div className='stock-chart-range-options'>
+              {rangeOptions.map(option => {
+                var className = 'stock-chart-range-option';
+                className += this.state.range === option.name ? ' selected' : '';
+                className += this.state.stockRangeIsLoading ? ' disabled' : '';
+                return (
+                  <div key={option.name} className="stock-chart-range-option-wrapper">
+                    <a href="#" className={className} onClick={(evt) => this.changeRange(evt, option.name)}>{option.name}</a>
+                    <span className="stock-chart-range-option-tooltip">{option.description}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <ReactEcharts className={eChartsClass} theme="macarons" option={this.getOption()}/>
+          </Grid.Column>
+        </Grid>
       );
     }
 

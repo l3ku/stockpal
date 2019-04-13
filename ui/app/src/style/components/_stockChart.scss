@@ -44,6 +44,9 @@ section.single-stock {
         margin: 0 auto;
       }
     }
+    .stock-chart-actions-menu .ui.dropdown .menu {
+      z-index: 999999 !important;
+    }
     .stock-chart-range-options {
       text-align: right;
       padding-right: 10px;

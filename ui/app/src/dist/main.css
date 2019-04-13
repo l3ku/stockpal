@@ -62,6 +62,8 @@ section.single-stock .single-stock-card {
       display: block;
       box-shadow: 0 4px 5px 0 #d4d4d5, 0 0 1px 1px #d4d4d5;
       margin: 0 auto; }
+  section.single-stock .single-stock-card .stock-chart-actions-menu .ui.dropdown .menu {
+    z-index: 999999 !important; }
   section.single-stock .single-stock-card .stock-chart-range-options {
     text-align: right;
     padding-right: 10px; }
