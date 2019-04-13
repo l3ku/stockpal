@@ -143,18 +143,21 @@ class StockChart extends Component {
     .then(res => res.json())
     .then(
       (res) => {
-        this.setState({
-          stockChartMaTaskID: res.data.task_id
-        });
+        if (res.success) {
+          this.setState({
+            stockChartMaTaskID: res.data.task_id,
+            maPollObject: setInterval(this.maTaskResultPoll, 4000)
+          });
+        } else {
+          this.setState({error: res.error});
+        }
       },
       (err) => {
         this.setState({
           error: err
         });
       }
-    ).then(() => {
-      this.setState({maPollObject: setInterval(this.maTaskResultPoll, 4000)});
-    });
+    );
   }
 
   stopMaTaskResultPoll = () => {
@@ -414,9 +417,9 @@ class StockChart extends Component {
       stockChartContent = (
         <Grid>
           <Grid.Column width={1}>
-          <Menu secondary size='small' vertical disabled={!this.props.apiSecret} className="stock-chart-actions-menu">
+          <Menu secondary size='small' vertical className="stock-chart-actions-menu">
             <Menu.Item header>Actions</Menu.Item>
-            <Dropdown item scrolling text='Moving average'>
+            <Dropdown item scrolling text='Moving average' disabled={!this.props.apiSecret}>
               <Dropdown.Menu>
                 <Dropdown.Header>Interval</Dropdown.Header>
                 {movingAverageRangeOptions.map(option => {
