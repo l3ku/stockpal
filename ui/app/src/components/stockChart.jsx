@@ -17,7 +17,7 @@ class StockChart extends Component {
       stockChartIsLoaded: false,
       error: null,
       range: '5y',
-      stockLogo: '', // TODO: provide a default stock logo
+      stockLogo: '',
       stockNews: [],
       stockNewsIsLoaded: false,
       activeStockNewsArticle: null,
@@ -41,10 +41,12 @@ class StockChart extends Component {
       .then(res => res.json())
       .then(
         (res) => {
-          this.setState({
-            stockLogo: res.data.url,
-            stockInfoIsLoaded: true
-          });
+          if ( res.success ) {
+            this.setState({
+              stockLogo: res.data.url,
+              stockInfoIsLoaded: true
+            });
+          }
         },
         (err) => {
           this.setState({
@@ -209,11 +211,10 @@ class StockChart extends Component {
       title: {
         text: this.state.stockSymbol
       },
-      calculable: true,
       legend: {
-        data: ['Price', 'Date'],
-        x: 'left'
+        data: ['Price']
       },
+      calculable: true,
       dataZoom: [
         {
           show: true,
@@ -271,14 +272,20 @@ class StockChart extends Component {
       series: [
         {
           data: seriesData,
-          type: 'line'
-        },
-        {
-          data: maData,
-          type: 'line'
+          type: 'line',
+          name: 'Price'
         }
       ]
     };
+    if ( maData.length > 0 ) {
+      let name = `Moving average (${this.state.maInterval})`
+      option.series.push({
+        data: maData,
+        type: 'line',
+        name: name
+      });
+      option.legend.data.push(name);
+    }
     return option;
   }
 
@@ -426,7 +433,7 @@ class StockChart extends Component {
                 <Dropdown.Header>Interval</Dropdown.Header>
                 {movingAverageRangeOptions.map(option => {
                   return (
-                    <Dropdown.Item key={option} active={this.state.maInterval === option} onClick={() => this.setState({maInterval: option, stockChartMaData: [], stockChartIsDisabled: true}, this.fetchStockMovingAverage)}disabled={this.state.stockChartData.length <= option}>{option}</Dropdown.Item>
+                    <Dropdown.Item key={option} active={this.state.maInterval === option} onClick={() => this.setState({maInterval: option, stockChartIsDisabled: true}, this.fetchStockMovingAverage)}disabled={this.state.stockChartData.length <= option}>{option}</Dropdown.Item>
                   );
                 })}
               </Dropdown.Menu>
