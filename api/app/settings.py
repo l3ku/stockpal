@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tempfile
 import os
 db_file = tempfile.NamedTemporaryFile()

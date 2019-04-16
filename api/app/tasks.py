@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from celery.signals import worker_ready
 from app import celery
 from app.models import db, Stock

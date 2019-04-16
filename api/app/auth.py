@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from authlib.client import OAuth2Session
 from flask import request, session

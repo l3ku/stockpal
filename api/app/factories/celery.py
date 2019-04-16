@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 def create_celery(celery, app):
     celery.conf.update(app.config)
     celery.conf.beat_schedule = {
