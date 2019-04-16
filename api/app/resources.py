@@ -216,7 +216,6 @@ class MovingAverage(Resource):
                 interval = args['interval']
 
             task = getMovingAverage.delay(response.json(), interval)
-            print(task)
             return {'success': True, 'data': {'task_id': task.task_id}}
 
         except ValueError as err:
