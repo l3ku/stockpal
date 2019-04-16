@@ -28,9 +28,11 @@ table.gainer-stocks-table .change-positive {
 table.gainer-stocks-table .change-negative {
   color: red; }
 
-div.echarts-for-react.stock-chart-echarts.disabled {
-  opacity: 0.4 !important;
-  pointer-events: none !important; }
+.stock-chart-grid {
+  height: 100%; }
+
+.stock-chart-echarts {
+  min-height: 300px; }
 
 section.single-stock .stockpal-card {
   width: 100%; }
@@ -66,37 +68,6 @@ section.single-stock .single-stock-card {
       display: block;
       box-shadow: 0 4px 5px 0 #d4d4d5, 0 0 1px 1px #d4d4d5;
       margin: 0 auto; }
-  section.single-stock .single-stock-card .stock-chart-range-options {
-    text-align: right;
-    padding-right: 10px; }
-    section.single-stock .single-stock-card .stock-chart-range-options .stock-chart-range-option-wrapper {
-      display: inline-block;
-      position: relative; }
-      section.single-stock .single-stock-card .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option {
-        margin-right: 4px; }
-        section.single-stock .single-stock-card .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option.selected {
-          font-weight: bold;
-          text-decoration: underline; }
-        section.single-stock .single-stock-card .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option.disabled {
-          color: currentColor;
-          cursor: not-allowed;
-          opacity: 0.5;
-          text-decoration: none; }
-      section.single-stock .single-stock-card .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option-tooltip {
-        visibility: hidden;
-        width: 50px;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        position: absolute;
-        z-index: 1;
-        border-radius: 6px;
-        padding: 2px 4px;
-        left: 0;
-        top: 20px;
-        font-size: 10px; }
-      section.single-stock .single-stock-card .stock-chart-range-options .stock-chart-range-option-wrapper:hover .stock-chart-range-option-tooltip {
-        visibility: visible; }
 
 .stock-modal {
   padding: 35px;
@@ -109,39 +80,6 @@ section.single-stock .single-stock-card {
       display: block;
       box-shadow: 0 4px 5px 0 #d4d4d5, 0 0 1px 1px #d4d4d5;
       margin: 0 auto; }
-  .stock-modal .stock-chart-range-options {
-    text-align: right;
-    padding-right: 10px; }
-    .stock-modal .stock-chart-range-options .stock-chart-range-option-wrapper {
-      display: inline-block;
-      position: relative; }
-      .stock-modal .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option {
-        margin-right: 4px; }
-        .stock-modal .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option.selected {
-          font-weight: bold;
-          text-decoration: underline; }
-        .stock-modal .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option.disabled {
-          color: currentColor;
-          cursor: not-allowed;
-          opacity: 0.5;
-          text-decoration: none; }
-      .stock-modal .stock-chart-range-options .stock-chart-range-option-wrapper .stock-chart-range-option-tooltip {
-        visibility: hidden;
-        width: 50px;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        position: absolute;
-        z-index: 1;
-        border-radius: 6px;
-        padding: 2px 4px;
-        left: 0;
-        top: 15px;
-        font-size: 10px; }
-      .stock-modal .stock-chart-range-options .stock-chart-range-option-wrapper:hover .stock-chart-range-option-tooltip {
-        visibility: visible; }
-  .stock-modal .stock-chart-echarts {
-    height: 600px; }
 
 .stockpal-wrapper .main-menu {
   display: flex;

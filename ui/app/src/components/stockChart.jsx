@@ -449,7 +449,7 @@ class StockChart extends Component {
             </Menu>
           </Grid.Column>
           <Grid.Column width={14}>
-            <ReactEcharts className={eChartsClass} theme="macarons" option={this.getOption()}/>
+            <ReactEcharts showLoading={this.state.stockChartIsDisabled} className="stock-chart-echarts" theme="macarons" option={this.getOption()} style={{height: '100%', width: '100%'}}/>
           </Grid.Column>
         </Grid>
       );
