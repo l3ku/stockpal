@@ -408,10 +408,8 @@ class StockChart extends Component {
           </Dimmer>
       </div>
     );
-    let eChartsClass = 'stock-chart-echarts';
-    if ( this.state.stockChartIsLoaded ) {
-      eChartsClass += this.state.stockChartIsDisabled ? ' disabled' : '';
 
+    if ( this.state.stockChartIsLoaded ) {
       const rangeOptions = [
         { name: '1d', description: 'One day' },
         { name: '1m', description: 'One month' },
@@ -424,36 +422,33 @@ class StockChart extends Component {
       ];
       const movingAverageRangeOptions = [25, 50, 75, 100, 150, 200, 300, 400, 500];
       stockChartContent = (
-        <Grid>
+        <Grid className="stock-chart-grid">
           <Grid.Column width={2}>
-          <Menu secondary size='small' vertical className="stock-chart-actions-menu">
-            <Menu.Item header>Actions</Menu.Item>
-            <Dropdown item scrolling text='Moving average' disabled={!this.props.apiSecret}>
-              <Dropdown.Menu>
-                <Dropdown.Header>Interval</Dropdown.Header>
-                {movingAverageRangeOptions.map(option => {
-                  return (
-                    <Dropdown.Item key={option} active={this.state.maInterval === option} onClick={() => this.setState({maInterval: option, stockChartIsDisabled: true}, this.fetchStockMovingAverage)}disabled={this.state.stockChartData.length <= option}>{option}</Dropdown.Item>
-                  );
-                })}
-              </Dropdown.Menu>
-            </Dropdown>
+            <Menu secondary size='small' vertical className="stock-chart-actions-menu">
+              <Menu.Item header>Actions</Menu.Item>
+              <Dropdown item scrolling text='Date range'>
+                <Dropdown.Menu>
+                  <Dropdown.Header>Range</Dropdown.Header>
+                  {rangeOptions.map(option => {
+                    return (
+                      <Dropdown.Item key={option.name} active={this.state.range === option.name} onClick={(evt) => this.changeRange(evt, option.name)}>{option.name}</Dropdown.Item>
+                    );
+                  })}
+                </Dropdown.Menu>
+              </Dropdown>
+              <Dropdown item scrolling text='Moving average' disabled={!this.props.apiSecret}>
+                <Dropdown.Menu>
+                  <Dropdown.Header>Interval</Dropdown.Header>
+                  {movingAverageRangeOptions.map(option => {
+                    return (
+                      <Dropdown.Item key={option} active={this.state.maInterval === option} onClick={() => this.setState({maInterval: option, stockChartIsDisabled: true}, this.fetchStockMovingAverage)} disabled={this.state.stockChartData.length <= option}>{option}</Dropdown.Item>
+                    );
+                  })}
+                </Dropdown.Menu>
+              </Dropdown>
             </Menu>
           </Grid.Column>
           <Grid.Column width={14}>
-            <div className='stock-chart-range-options'>
-              {rangeOptions.map(option => {
-                var className = 'stock-chart-range-option';
-                className += this.state.range === option.name ? ' selected' : '';
-                className += this.state.stockRangeIsLoading ? ' disabled' : '';
-                return (
-                  <div key={option.name} className="stock-chart-range-option-wrapper">
-                    <a href="#" className={className} onClick={(evt) => this.changeRange(evt, option.name)}>{option.name}</a>
-                    <span className="stock-chart-range-option-tooltip">{option.description}</span>
-                  </div>
-                );
-              })}
-            </div>
             <ReactEcharts className={eChartsClass} theme="macarons" option={this.getOption()}/>
           </Grid.Column>
         </Grid>
