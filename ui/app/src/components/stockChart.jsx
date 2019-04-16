@@ -481,8 +481,8 @@ class StockChart extends Component {
                   open={this.state.modalComponent === 'stockCompany'}
                   onClose={() => this.setState({ modalComponent: null })}
                   size='large'
-                  closeIcon
-                  centered={false}
+                  closeIcon={true}
+                  centered={true}
                 >
                   {stockCompanyContent}
                 </Modal>
@@ -505,8 +505,8 @@ class StockChart extends Component {
                   open={this.state.modalComponent === 'stockNews'}
                   onClose={() => this.setState({ modalComponent: null })}
                   size='large'
-                  closeIcon
-                  centered={false}
+                  closeIcon={true}
+                  centered={true}
                 >
                   {stockNewsContent}
                 </Modal>
@@ -531,8 +531,8 @@ class StockChart extends Component {
                   open={this.state.modalComponent === 'stockChart'}
                   onClose={() => this.setState({ modalComponent: null })}
                   size='large'
-                  closeIcon
-                  centered={false}
+                  closeIcon={true}
+                  centered={true}
                 >
                   {stockChartContent}
                 </Modal>
