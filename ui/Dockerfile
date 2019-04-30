@@ -1,5 +1,9 @@
 FROM node:11.10.0
 
+# Build environment variables
+ARG APP_ENV
+ENV APP_ENV $APP_ENV
+
 # Initialize application with environment vars.
 ENV APPNAME stockpal
 ENV APPDIR /app
@@ -27,4 +31,9 @@ USER $USER
 RUN npm install
 
 # Launch the application
-CMD ["npm", "start"]
+CMD if [ ${APP_ENV} = 'production' ]; \
+  then \
+  npm run build; \
+  else \
+  npm start; \
+  fi

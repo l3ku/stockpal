@@ -1,5 +1,8 @@
 FROM phusion/baseimage:0.11
 
+# Build environment variables
+ARG APP_ENV
+
 RUN apt-get update && \
   apt-get --assume-yes install \
     gcc \
