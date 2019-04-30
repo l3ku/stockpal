@@ -8,8 +8,11 @@ services:
     image: redis:5.0
 
   api:
-    build: api
-    image: l3ku/stockpal-api:0.0.1
+    build:
+      context: api
+      args:
+        APP_ENV: 'development'
+    image: l3ku/stockpal-api-dev:0.0.1
     volumes:
       - './api/app:/app/app:rw'
     env_file:
@@ -19,8 +22,11 @@ services:
       - redis
 
   celery:
-    build: api
-    image: l3ku/stockpal-api:0.0.1
+    build:
+      context: api
+      args:
+        APP_ENV: 'development'
+    image: l3ku/stockpal-api-dev:0.0.1
     volumes:
       - './api/app:/app/app:rw'
     env_file:
@@ -32,17 +38,27 @@ services:
       - db
 
   nginx:
-    build: nginx
-    image: l3ku/stockpal-nginx:0.0.1
+    build:
+      context: nginx
+      args:
+        APP_ENV: 'development'
+    image: l3ku/stockpal-nginx-dev:0.0.1
     ports:
       - '0.0.0.0:80:80'
+      - '0.0.0.0:443:443'
     links:
       - api
       - ui
 
+  certbot:
+    image: certbot/certbot
+
   ui:
-    build: ui
-    image: l3ku/stockpal-ui:0.0.1
+    build:
+      context: ui
+      args:
+        APP_ENV: 'development'
+    image: l3ku/stockpal-ui-dev:0.0.1
     volumes:
       - './ui/app/src:/app/src:rw'
       - './ui/app/public:/app/public:rw'
