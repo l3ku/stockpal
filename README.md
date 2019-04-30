@@ -31,4 +31,4 @@ Stock chart with 150 day moving average applied
 ![](https://raw.githubusercontent.com/l3ku/stockpal/master/screenshots/chart_moving_average.png)
 
 ## Running locally
-Navigate to the project root directory and run `$ make all`.
+Navigate to the project root directory and run `make all`.
