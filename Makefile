@@ -12,7 +12,7 @@ run:
 	docker-compose -f docker-compose.yml up -d
 
 deploy:
-	docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d
+	docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d --force-recreate
 
 clean:
 	docker-compose kill
