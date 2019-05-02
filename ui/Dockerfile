@@ -34,6 +34,7 @@ RUN npm install
 CMD if [ ${APP_ENV} = 'production' ]; \
   then \
   npm run build; \
+  $APPDIR/node_modules/serve/bin/serve.js -s build; \
   else \
   npm start; \
   fi
