@@ -8,6 +8,9 @@ An application that displays stock data from the [IEX API](https://iextrading.co
 - Perform moving average analysis on stocks
 - Save stocks to own list
 
+## Running locally
+Navigate to the project root directory and run `make all`. You should then be able to access the application in http://localhost/.
+
 ## Screenshots
 All stocks
 ![](https://raw.githubusercontent.com/l3ku/stockpal/master/screenshots/all_stocks.png)
@@ -30,5 +33,3 @@ Stock chart
 Stock chart with 150 day moving average applied
 ![](https://raw.githubusercontent.com/l3ku/stockpal/master/screenshots/chart_moving_average.png)
 
-## Running locally
-Navigate to the project root directory and run `make all`. You should then be able to access the application in http://localhost/.
