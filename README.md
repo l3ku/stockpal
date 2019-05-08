@@ -9,7 +9,23 @@ An application that displays stock data from the [IEX API](https://iextrading.co
 - Save stocks to own list
 
 ## Running locally
-Navigate to the project root directory and run `make all`. You should then be able to access the application in http://localhost/.
+First, create an environment variable file from the sample file `env.sample`:
+```
+$ cp env.sample .env
+$ vim .env
+{EDIT FILE}
+```
+The `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET` are not mandatory, but they are required for login services which are done via the Google OAuth2 API. For creating these for your local dev setup, navigate to https://console.developers.google.com/apis/dashboard, and:
+
+- create a new project
+- create credentials for that project
+- use the client ID and secret from the credentials in the values for `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET` values in your `.env` file, respectively
+- allow http://localhost/login/google as an authorized redirect URI
+- Done!
+
+Full instructions for Google Oauth2 available at https://developers.google.com/identity/protocols/OAuth2.
+Navigate to the project root directory and run `make all`.
+
 
 ## Screenshots
 All stocks
@@ -32,4 +48,3 @@ Stock chart
 
 Stock chart with 150 day moving average applied
 ![](https://raw.githubusercontent.com/l3ku/stockpal/master/screenshots/chart_moving_average.png)
-
