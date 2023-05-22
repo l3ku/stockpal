@@ -1,5 +1,5 @@
 # For accessing external APIs
-requests==2.21.0
+requests==2.31.0
 
 # Flask and its extensions
 Flask==1.0.2
